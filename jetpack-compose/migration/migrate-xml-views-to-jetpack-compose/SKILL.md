@@ -1,9 +1,15 @@
 ---
 name: migrate-xml-views-to-jetpack-compose
-description: Provides a structured workflow for migrating Android XML Views to Jetpack Compose. This skill details the step-by-step process, from planning and dependency setup to attribute conversion, style migration, and validation. Use this skill when you need to incrementally migrate XML Views to Jetpack Compose in a project. It solves the problem of converting legacy UI code into modern, declarative Compose components while maintaining interoperability.
+description: Provides a structured workflow for migrating Android XML Views to Jetpack
+  Compose. This skill details the step-by-step process, from planning and dependency
+  setup to attribute conversion, style migration, and validation. Use this skill when
+  you need to incrementally migrate XML Views to Jetpack Compose in a project. It
+  solves the problem of converting legacy UI code into modern, declarative Compose
+  components while maintaining interoperability.
+license: Complete terms in LICENSE.txt
 metadata:
+  author: Google LLC
   keywords:
-  - skill
   - Jetpack Compose
   - migration
   - XML
@@ -13,59 +19,105 @@ metadata:
   - UI development
 ---
 
-# Migrate XML Views to Jetpack Compose
+This skill guides through the process of migrating an existing Android XML View
+to Jetpack Compose. It performs a stable, safe and visually consistent
+transition by following a structured, 10-step methodology. This skill migrates
+UI (XML to Jetpack Compose) only.
 
-Jetpack Compose supports interoperability with Views --- you
-can use Compose in Views, and Views in Compose. This allows adoption of
-Compose in existing View-based apps without having to migrate all Views
-immediately.
+## Objective
 
-## Migration steps
+To systematically convert a single legacy XML layout into modern, declarative
+Jetpack Compose UI while maintaining pixel-perfect visual parity and functional
+integrity.
 
-1. **Create a plan:** Create a robust and step-by-step plan for performing the migration. We recommend a prioritized backlog of migration tasks.
-2. **Identify the XML candidate for migration :** Identify and start from the smallest components that are leaf nodes in the hierarchy, and expand the migration plan from the bottom up to progressively higher components in the hierarchy. Good candidates for initial migration are small, stateless, and have fewer dependencies.
-3. **Analyze the hierarchy:** Once you identify the XML View to migrate, analyze its XML layout structure and implementation.
-4. **Capture the initial state:** Run a screenshot test to capture the initial state of the selected XML View.
-5. **Prerequisite: Set up Compose dependencies** Identify if the project has Compose dependencies and Compiler set up. If it doesn't, follow [Setup Compose dependencies and Compiler](references/android/develop/ui/compose/setup-compose-dependencies-and-compiler.md.txt).
-6. **Prerequisite: Set up Compose theming** Identify if the project has Compose theming setup already. If it doesn't, follow ompose theming. Keep the original XML theming while the app is interop [Migrate XML Theme to Compose](references/android/develop/ui/compose/designsystems/migrate-xml-theme-to-compose.md.txt) to understand patterns of how to state and until the project is fully migrated to Compose.
-7. **Migrate the XML View to Compose:** Start the conversion of the XML code to Compose, apply the appropriate theming, and add Compose Previews for migrated composables. For common migration scenarios, refer to additional resources. For example, for migrating to Lazy APIs in Compose, follow the steps in [Migrate RecyclerView to Compose](references/android/develop/ui/compose/migrate/migration-scenarios/recycler-view.md.txt).
-8. **Replace usages:** Replace the previous usages of the XML View to use the new Compose component. To add Compose in Views, follow the steps in [Compose in Views](references/android/develop/ui/compose/migrate/interoperability-apis/compose-in-views.md.txt). To add Views in Compose, follow the steps in [Views in Compose](references/android/develop/ui/compose/migrate/interoperability-apis/views-in-compose.md.txt).
-9. **Validate the migration:** Verify that the initial state captured in the screenshot test is same as the Compose Preview of the migrated composable. If they don't match, iterate on the new composable UI and improve it to align it with the initial state. Create new Compose UI tests for the new composable.
-10. **XML removal:** Once the newly migrated composable is matching the initial XML UI, remove the obsolete XML View code and its tests.
+## Summary of the 10-step migration process
 
-## Common migration scenarios
+1. **Identify the optimal XML candidate for migration**
+2. **Analyze the project and layout**
+3. **Create a plan**
+4. **Capture the XML View UI**
+5. **Set up Compose dependencies and compiler**
+6. **Set up Compose theming**
+7. **Migrate the XML layout to Compose**
+8. **Validate the migration**
+9. **Replace usages**
+10. **XML code removal**
 
-Verify `dp` and `sp` extensions are used (`16.dp`, `20.sp`) in composables.
-If `tools:text` is present in the XML View, use it in a separate `@Preview`
-composable.
+## Detailed steps
 
-### Attribute to Modifier conversion
+### Step 1: Identify the optimal XML candidate for migration
 
-Most XML attributes become part of the `modifier` chain or parameters of the
-composable function.
+If the user has explicitly specified a target XML layout, proceed to Step 2.
+Otherwise, analyze the codebase to identify the best candidate for migration by
+following the logic in [references/identify-optimal-xml-candidate.md](references/identify-optimal-xml-candidate.md).
 
-| XML Attribute | Compose Equivalent |
-|---|---|
-| `android:layout_width="match_parent"` | `Modifier.fillMaxWidth()` |
-| `android:layout_height="match_parent"` | `Modifier.fillMaxHeight()` |
-| `android:layout_width="wrap_content"` | (Default behavior, usually no modifier needed) |
-| `android:padding="Xdp"` | `Modifier.padding(X.dp)` |
-| `android:layout_margin="Xdp"` | `Modifier.padding(X.dp)` (Outer padding) |
-| `android:gravity="center"` | `contentAlignment = Alignment.Center` (Box) or `horizontalAlignment` / `verticalArrangement` (Column/Row) |
-| `android:background="@color/white"` | `Modifier.background(colorResource(R.color.white))` |
-| `android:visibility="gone"` | Wrap in `if (visible) { ... }` block |
+### Step 2: Analyze the project and layout
 
-## Migrate styles (styles.xml)
+Analyze the identified XML View's structure, hierarchy, and implementation
+details.
+Use [references/analysis-of-the-project-and-layout.md](references/analysis-of-the-project-and-layout.md) to
+guide your technical audit of the layout and surrounding project context.
 
-XML styles often combine multiple attributes to create a style. In Compose,
-this is done by creating a **composable** variation with a specific style.
+### Step 3: Create a plan
 
-Provide separate @Composable functions named according to the style and the
-base component,
-to signify the difference in styling and use cases for those components.
+Using the outputs and analysis done in the Step 1 and 2, generate a
+step-by-step plan for the migration. If you support user interaction, present
+to the user and ask for approval before proceeding. If user interaction is not
+supported, proceed to Step 4 following the generated plan.
 
-- **Pattern:** If an XML element uses a custom style (e.g., `style="@style/MyPrimaryButton"`), don't try to replicate the style inline. Instead, suggest creating a specific composable.
-- **Example:**
-  - *XML:* `<Button style="@style/MyPrimaryButton" ... />`
-  - *Compose:* `MyPrimaryButton(onClick = { ... })`
-- **Common Attribute Groups:** If a style sets common modifiers (like padding + height), extract them into a readable extension property or a shared Modifier variable.
+### Step 4: Capture the XML View UI
+
+**IF** you support user interaction, ask the user to upload a screenshot of the
+XML View UI or provide an absolute path to a file. Use this image as a visual
+reference for the layout migration in Step 7.
+**ELSE IF** you are able to run an Android emulator, locate an existing
+screenshot test for the XML candidate. If none exists, create one using the
+existing project testing framework. If no framework exists,
+use **UI Automator** or **Espresso** to create a screenshot test with minimum
+required setup. Run the test and take a baseline screenshot of the XML UI.
+**ELSE** proceed to Step 5.
+
+### Step 5: Set up Compose dependencies and compiler
+
+Check `build.gradle` or `libs.versions.toml` for Compose dependencies and
+compiler setup. If missing, use
+[Setup Compose Dependencies and Compiler](references/android/develop/ui/compose/setup-compose-dependencies-and-compiler.md).
+Run a sync to ensure dependencies resolve without errors.
+
+### Step 6: Set up Compose theming
+
+If the project already has Compose theming set up, proceed to Step 7. If Compose
+theming is missing, initialize it. For Material-based projects, follow
+[Material 3 migration guidelines](references/android/develop/ui/compose/designsystems/migrate-xml-theme-to-compose.md).
+For custom design systems, apply expert judgment to migrate XML theming and
+match existing styles.
+**Constraints:** Do not migrate the entire theme. Implement only the minimum
+theming required for the specific XML candidate. Maintain original XML themes
+for interoperability. Maintain existing project code conventions, patterns,
+names and values.
+
+### Step 7: Migrate the XML View to Compose
+
+Convert the XML candidate to Jetpack Compose code, referencing
+[references/xml-layout-migration.md](references/xml-layout-migration.md) and the image from Step 4.
+You must include a **Compose Preview** for the newly created composable to
+facilitate visual verification.
+
+### Step 8: Replace usages
+
+Replace the usages of the migrated XML layout to use the new Compose component.
+
+- To add Compose in Views, use [Compose in Views](references/android/develop/ui/compose/migrate/interoperability-apis/compose-in-views.md).
+- To add Views in Compose, use [Views in Compose](references/android/develop/ui/compose/migrate/interoperability-apis/views-in-compose.md).
+
+### Step 9: Validate the migration
+
+Compare the baseline screenshot image from Step 4 with the rendered Compose
+Preview of the new composable. Ignore string content; focus on layout and
+styling. Iterate on the Compose code until visual parity is achieved. Once
+verified, write a Compose UI test for the new composable.
+
+### Step 10: XML code removal
+
+Delete the migrated XML file and its associated legacy tests. **Caution:** Only
+remove code and resources that are not referenced by other parts of the project.
