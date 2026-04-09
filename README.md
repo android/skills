@@ -1,21 +1,33 @@
-## Android Skills
+## Android skills
 
-Android skills are a repository of instructions, documentation and other resources in a markdown 
-format, that extend the capabilities and expertise of LLMs and AI tools.
+Android skills are a dedicated repository of AI-optimised, modular instructions and resources, to
+help LLMs better understand and execute specific patterns that follow the best practices and
+guidance on Android development from [developer.android.com](developer.android.com).
 
-To use skills, download their full directories and setup with the AI tool of your choice.
+Android skills follow the [open-standard agent skills](https://agentskills.io/home) - markdown
+files (SKILL.md) that provide a technical specification of a task, and ground LLMs with information
+on specialized domains and workflows.
 
-These skills are open source (Apache 2.0).
+To use Android skills, check
+your agent's documentation.
 
 ## Disclaimer
 
-This project is intended for demonstration and educational purposes only.
+AI can make mistakes, so always double-check the results.
 
 ## Contributing
 
-See [Contributing](CONTRIBUTING.md).
+Submit a GitHub issue to provide feedback, report issues, or make new skill requests and changes.
+
+Public contributions are not accepted at this time.
 
 ## License
 
-Android Skills is licensed under the [Apache License 2.0](LICENSE). See the `LICENSE` file for
+Android Skills is licensed under the [Apache License 2.0](LICENSE.txt). See the `LICENSE.txt` file
+for
 details.
+
+## Review our community guidelines
+
+This project follows
+[Google's Open Source Community Guidelines](https://opensource.google/conduct/).
