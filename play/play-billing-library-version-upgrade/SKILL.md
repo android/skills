@@ -1,6 +1,8 @@
 ---
 name: play-billing-library-version-upgrade
-description: Use this skill when upgrading or migrating an Android project from
+description: Use this skill when upgrading or migrating an Android project from any
+  legacy Google Play Billing Library (PBL) version to the latest stable version of
+  PBL.
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
@@ -10,13 +12,10 @@ metadata:
   - play billing library
   - pbl
   - upgrade
-  - ''
+  - migration
+  - deprecation
+  - google play
 ---
-
-any legacy Google Play Billing Library (PBL) version to the latest stable
-version of PBL.
-keywords_public: android, play billing, play billing library, pbl, upgrade,
-migration, deprecation, google play
 
 ## Phase 0: Intent Message
 
@@ -46,8 +45,8 @@ upgrade Play Billing Library to the latest version."
 For every major version jump identified in your path, you **MUST** synthesize
 instructions from:
 
-- **Migration Guide** : `https://developer.android.com/google/play/billing/migrate-gpblv[X]` (where X is the target major version).
-- **Release Highlights** : The "Deprecations" and "Breaking Changes" sections of the relevant release notes at `https://developer.android.com/google/play/billing/release-notes`.
+- **[Migration Guide](https://developer.android.com/google/play/billing/migrate-gpblv%5BX%5D)** (where `[X]` is the target major version).
+- **Release Highlights** : The "Deprecations" and "Breaking Changes" sections of the relevant [Release Notes](references/android/google/play/billing/release-notes.md).
 - **Developer Documentation**: Consult your knowledge of the Google Play Billing documentation regarding the relevant features used in this app (e.g., Subscriptions, One-Time Products).
 - **Develop the Plan**: Identify every specific code change required (API removals, class replacements, logic shifts) and print this out as a checklist.
 

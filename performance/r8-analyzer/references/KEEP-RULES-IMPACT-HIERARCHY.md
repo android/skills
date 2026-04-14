@@ -22,7 +22,7 @@ unintentionally prevent optimization in every class in your application. So if
 you have any keep rule with !operator, make sure you remove that with a narrow
 and specific keep rule
 
-    !keep class com.example.MyClass{*;}
+    -keep class !com.example.MyClass{*;}
 
 This keeps the entire app
 other than this class. Optimization are disabled for the entire class other

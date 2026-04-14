@@ -38,7 +38,7 @@ metadata:
 
 ### Requirements
 
-- *[Guide: Migrate to type-safe navigation in Compose](https://developer.android.com/guide/navigation/type-safe-destinations)* : Step-by-step guide to migrating an Android application from string-based navigation to **Type-Safe Navigation** in Jetpack Compose using Jetpack Navigation 2.
+- *[Guide: Migrate to type-safe navigation in Compose](references/android/guide/navigation/type-safe-destinations.md)* : Step-by-step guide to migrating an Android application from string-based navigation to **Type-Safe Navigation** in Jetpack Compose using Jetpack Navigation 2.
 
 ## Developer documentation
 

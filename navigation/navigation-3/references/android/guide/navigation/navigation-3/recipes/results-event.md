@@ -38,8 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class HomeViewModel : ViewModel() {
-    var pers<on by m>utableSthttps://github.com/android/nav3-recipes/blob/d2a2288a393dfa373e02b04c48c483cd9add9dbf/app/src/main/java/com/example/nav3recipes/results/common/HomeViewModel.ktl)
-}HomeViewModel.kt
+    var person by mutableStateOf<Person?>(null)
+}
 ```
 
 ```
@@ -68,7 +68,7 @@ import kotlinx.serialization.Serializable
 data object Home : NavKey
 
 @Serializable
-class Personhttps://github.com/android/nav3-recipes/blob/d2a2288a393dfa373e02b04c48c483cd9add9dbf/app/src/main/java/com/example/nav3recipes/results/common/NavKeys.ktm : NavKeyNavKeys.kt
+class PersonDetailsForm : NavKeyhttps://github.com/android/nav3-recipes/blob/d2a2288a393dfa373e02b04c48c483cd9add9dbf/app/src/main/java/com/example/nav3recipes/results/common/NavKeys.kt
 ```
 
 ```
@@ -94,7 +94,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Person(val name: String, val favoriteColor:  ParcelablePerson.kt
+data class Person(val name: String, val favoriteColor: String) : Parcelablehttps://github.com/android/nav3-recipes/blob/d2a2288a393dfa373e02b04c48c483cd9add9dbf/app/src/main/java/com/example/nav3recipes/results/common/Person.kt
 ```
 
 ```
@@ -131,8 +131,8 @@ import com.example.nav3recipes.content.ContentGreen
 
 @Composable
 fun HomeScreen(
-    person: Perso>n?,
-    onNext: () - Unit
+    person: Person?,
+    onNext: () -> Unit
 ) {
     ContentBlue("Hello ${person?.name ?: "unknown person"}") {
 
@@ -147,9 +147,9 @@ fun HomeScreen(
     }
 }
 
-@>Composable
+@Composable
 fun PersonDetailsScreen(
-    onSubmit: (Person) - Unit
+    onSubmit: (Person) -> Unit
 ) {
     ContentGreen("About you") {
 
@@ -171,15 +171,15 @@ fun PersonDetailsScreen(
                     name = nameTextState.text.toString(),
                     favoriteColor = favoriteColorTextState.text.toString()
                 )
-            &&    onSubmit(person)
+                onSubmit(person)
             },
-            enabled = nameTextState.text.isNotBlank() 
-                    favorithttps://github.com/android/nav3-recipes/blob/d2a2288a393dfa373e02b04c48c483cd9add9dbf/app/src/main/java/com/example/nav3recipes/results/common/ScreenContent.kttext.isNotBlank()
+            enabled = nameTextState.text.isNotBlank() &&
+                    favoriteColorTextState.text.isNotBlank()
         ) {
             Text("Submit")
         }
     }
-}ScreenContent.kt
+}
 ```
 
 ```
@@ -214,16 +214,18 @@ import androidx.compose.runtime.LaunchedEffect
  * @param resultKey the key that should be associated with this effect
  * @param onResult the callback to invoke when a result is received
  */
-@Co<mposable<>/span>
-inline fun reified T ResultEffect(
+@Composable
+inline fun <reified T> ResultEffect(
     resultEventBus: ResultEventBus = LocalResultEventBus.current,
     resultKey: String = T::class.toString(),
-    crossinline onR>esult: suspend (T) - Unit
+    crossinline onResult: suspend (T) -> Unit
 ) {
     LaunchedEffect(resultKey, resultEventBus.channelMap[resultKey]) {
-        resultEv<e>ntBus.getResultFlowT(resultKey)>?.collect { result -
-            onResult.invoke(result as https://github.com/android/nav3-recipes/blob/d2a2288a393dfa373e02b04c48c483cd9add9dbf/app/src/main/java/com/example/nav3recipes/results/event/ResultEffect.kt  }
-}ResultEffect.kt
+        resultEventBus.getResultFlow<T>(resultKey)?.collect { result ->
+            onResult.invoke(result as T)
+        }
+    }
+}
 ```
 
 ```
@@ -272,7 +274,7 @@ class ResultEventActivity : ComponentActivity() {
         setContent {
             val resultBus = remember { ResultEventBus() }
 
-            Scaffo>ld { paddingValues -
+            Scaffold { paddingValues ->
 
                 val backStack = rememberNavBackStack(Home)
 
@@ -281,9 +283,9 @@ class ResultEventActivity : ComponentActivity() {
                     modifier = Modifier.padding(paddingValues),
                     onBack = { backStack.removeLastOrNull() },
                     entryProvider = entryProvider {
-         <    >           entryHome {
-                            val v<iewModel = vi>ewModelHomeViewModel(key = Home.toString())
-                    <      >  ResultEffectPerson(r>esultBus) { person -
+                        entry<Home> {
+                            val viewModel = viewModel<HomeViewModel>(key = Home.toString())
+                            ResultEffect<Person>(resultBus) { person ->
                                 viewModel.person = person
                             }
 
@@ -293,17 +295,20 @@ class ResultEventActivity : ComponentActivity() {
                                 onNext = { backStack.add(PersonDetailsForm()) }
                             )
                         }
-         <               en>tryPersonDetailsForm {
+                        entry<PersonDetailsForm> {
                             PersonDetailsScreen(
-                                o>nSubmit = { person -
-                                    <result>Bus.sendResultPerson(result = person)
+                                onSubmit = { person ->
+                                    resultBus.sendResult<Person>(result = person)
                                     backStack.removeLastOrNull()
                                 }
                             )
                         }
                     }
                 )
-            sultEventActivity.kt
+            }
+        }
+    }
+}
 ```
 
 ```
@@ -339,7 +344,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
  * Local for receiving results in a [ResultEventBus]
  */
 object LocalResultEventBus {
-    private val LocalResultEventBus: Provid<ableComposition>LocalResultEventBus? =
+    private val LocalResultEventBus: ProvidableCompositionLocal<ResultEventBus?> =
         compositionLocalOf { null }
 
     /**
@@ -353,8 +358,8 @@ object LocalResultEventBus {
      * Provides a [ResultEventBus] to the composition
      */
     infix fun provides(
-        bus: Resul<tEventBus
-    )>: ProvidedValueResultEventBus? {
+        bus: ResultEventBus
+    ): ProvidedValue<ResultEventBus?> {
         return LocalResultEventBus.provides(bus)
     }
 }
@@ -367,18 +372,18 @@ class ResultEventBus {
     /**
      * Map from the result key to a channel of results.
      */
-    val <channelMap = mu<tabl>>eStateMapOfString, ChannelAny?()
+    val channelMap = mutableStateMapOf<String, Channel<Any?>>()
 
     /**
-     * Provides a flow for the given resu<ltKey.
-  >   */
-    inline fun reified T getResultFlow(resultKey: String = T::class.toString()) =
+     * Provides a flow for the given resultKey.
+     */
+    inline fun <reified T> getResultFlow(resultKey: String = T::class.toString()) =
         channelMap[resultKey]?.receiveAsFlow()
 
     /**
-     * Sends a result into the channel associated with the given resu<ltKey.
-  >   */
-    inline fun reified T sendResult(resultKey: String = T::class.toString(), result: T) {
+     * Sends a result into the channel associated with the given resultKey.
+     */
+    inline fun <reified T> sendResult(resultKey: String = T::class.toString(), result: T) {
         if (!channelMap.contains(resultKey)) {
             channelMap[resultKey] = Channel(capacity = BUFFERED, onBufferOverflow = BufferOverflow.SUSPEND)
         }
@@ -386,10 +391,10 @@ class ResultEventBus {
     }
 
     /**
-     * Removes all results associated with the given key from the <store.
-  >   */
-    inline fun reified T removeResult(resultKey: String = T::class.toString()) {
-        channehttps://github.com/android/nav3-recipes/blob/d2a2288a393dfa373e02b04c48c483cd9add9dbf/app/src/main/java/com/example/nav3recipes/results/event/ResultEventBus.kttKey)
+     * Removes all results associated with the given key from the store.
+     */
+    inline fun <reified T> removeResult(resultKey: String = T::class.toString()) {
+        channelMap.remove(resultKey)
     }
-}ResultEventBus.kt
+}
 ```
