@@ -2,6 +2,13 @@ When migrating to AGP's new DSL, any Gradle code (plugins or logic in build
 scripts) that relied on the old DSL will stop working. Such code must be
 migrated.
 
+## Guidelines
+
+- **DO NOT** search the web for examples of how to do this. Use the
+  **gradle-recipes** repository examples **only**.
+- **DO NOT** use AGP internals in migrated code.
+- **DO** use only public APIs in migrated code.
+
 In some cases, there is a one-to-one replacement for the old code. Some examples
 are in [the AGP 9.0.0 release notes](https://developer.android.com/build/releases/agp-9-0-0-release-notes).
 
@@ -54,6 +61,3 @@ However, with AGP 9 and the new DSL, `applicationVariants` is no longer
 available. You must instead react to artifact creation using the
 `androidComponents.onVariants` API. A complete example of this is available in
 the **gradle-recipes** repository in the `listenToArtifacts` recipe.
-
-**DO NOT** search the web for examples of how to do this. Use the
-**gradle-recipes** repository examples **only**.
