@@ -19,7 +19,7 @@ assignees: ''
 <!-- A clear and concise description of what actually happened. -->
 
 ### Steps to Reproduce
-<!-- Steps to reproduce the behavior. -->
+<!-- Steps to reproduce the behavior. Please include the model used and the prompt provided to the LLM. -->
 
 ### Suggested Fix
 <!-- If you have a solution in mind, please describe it. -->
