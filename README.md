@@ -2,7 +2,7 @@
 
 Android skills are a dedicated repository of AI-optimised, modular instructions and resources, to
 help LLMs better understand and execute specific patterns that follow the best practices and
-guidance on Android development from [developer.android.com](developer.android.com).
+guidance on Android development from [developer.android.com](https://developer.android.com).
 
 Android skills follow the [open-standard agent skills](https://agentskills.io/home) - markdown
 files (SKILL.md) that provide a technical specification of a task, and ground LLMs with information
