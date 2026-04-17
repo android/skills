@@ -24,7 +24,7 @@ Evaluate if the XML layout serves as a foundation-level design system component 
 \* **Feature parity \& restriction:** Ensure the new composable enforces the same UI constraints as the original XML component, preventing unauthorized style overrides while maintaining the intended flexibility.
 
 Example before migration:
-`xml
+```xml
 <style
 name="Widget.Rounded.Button"
 parent="Widget.Button.Borderless">
@@ -33,37 +33,38 @@ parent="Widget.Button.Borderless">
 <item name="android:paddingStart">@dimen/padding_2</item>
 <item name="android:paddingEnd">@dimen/padding_2</item>
 <item name="cornerRadius">8dp</item>
-</style>`
+</style>
+```
 
 Example after migration:
 
-## ```kotlin
+```kotlin
 @Composable
 fun RoundedBorderlessButton(
-text: String,
-onClick: () -> Unit,
-modifier: Modifier = Modifier,
-enabled: Boolean = true
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
-TextButton(
-onClick, modifier
-.defaultMinSize(minWidth = dimensionResource(R.dimen.min_width))
-.padding(
-start = dimensionResource(R.dimen.padding_2),
-end = dimensionResource(R.dimen.padding_2)
-), enabled, shape = RoundedCornerShape(8.dp),
-colors = ButtonDefaults.textButtonColors(
-contentColor = MaterialTheme.colorScheme.primary
-)
-) {
-Text(
-text = text,
-style = MaterialTheme.typography.bodyMedium.copy(
-fontFamily = FontFamily.SansSerif,
-fontWeight = FontWeight.Medium
-)
-)
-}
+    TextButton(
+        onClick, modifier
+            .defaultMinSize(minWidth = dimensionResource(R.dimen.min_width))
+            .padding(
+                start = dimensionResource(R.dimen.padding_2),
+                end = dimensionResource(R.dimen.padding_2)
+            ), enabled, shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.textButtonColors(
+            contentColor = MaterialTheme.colorScheme.primary
+        )
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Medium
+            )
+        )
+    }
 }
 ```
 
