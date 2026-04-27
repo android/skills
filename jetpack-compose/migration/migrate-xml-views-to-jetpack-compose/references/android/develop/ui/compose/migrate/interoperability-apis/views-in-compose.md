@@ -4,6 +4,11 @@ Compose, like
 [`AdView`](https://developers.google.com/android/reference/com/google/android/gms/ads/AdView).
 This approach also lets you reuse custom views you may have designed.
 
+> [!NOTE]
+> **Note:** Use `AndroidView` as a wrapper only for missing SDK components without Compose support. Rewrite your custom Views in Compose wherever possible, starting the migration with the simplest custom Views and scaling to more complex ones.
+
+<br />
+
 To include a view element or hierarchy, use the [`AndroidView`](https://developer.android.com/reference/kotlin/androidx/compose/ui/viewinterop/AndroidView.composable#AndroidView(kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Function1))
 composable. `AndroidView` is passed a lambda that returns a
 [`View`](https://developer.android.com/reference/android/view/View). `AndroidView` also provides an `update`
@@ -63,6 +68,9 @@ To embed an XML layout, use the
 API, which is provided by the `androidx.compose.ui:ui-viewbinding` library. To
 do this, your project must enable [view binding](https://developer.android.com/topic/libraries/view-binding#setup).
 
+> [!NOTE]
+> **Note:** For Compose-only apps, don't use `AndroidViewBinding` to inflate full screen-level XML layouts, and instead use it only for smaller, legacy XML layouts during the incremental migration process.
+
 
 ```kotlin
 @Composable
@@ -113,11 +121,14 @@ fun AndroidViewInLazyList() {
 
 <br />
 
-## Fragments in Compose
+## Fragments in Compose (Transitionary Step)
 
 Use the `AndroidFragment` composable to add a `Fragment` in Compose.
 `AndroidFragment` has fragment-specific handling such as removing the
 fragment when the composable leaves the composition.
+
+> [!NOTE]
+> **Note:** Wrap existing Fragments in Compose only during incremental migration. For Compose-only apps, do not use Fragments and instead use the recommended Compose-only architecture with a single Activity and latest navigation libraries, like Navigation 3.
 
 To include a fragment, use the [`AndroidFragment`](https://developer.android.com/reference/kotlin/androidx/fragment/compose/package-summary#AndroidFragment)
 composable. You pass a `Fragment` class to `AndroidFragment`, which then adds

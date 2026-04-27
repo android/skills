@@ -4,8 +4,7 @@ migrated.
 
 ## Guidelines
 
-- **DO NOT** search the web for examples of how to do this. Use the
-  **gradle-recipes** repository examples **only**.
+- **DO NOT** search the web for examples of how to do this. Use the **gradle-recipes** repository examples **only**.
 - **DO NOT** use AGP internals in migrated code.
 - **DO** use only public APIs in migrated code.
 

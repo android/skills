@@ -378,7 +378,7 @@ fun EntryProviderScope<NavKey>.featureASection(
                 mutableIntStateOf(0)
             }
 
-            Button(onClick = dropUnlessResumed { count++ }) {
+            Button(onClick = { count++ }) {
                 Text("Value: $count")
             }
         }
@@ -402,7 +402,7 @@ fun EntryProviderScope<NavKey>.featureBSection(
             var count by rememberSaveable {
                 mutableIntStateOf(0)
             }
-            Button(onClick = dropUnlessResumed { count++ }) {
+            Button(onClick = { count++ }) {
                 Text("Value: $count")
             }
         }
@@ -427,7 +427,7 @@ fun EntryProviderScope<NavKey>.featureCSection(
                 mutableIntStateOf(0)
             }
 
-            Button(onClick = dropUnlessResumed { count++ }) {
+            Button(onClick = { count++ }) {
                 Text("Value: $count")
             }
         }

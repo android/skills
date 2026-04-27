@@ -12,6 +12,9 @@ performance, and more. To your users, this means:
 > **Important:** You should always enable optimization for your app's release build; however, you probably don't want to enable it for tests or libraries. For more information about using R8 with tests, see [Test and troubleshoot the
 > optimization](https://developer.android.com/topic/performance/app-optimization/test-and-troubleshoot-the-optimization). For more information about enabling R8 from libraries, see [Optimization for library authors](https://developer.android.com/topic/performance/app-optimization/library-optimization).
 
+> [!IMPORTANT]
+> **Important:** We released an agent skill that you can use to improve your app performance with R8. Try out the skill from the [Android skills repository](https://github.com/android/skills).
+
 ## R8 optimization overview
 
 R8 uses a multi-phase process to optimize your app for size and speed. Key
@@ -27,8 +30,8 @@ operations include the following:
   efficiency and reduce overhead. Key techniques include:
 
   - **Method inlining**: R8 replaces a method call site with the actual body
-    of the called method. This eliminates the overhead of a function call and
-    lets R8 conduct further optimizations.
+    of the called method. This eliminates the overhead of a function call
+    and lets R8 conduct further optimizations.
 
   - **Class merging**: R8 combines sets of classes and interfaces into a
     single class. This reduces the number of classes in the app, lowering
@@ -119,8 +122,8 @@ removed.
 
 ### Enable optimized resource shrinking
 
-To turn on the new optimized resource shrinking pipeline for a version of AGP
-before 9.0.0, add the following to your project's `gradle.properties` file:
+To enable the new optimized resource shrinking pipeline for AGP 8.12 or 8.13,
+add the following to your project's `gradle.properties` file:
 
     android.r8.optimizedResourceShrinking=true
 
@@ -167,7 +170,7 @@ the Android Gradle Plugin (AGP) and the R8 compiler.
 |---|---|
 | 9.1 | **Classes repackaged by default:** R8 repackages classes (moving them to the unnamed package, at the top level) to compact DEX further, eliminating the need to specify `-repackageclasses` option. For information about how this works and how to opt out, see [global options](https://developer.android.com/topic/performance/app-optimization/global-options#global-options). |
 | 9.0 | **Optimized resource shrinking:** Enabled by default (controlled using `android.r8.optimizedResourceShrinking`). [Optimized resource shrinking](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization#optimize-resource-shrinking) helps integrate resource shrinking with the code optimization pipeline, leading to smaller, faster apps. By optimizing both code and resource references simultaneously, it identifies and removes resources referenced exclusively from unused code. This is a significant improvement over the previous separate optimization processes. This is especially useful for apps that share substantial resources and code across different form factor verticals, with measured improvements of over 50% in app size. The resulting size reduction leads to smaller downloads, faster installations, and a better user experience with faster startup, improved rendering, and fewer ANRs. **Library rule filtering:** Support for global options (for example, `-dontobfuscate`) in library consumer rules has been dropped, and apps will filter them out. For more information, see [Add global options](https://developer.android.com/topic/performance/app-optimization/global-options). **Kotlin null checks:** Optimized by default (controlled using `-processkotlinnullchecks`). This version also introduced significant improvements in build speed. For more information, see [Global options for additional optimization](https://developer.android.com/topic/performance/app-optimization/global-options#global-options). **Optimize specific packages:** You can use `packageScope` to optimize specific packages. This is in experimental support. For more information, see [Optimize specified packages with `packageScope`](https://developer.android.com/topic/performance/app-optimization/optimize-specified-packages). **Optimized by default:** Support for `getDefaultProguardFile("proguard-android.txt")` has been dropped, because it includes `-dontoptimize`, which should be avoided. Instead, use `"proguard-android-optimize.txt"`. If you need to globally disable optimization in your app, [add the flag manually to a proguard file](https://developer.android.com/topic/performance/app-optimization/global-options#global-options-2). |
-| 8.12 | **Resource shrinking:** Initial support added (Off by default. Enable using `isShrinkResources`). Resource shrinking works in tandem with R8 to identify and remove unused resources effectively. **Logcat retracing:** Support for automatic retracing in the Android Studio [Logcat window](https://developer.android.com/studio/debug/logcat). |
+| 8.12 | **Optimized resource shrinking:** Initial support added (controlled using `android.r8.optimizedResourceShrinking`). [Optimized resource shrinking](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization#optimize-resource-shrinking) helps integrate resource shrinking with the code optimization pipeline. You must manually enable it in this version of AGP. **Logcat retracing:** Support for automatic retracing in the Android Studio [Logcat window](https://developer.android.com/studio/debug/logcat). |
 | 8.6 | **Improved retracing:** Includes filename and line number retracing by default for all `minSdk` levels (previously required `minSdk` 26+ in version 8.2). Updating R8 helps ensure that stack traces from obfuscated builds are readily and clearly readable. This version improves how line numbers and source files are mapped, making it easier for tools like the Android Studio Logcat to automatically retrace crashes to the original source code. |
 | 8.0 | **Full mode by default:** [R8 full mode](https://developer.android.com/topic/performance/app-optimization/full-mode) provides significantly more powerful optimization. It is enabled by default. You can opt out using `android.enableR8.fullMode=false`. |
 | 7.0 | **Full mode available:** Introduced as an opt-in feature using `android.enableR8.fullMode=true`. Full mode applies more powerful optimizations by making stricter assumptions about how your code uses reflection and other dynamic features. While it reduces app size and improves performance, it might require additional keep rules to prevent necessary code from being stripped. |

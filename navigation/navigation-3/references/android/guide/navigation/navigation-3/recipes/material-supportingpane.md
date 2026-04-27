@@ -49,7 +49,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy
@@ -90,7 +90,7 @@ class MaterialSupportingPaneActivity : ComponentActivity() {
 
             // Override the defaults so that there isn't a horizontal or vertical space between the panes.
             // See b/444438086
-            val windowAdaptiveInfo = currentWindowAdaptiveInfo()
+            val windowAdaptiveInfo = currentWindowAdaptiveInfoV2()
             val directive = remember(windowAdaptiveInfo) {
                 calculatePaneScaffoldDirective(windowAdaptiveInfo)
                     .copy(horizontalPartitionSpacerSize = 0.dp, verticalPartitionSpacerSize = 0.dp)

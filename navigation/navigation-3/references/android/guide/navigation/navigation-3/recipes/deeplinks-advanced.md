@@ -46,6 +46,7 @@ import com.example.nav3recipes.common.deeplink.LIST_LOCATIONS
 import com.example.nav3recipes.common.deeplink.MenuDropDown
 import com.example.nav3recipes.common.deeplink.PaddedButton
 import com.example.nav3recipes.common.deeplink.TextContent
+import com.example.nav3recipes.ui.setEdgeToEdgeConfig
 
 internal const val ADVANCED_PATH_BASE = "https://www.nav3deeplink.com"
 
@@ -68,6 +69,7 @@ internal const val ADVANCED_PATH_BASE = "https://www.nav3deeplink.com"
 class AdvancedCreateDeepLinkActivity: ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setEdgeToEdgeConfig()
         super.onCreate(savedInstanceState)
 
         setContent {

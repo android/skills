@@ -1,3 +1,6 @@
+> [!NOTE]
+> **Note:** Interoperability is supported for hybrid apps that use Compose and Views. For apps that are only in Compose, use the recommended Compose-only architecture with a single Activity and latest navigation libraries, like Navigation 3.
+
 You can add Compose-based UI into an existing app that uses a View-based design.
 
 To create a new, entirely Compose-based screen, have your
@@ -61,7 +64,10 @@ The table below summarizes the different scenarios you can use
 | [`DisposeOnLifecycleDestroyed`](https://developer.android.com/reference/kotlin/androidx/compose/ui/platform/ViewCompositionStrategy.DisposeOnLifecycleDestroyed) | The Composition will be disposed when the provided [`Lifecycle`](https://developer.android.com/reference/androidx/lifecycle/Lifecycle) is destroyed. Interop scenario \* `ComposeView` in a Fragment's View. |
 | [`DisposeOnViewTreeLifecycleDestroyed`](https://developer.android.com/reference/kotlin/androidx/compose/ui/platform/ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed) | The Composition will be disposed when the `Lifecycle` owned by the `LifecycleOwner` returned by `ViewTreeLifecycleOwner.get` of the next window the View is attached to is destroyed. Interop scenario: \* `ComposeView` in a Fragment's View. \* `ComposeView` in a View wherein the Lifecycle is not known yet. |
 
-## `ComposeView` in Fragments
+## `ComposeView` in Fragments (Transitionary Step)
+
+> [!NOTE]
+> **Note:** For hybrid apps with Views and Compose, that use Fragments, use `ComposeView` to wrap composables content and add to a Fragment during migration. For Compose-only apps, do not use Fragments and instead use the recommended Compose-only architecture with a single Activity and latest navigation libraries, like Navigation 3.
 
 If you want to incorporate Compose UI content in a fragment or an existing View
 layout, use [`ComposeView`](https://developer.android.com/reference/kotlin/androidx/compose/ui/platform/ComposeView)

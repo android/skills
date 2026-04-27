@@ -8,6 +8,9 @@ To migrate your app from [Navigation 2](https://developer.android.com/guide/navi
 6. Replace `NavHost` with `NavDisplay`.
 7. Remove Navigation 2 dependencies.
 
+> [!IMPORTANT]
+> **Important:** We released an agent skill to help you install and migrate to Jetpack Navigation 3. Try out the skill from the [Android skills repository](https://github.com/android/skills).
+
 <br />
 
 

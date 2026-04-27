@@ -81,18 +81,19 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.example.nav3recipes.deeplink.basic.util.DeepLinkMatcher
-import com.example.nav3recipes.deeplink.basic.util.DeepLinkPattern
-import com.example.nav3recipes.deeplink.basic.util.DeepLinkRequest
-import com.example.nav3recipes.deeplink.basic.util.DeepLinkMatchResult
-import com.example.nav3recipes.deeplink.basic.util.KeyDecoder
+import com.example.nav3recipes.common.deeplink.EntryScreen
+import com.example.nav3recipes.common.deeplink.FriendsList
+import com.example.nav3recipes.common.deeplink.LIST_USERS
 import com.example.nav3recipes.common.deeplink.TextContent
 import com.example.nav3recipes.deeplink.basic.ui.URL_HOME_EXACT
 import com.example.nav3recipes.deeplink.basic.ui.URL_SEARCH
 import com.example.nav3recipes.deeplink.basic.ui.URL_USERS_WITH_FILTER
-import com.example.nav3recipes.common.deeplink.EntryScreen
-import com.example.nav3recipes.common.deeplink.FriendsList
-import com.example.nav3recipes.common.deeplink.LIST_USERS
+import com.example.nav3recipes.deeplink.basic.util.DeepLinkMatchResult
+import com.example.nav3recipes.deeplink.basic.util.DeepLinkMatcher
+import com.example.nav3recipes.deeplink.basic.util.DeepLinkPattern
+import com.example.nav3recipes.deeplink.basic.util.DeepLinkRequest
+import com.example.nav3recipes.deeplink.basic.util.KeyDecoder
+import com.example.nav3recipes.ui.setEdgeToEdgeConfig
 
 /**
  * Parses a target deeplink into a NavKey. There are several crucial steps involved:
@@ -131,6 +132,7 @@ class MainActivity : ComponentActivity() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setEdgeToEdgeConfig()
         super.onCreate(savedInstanceState)
 
         // retrieve the target Uri
@@ -211,7 +213,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.example.nav3recipes.common.deeplink.PaddedButton
 import com.example.nav3recipes.common.deeplink.EMPTY
 import com.example.nav3recipes.common.deeplink.EntryScreen
 import com.example.nav3recipes.common.deeplink.FIRST_NAME_JOHN
@@ -224,11 +225,13 @@ import com.example.nav3recipes.common.deeplink.LOCATION_CA
 import com.example.nav3recipes.common.deeplink.LOCATION_US
 import com.example.nav3recipes.common.deeplink.MenuDropDown
 import com.example.nav3recipes.common.deeplink.MenuTextInput
+import com.example.nav3recipes.common.deeplink.PaddedButton
+import com.example.nav3recipes.common.deeplink.TextContent
 import com.example.nav3recipes.deeplink.basic.ui.PATH_BASE
 import com.example.nav3recipes.deeplink.basic.ui.PATH_INCLUDE
 import com.example.nav3recipes.deeplink.basic.ui.PATH_SEARCH
 import com.example.nav3recipes.deeplink.basic.ui.STRING_LITERAL_HOME
-import com.example.nav3recipes.common.deeplink.TextContent
+import com.example.nav3recipes.ui.setEdgeToEdgeConfig
 
 /**
  * This activity allows the user to create a deep link and make a request with it.
@@ -254,6 +257,7 @@ import com.example.nav3recipes.common.deeplink.TextContent
  */
 class CreateDeepLinkActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        setEdgeToEdgeConfig()
         super.onCreate(savedInstanceState)
 
         setContent {

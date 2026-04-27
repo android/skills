@@ -3,12 +3,17 @@
 Android Gradle plugin 9.0 is a major release that brings API and behavior
 changes.
 
-To update to Android Gradle plugin 9.0.1,
-use the [Android Gradle plugin Upgrade Assistant](https://developer.android.com/build/agp-upgrade-assistant).
+To update to Android Gradle plugin 9.0.1, use the
+[Android Gradle plugin Upgrade Assistant](https://developer.android.com/build/agp-upgrade-assistant). The AGP upgrade assistant helps
+preserve existing behaviors when upgrading your project whenever appropriate, so
+you can upgrade your project to use AGP 9.0 even if you're not ready to
+adopt all the new defaults in AGP 9.0.
 
-The AGP upgrade assistant helps preserve existing behaviors when upgrading your
-project whenever appropriate, allowing you to upgrade your project to use AGP
-9.0 even if you're not ready to adopt all the new defaults in AGP 9.0.
+There are also two agent skills available to make the upgrade process easier.
+For a non-KMP app, try the [AGP 9 upgrade skill](https://github.com/android/skills/tree/main/build/agp/agp-9-upgrade) from the
+Android skills repository. For a KMP app, try the [AGP 9 upgrade
+skill](https://github.com/Kotlin/kotlin-agent-skills/tree/main/skills/kotlin-tooling-agp9-migration) from JetBrains. For more information about using skills
+in Android Studio, see [Extend Agent Mode with skills](https://developer.android.com/studio/gemini/skills).
 
 ## Compatibility
 
