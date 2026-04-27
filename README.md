@@ -1,6 +1,6 @@
 ## Android skills
 
-**Android skills** are a dedicated repository of **AI-optimised, modular instructions** and
+**Android skills** are a dedicated repository of **AI-optimized, modular instructions** and
 resources, to help LLMs better understand and execute specific patterns that follow the best
 practices and guidance on Android development
 from [developer.android.com](https://developer.android.com).
