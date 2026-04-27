@@ -10,8 +10,8 @@ files (SKILL.md) that provide a technical specification of a task, and **ground 
 information on specialized domains and workflows.
 
 Our Android skill development focuses on **use cases and workflows where evaluations show LLMs
-underperform**. 
-We aren’t prioritizing well-established areas where LLMs are already proficient, such
+underperform**.
+We aren't prioritizing well-established areas where LLMs are already proficient, such
 as basic Jetpack Compose best practices.
 
 To learn more, read the official documentation:
