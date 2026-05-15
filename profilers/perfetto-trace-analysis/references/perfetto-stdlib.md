@@ -30,7 +30,7 @@ Prelude is a special module is automatically included. It contains key helper
 tables, views and functions which are universally useful.
 
 More information on importing modules is available in the
-[syntax documentation](https://developer.android.com/docs/analysis/perfetto-sql-syntax#including-perfettosql-modules)
+[syntax documentation](https://perfetto.dev/docs/analysis/perfetto-sql-syntax#including-perfettosql-modules)
 for the `INCLUDE PERFETTO MODULE` statement.
 
 ## Package: prelude
