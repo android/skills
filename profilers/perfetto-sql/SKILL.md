@@ -102,7 +102,7 @@ working directory or in your path, download it directly from the Perfetto index:
 
 1. Identify the core question, required data points, and filtering conditions.
 2. **Precedence Rule:** If the user's request contains a SQL query, use it **without modification** and skip to Step 2 for validation.
-3. **Mandatory Schema and Module Search:** For every table or view you plan to use, you MUST find its schema in [`references/perfetto-stdlib-docs.md`](references/android/agents/skills/profilers/common/perfetto-stdlib.md). **Don't read the entire documentation file** --- it consumes the context window. Follow this precise workflow:
+3. **Mandatory Schema and Module Search:** For every table or view you plan to use, you MUST find its schema in [`perfetto-stdlib.md`](references/perfetto-stdlib.md). **Don't read the entire documentation file** --- it consumes the context window. Follow this precise workflow:
    - **Discovery and Search:** Use available search tools (`grep`, `read_file` or file search) with line limits to discover relevant views, tables or modules based on your problem domain and high-level intents (for example, 'CPU time', 'running time', 'overlap', 'jank').
      - **Why:** Searching solely for exact table names misses comprehensive, pre-computed views built for these analyses.
      - **Note:** You must verify if a Standard Library module already provides the needed abstraction before drafting manual arithmetic or custom functions.
