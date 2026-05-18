@@ -51,7 +51,7 @@ metadata:
 
 ## Step 3. Report Generation
 
-- **Format** : Follow `[/references/REPORT_FORMAT.md][8]` strictly.
+- **Format** : Follow [REPORT_FORMAT.md](references/REPORT_FORMAT.md) strictly.
 - **Input**: Extract metrics (Scores, Impacts, Example Classes)
   directly from generated file analysis.txt if using Path A,
   or from manual findings if using Path B.
