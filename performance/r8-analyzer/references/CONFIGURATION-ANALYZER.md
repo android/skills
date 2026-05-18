@@ -1,4 +1,4 @@
-# CONFIGURATION ANALYZER DATA GENERATION
+# Configuration Analyzer data generation
 
 On each step, keep the user informed of the progress by displaying the output.
 
@@ -230,8 +230,7 @@ rm tmp/r8analysis/*.pb
 
 ### 10. Protobuf Python bindings
 
-The following script `keep_radius_pb2.py` is required by the
- conversion script in Step 5.
+The following script `keep_radius_pb2.py` is required by the conversion script in Step 5.
 
 ```python
 from google.protobuf import descriptor as _descriptor
