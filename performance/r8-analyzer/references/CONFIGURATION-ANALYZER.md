@@ -40,8 +40,8 @@ Run the R8 enabled build with the system property
 to generate Configuration Analyzer report
 
 ```bash
-./gradlew assembleRelease
--Dcom.android.tools.r8.dumpkeepradiustodirectory=$PWD/tmp/r8analysis
+./gradlew assembleRelease \
+  -Dcom.android.tools.r8.dumpkeepradiustodirectory=$PWD/tmp/r8analysis
 ```
 
 ### 5. Convert to JSON
