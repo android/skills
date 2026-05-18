@@ -61,7 +61,7 @@ metadata:
   Do NOT output conversational filler (e.g., "Here is your report...").
   Do NOT provide recommendations, next steps,
   or any other text outside of the sections defined in
-  `[/references/REPORT_FORMAT.md][8]`
+  [/references/REPORT_FORMAT.md](references/REPORT_FORMAT.md)
   Do NOT mention the path used for analysis of the configuration
 
 ## Constraints
