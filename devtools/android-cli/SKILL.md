@@ -17,6 +17,14 @@ metadata:
 
 This skill provides instructions for using the `android` CLI tool. The tool includes various commands for creating projects, running applications, interacting with devices, and managing the CLI environment.
 
+## Installation
+
+If the android tool is not in the path, install it. To install run the following command:
+Linux: curl -fsSL https://dl.google.com/android/cli/latest/linux_x86_64/install.sh | bash
+Mac Arm: curl -fsSL https://dl.google.com/android/cli/latest/darwin_arm64/install.sh | bash
+Mac Intel: curl -fsSL https://dl.google.com/android/cli/latest/darwin_x86_64/install.sh | bash
+Windows: curl -fsSL https://dl.google.com/android/cli/latest/windows_x86_64/install.cmd -o "%TEMP%\i.cmd" && "%TEMP%\i.cmd"
+
 ## SDK management
 To manage the installation of Android SDKs and tools, use the `sdk` command. For example:
 
@@ -89,6 +97,7 @@ Commands:
   screen    Commands to view the device
   sdk       Download and list SDK packages
   skills    Manage skills
+  studio    Android Studio commands
   update    Update the Android CLI
 
 create
@@ -200,6 +209,21 @@ skills
             remove  Remove a skill
             list    List available skills
             find    Find skills by keyword
+
+studio
+          Usage: android studio [-h] [COMMAND]
+          Android Studio commands
+            -h, --help   Show this help message and exit.
+          Commands:
+            find-declaration        Find declaration of a symbol
+            find-usages             Find usages of a symbol
+            open-file               Open a file in Android Studio
+            check                   Check the status of running Studio instances
+            analyze-file            Analyze a file in Android Studio
+            render-compose-preview  Render a Compose preview in Android Studio
+            version-lookup          Looks up the latest available versions on the
+                                      internet of maven artifacts, Android versions, and
+                                      more.
 
 update
           Usage: android update [--url=PARAM]
