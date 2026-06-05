@@ -40,7 +40,22 @@ metadata:
 
 ## Investigation Protocol
 
-Follow this iterative loop until you have isolated the definitive root cause(s):
+### Trace Type Validation (Fail Fast)
+Since this skill explicitly targets system traces, you must verify if the trace
+is a system trace before proceeding. Run the following probe to confirm:
+```sql
+SELECT (
+    EXISTS(SELECT 1 FROM sched LIMIT 1) OR
+    EXISTS(SELECT 1 FROM cpu_counter_track LIMIT 1) OR
+    EXISTS(SELECT 1 FROM raw LIMIT 1)
+) AS is_system_trace
+```
+
+If this returns `0`, stop execution and inform the user in general
+language without exposing the internal mechanics.
+
+If the system trace is valid, follow this iterative loop until you have
+isolated the definitive root cause(s):
 
 ### 1. Formulate Hypothesis
 
@@ -53,6 +68,9 @@ Follow this iterative loop until you have isolated the definitive root cause(s):
 
 - **Metrics First:** Start with a high-level view using trace metrics before diving into custom SQL (e.g., `./trace_processor --run-metrics
   android_startup`).
+  **Note:** Follow these instructions on how to fetch and
+  set up the trace_processor:
+  [`getting-trace-processor.md`](references/getting-trace-processor.md)
 - **Broad to Narrow:** Begin with broad queries using minimal filters. Favor fuzzy matching (e.g., `GLOB '*abc*'`) over exact matching.
 - **Overlapping Time:** When filtering by time, you MUST check for events that overlap with the target time range (e.g., `start1 < end2 AND start2 < end1`) to ensure you don't miss slices that span across the boundaries.
 
