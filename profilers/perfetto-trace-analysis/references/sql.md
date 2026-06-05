@@ -1,6 +1,6 @@
 # Querying Perfetto Traces
 
-This skill teaches you how to extract data from a Perfetto trace file
+The instructions below teach you how to extract data from a Perfetto trace file
 (`.pftrace`, `.perfetto-trace`, `.pb`) using `trace_processor` and PerfettoSQL.
 
 The `trace_processor` binary is what every other Perfetto analysis tool runs on
@@ -10,7 +10,7 @@ Docs](https://perfetto.dev/docs/analysis/trace-processor).
 > **Prerequisite — `trace_processor` must be invokable.** Before running any of
 > the shell commands below, ensure you have set up the trace_processor by
 > following guidelines mentioned here:
-> [`getting-trace-processor.md`](references/getting-trace-processor.md) The
+> [`getting-trace-processor.md`](getting-trace-processor.md) The
 > guidelines tell you the exact invocation form for `trace_processor` in this
 > environment — substitute it for every bare `trace_processor` reference below.
 > Likewise, the long-running RPC mode needs the `perfetto` Python client, whose
@@ -31,7 +31,7 @@ Reparsing a trace on every query is slow — for a multi-GB trace it is tens of
 seconds, every time. When you expect to run more than a couple of queries, start
 the shell once as an HTTP RPC server and drive it from the Python client. (If
 the Python client is not installed yet, the
-[`getting-trace-processor.md`](references/getting-trace-processor.md) guidelines
+`getting-trace-processor.md` guidelines
 in your environment covers it.)
 
 ```sh
@@ -90,8 +90,8 @@ plain `LIMIT 0` query to read the exact column schema of any specific table,
 view, or query result before drafting your query.
 
 > **Intrinsic surface — not stable API.** The `__intrinsic_*` names below are an
-> implementation detail of trace_processor. They're fair game for an agent to
-> use during a session because this skill is loaded, but **don't bake
+> implementation detail of trace_processor. They're fair game to
+> use during an interactive session, but **don't bake
 > `__intrinsic_*` names into committed scripts, dashboards, or stdlib modules**
 > — they can change without notice.
 
@@ -159,7 +159,7 @@ A few commonly used modules to know:
 -   `android.startup.startups` — one row per app startup.
 -   `stacks.cpu_profiling` — flat samples and call-graph helpers.
 -   `android.memory.heap_graph.dominator_tree` — retained-size analysis for Java
-    heap dumps (see the `perfetto_workflow_android_heap_dump` skill for usage).
+    heap dumps (see the `perfetto_workflow_android_heap_dump` instructions for usage).
 
 The module name maps directly to the file path under the stdlib root: `foo.bar`
 lives at `foo/bar.sql`. Browse the full list at the stdlib reference linked
@@ -272,10 +272,10 @@ above.
 
 ## Execution Protocol
 
-You must follow these steps sequentially, mirroring a multi-agent pipeline:
+You should follow these steps sequentially:
 
 ### Step 0: Trace Type Validation (Fail Fast)
-Since this skill explicitly targets system traces, you must verify if the trace
+Since these instructions explicitly target system traces, you must verify if the trace
 is a system trace before proceeding. Run the following probe to confirm:
 ```sql
 SELECT (
@@ -296,7 +296,7 @@ language without exposing the internal mechanics.
 3.  **Mandatory Schema and Module Search:**
   -   **Discovery and Search**: Do not guess schemas or rely on your
       internal knowledge. You must use the guidelines detailed in the
-      [Discovering what's in the Trace](#discovering-whats-in-the-trace)
+      [Discovering what's in the Trace](#discovering-what's-in-the-trace)
       section above to discover relevant views, tables or modules based on
       your problem domain and high-level intents (for example, 'CPU time',
       'running time', 'overlap', 'jank').
@@ -331,7 +331,7 @@ Step 1. After drafting, you must validate against this checklist:
     alias (for example, `alias.column_name`)?
 -   [ ] **Module Check:** Are `INCLUDE PERFETTO MODULE` statements included for
     all non-prelude modules? **You must use the exact module names discovered via
-    the intrinsic queries (Path A) or your pre-trained knowledge (Path B).**
+    the intrinsic queries.**
 -   [ ] **Span Join Check:** If using `SPAN_JOIN`, are tables safely
     `PARTITIONED` to prevent overlapping interval crashes? Are intermediate
     tables materialized with `CREATE PERFETTO TABLE`?
