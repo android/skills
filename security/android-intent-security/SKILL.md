@@ -64,7 +64,7 @@ Evaluate the security features of different intent delivery methods:
 | :--- | :--- | :--- |
 | Explicit Intent (Internal) | App Private | Launching internal activities/services |
 | Implicit Intent | System Wide | Launching system camera, dialer, or sharing |
-| Local Broadcasts (LocalBroadcastManager) | App Private | Internal asynchronous event routing |
+| Local Broadcasts (LocalBroadcastManager) (DEPRECATED) | App Private | Internal asynchronous event routing. **Deprecated**: Use in-app observers like Kotlin Flows/SharedFlow, LiveData, or reactive patterns instead. |
 | System Broadcasts | System Wide | Receiving system events (NFC, Bluetooth) |
 
 ### 2. PendingIntent Mutability Flag Options
@@ -86,8 +86,9 @@ IF (the component receives a nested Intent as an extra) {
         MUST verify that the target component of the nested Intent is publicly exported.
     }
     NEVER launch the nested Intent directly without validation.
-} ELSE IF (the component handles system broadcasts) {
-    MUST verify that the sender UID matches the system framework (UID 1000).
+} ELSE IF (the component handles broadcasts) {
+    MUST rely on the system's Protected Broadcast mechanism for system events (which guarantees the sender is the system framework).
+    MUST protect custom receivers with signature-level permissions or use `RECEIVER_NOT_EXPORTED` for dynamic receivers to restrict the sender.
 }
 
 ### 4. PendingIntent Security Logic
@@ -112,7 +113,7 @@ IF (the ContentProvider is only for internal app use) {
 ### 6. Service Caller Verification Logic
 
 IF (an exported service communicates with trusted sister/partner apps) {
-    MUST retrieve the calling package name using `Binder.getCallingUid()`.
+    MUST retrieve the calling UID using `Binder.getCallingUid()` and resolve it to package name(s) using `PackageManager.getPackagesForUid()`.
     MUST verify that the calling package signature fingerprint matches your trusted certificate hash.
 }
 
@@ -318,12 +319,14 @@ Use the following markdown template when reporting changes to developers:
 - **NEVER** process incoming intents in `onNewIntent` without applying the same security controls as `onCreate`.
 - **NEVER** create a mutable `PendingIntent` without setting an explicit target component in the base `Intent`.
 - **NEVER** use dynamic string concatenation to construct selection blocks inside a `ContentProvider` query.
+- **NEVER** use `Binder.getCallingUid()` inside a `BroadcastReceiver.onReceive()` to identify the sender of a broadcast, as it returns the receiver's own UID, not the sender's.
 
 ## Best Practices (DOs)
 - **MUST** explicitly set `android:exported="false"` for all components that do not need external communication.
 - **MUST** protect all exported components with custom permissions utilizing `android:protectionLevel="signature"` when communicating between family apps.
 - **MUST** validate all incoming intent extras and handle missing parameters gracefully to prevent crashes.
-- **MUST** verify the sender's identity (system UID or package signature) when exported components receive system or framework broadcasts (e.g., NFC, Bluetooth).
+- **MUST** rely on the system's **Protected Broadcast** mechanism for system events (e.g., boot completed, package changes), as the system prevents untrusted apps from spoofing these actions.
+- **MUST** protect custom broadcasts with signature-level permissions or use `RECEIVER_NOT_EXPORTED` for dynamic receivers to restrict the sender identity.
 - **MUST** call `setIntent(newIntent)` inside `onNewIntent()` before processing payloads to keep active references updated.
 - **MUST** use `PendingIntent.FLAG_IMMUTABLE` by default when constructing `PendingIntent` instances.
 - **MUST** protect exported `ContentProviders` with `readPermission` and `writePermission`.
