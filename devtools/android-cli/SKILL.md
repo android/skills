@@ -68,7 +68,7 @@ Capture an image of the current screen of a connected Android device and output 
 
 ## Managing skills
 
-Manage antigravity agent skills for Android using the `android skills` command.
+Manage agent skills for Android using the `android skills` command.
 
 ## Inspecting UI Layouts
 
