@@ -45,7 +45,7 @@ def run_scraper(package_name, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     out_path = os.path.join(output_dir, "play_store_declaration.json")
     with open(out_path, "w") as f:
-      json.dump(result, f, indent=4)
+      json.dump(result, f, indent=4, sort_keys=True)
 
     return result
   except Exception as e:
@@ -265,7 +265,9 @@ def aggregate_findings(temp_dir, taxonomy):
     raw_findings = master_data.get("findings", [])
 
     # Load all chunked critic outputs: critic_output_*.json
-    critic_files = glob.glob(os.path.join(temp_dir, "critic_output_*.json"))
+    critic_files = sorted(
+        glob.glob(os.path.join(temp_dir, "critic_output_*.json"))
+    )
     for c_file in critic_files:
       c_data = load_json(c_file) or {}
       for fid, dec in c_data.items():
@@ -276,7 +278,17 @@ def aggregate_findings(temp_dir, taxonomy):
   manual_review_needed = []
   data_safety_inventory = []
 
-  for finding in raw_findings:
+  # Sort raw findings by finding_id numerically for stable processing order
+  def finding_sort_key(f):
+    fid = f.get("finding_id", "0")
+    try:
+      return int(fid)
+    except (ValueError, TypeError):
+      return 0
+
+  sorted_raw_findings = sorted(raw_findings, key=finding_sort_key)
+
+  for finding in sorted_raw_findings:
     p_id = finding.get("policy_id", "Unknown")
     psl = finding.get("psl_constant")
     fid = finding.get("finding_id")
@@ -311,6 +323,9 @@ def aggregate_findings(temp_dir, taxonomy):
     )
 
     files_involved = finding.get("files_involved", [])
+    if isinstance(files_involved, list):
+      files_involved = sorted([str(f) for f in files_involved])
+
     evidence = finding.get("evidence", "")
 
     reconstructed_finding = {
@@ -444,7 +459,9 @@ def aggregate_findings(temp_dir, taxonomy):
 
   # Reconstruct the list with joined sets
   normalized_inventory = []
-  for psl_id, item in merged_inventory.items():
+  sorted_psl_ids = sorted(merged_inventory.keys())
+  for psl_id in sorted_psl_ids:
+    item = merged_inventory[psl_id]
     reconstructed = {
         "psl_constant": psl_id,
         "is_transferred": "Yes" if item["is_transferred"] else "No",
@@ -533,18 +550,6 @@ def aggregate_findings(temp_dir, taxonomy):
               "status": "Discrepancy",
           })
 
-  # 6. App Access State
-  requires_login = False
-  has_in_app_account_deletion = False
-
-  # Simple heuristics based on risks and inventory
-  for risk in identified_risks + manual_review_needed:
-    if risk.get("policy_id") == "login_credential":
-      requires_login = True
-    if risk.get("policy_id") == "account_deletion":
-      if clean_severity(risk.get("severity")) == "SUGGESTION":
-        has_in_app_account_deletion = True
-
   # 7. Determine Compliance
   overall_compliance = "Compliant"
   critical_risks = any(
@@ -559,7 +564,23 @@ def aggregate_findings(temp_dir, taxonomy):
   ):
     overall_compliance = "Needs review"
 
-  # 8. Generate Summary
+  # 8. Sort result lists for deterministic output
+  def report_finding_sort_key(f):
+    pid = f.get("policy_id", "")
+    fid = f.get("finding_id", "0")
+    try:
+      num_fid = int(fid)
+    except (ValueError, TypeError):
+      num_fid = 0
+    return (pid, num_fid)
+
+  identified_risks.sort(key=report_finding_sort_key)
+  manual_review_needed.sort(key=lambda x: x.get("issue_summary", ""))
+  matches.sort(key=lambda x: x.get("data_type", ""))
+  mismatches.sort(key=lambda x: x.get("data_type", ""))
+
+  # 9. Generate Summary
+
   risk_count = len(identified_risks)
   mismatch_count = len(
       [m for m in mismatches if m.get("status") == "Discrepancy"]
@@ -605,10 +626,6 @@ def aggregate_findings(temp_dir, taxonomy):
       "summary": " ".join(summary_parts),
       "package_name": play_store_info.get("package_name", "unknown"),
       "is_published": is_published,
-      "app_access": {
-          "requires_login": requires_login,
-          "has_in_app_account_deletion": has_in_app_account_deletion,
-      },
       "identified_risks": identified_risks,
       "data_safety_comparison": {"matches": matches, "mismatches": mismatches},
       "local_data_access": [
@@ -672,7 +689,7 @@ def main():
     play_store_info = run_scraper(package_name, temp_dir)
     # Cache it for report reuse
     with open(play_store_info_path, "w") as f:
-      json.dump(play_store_info, f, indent=4)
+      json.dump(play_store_info, f, indent=4, sort_keys=True)
 
   report_data = aggregate_findings(temp_dir, taxonomy)
 
@@ -707,7 +724,6 @@ def main():
   compliance_ui = status_map.get(compliance_raw, "🟡 Needs Review")
 
   app_id = report_data.get("package_name") or "Unknown App"
-  app_access = report_data.get("app_access", {})
 
   findings_content = ""
   if not violations:
@@ -827,7 +843,6 @@ def main():
                 "app_id": app_id,
                 "scan_date": datetime.now().isoformat(),
                 "overall_compliance": compliance_raw,
-                "app_access": app_access,
             },
             "findings": violations,
             "data_safety_mismatches": mismatches,
@@ -836,6 +851,7 @@ def main():
         },
         f,
         indent=4,
+        sort_keys=True,
     )
   print(f"Reports generated successfully at {output_path}")
 

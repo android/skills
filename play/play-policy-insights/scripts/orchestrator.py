@@ -249,7 +249,7 @@ def _write_json_file(path, data):
   """Safely writes a JSON file."""
   try:
     with open(path, "w", encoding="utf-8") as f:
-      json.dump(data, f, indent=4)
+      json.dump(data, f, indent=4, sort_keys=True)
   except Exception as e:  # pylint: disable=broad-exception-caught
     print(f"Warning: Failed to write JSON to {path}: {e}", file=sys.stderr)
 
@@ -483,17 +483,29 @@ def extract_manifest_details(xml_content):
           details["permissions"].append(name)
 
     # Permissions from component declarations
-    for tag in ["service", "receiver", "activity", "provider", "activity-alias"]:
+    for tag in [
+        "service",
+        "receiver",
+        "activity",
+        "provider",
+        "activity-alias",
+    ]:
       for component in root.findall(f".//{tag}", ns):
-        perm = component.get("{http://schemas.android.com/apk/res/android}permission")
+        perm = component.get(
+            "{http://schemas.android.com/apk/res/android}permission"
+        )
         if perm:
           details["permissions"].append(perm)
-        
+
         if tag == "provider":
-          read_perm = component.get("{http://schemas.android.com/apk/res/android}readPermission")
+          read_perm = component.get(
+              "{http://schemas.android.com/apk/res/android}readPermission"
+          )
           if read_perm:
             details["permissions"].append(read_perm)
-          write_perm = component.get("{http://schemas.android.com/apk/res/android}writePermission")
+          write_perm = component.get(
+              "{http://schemas.android.com/apk/res/android}writePermission"
+          )
           if write_perm:
             details["permissions"].append(write_perm)
 
@@ -709,7 +721,7 @@ def write_agent_prompts(env_data, goal_map, output_data):
 def run_aggregation(temp_dir, repo_root):
   """Aggregates and chunks findings for the Critic."""
   worker_pattern = os.path.join(temp_dir, "worker_*.json")
-  worker_files = glob.glob(worker_pattern)
+  worker_files = sorted(glob.glob(worker_pattern))
 
   all_findings = []
   finding_id_counter = 1
@@ -1088,7 +1100,7 @@ def main():
           list(set(manifest_details["permissions"]))
       )
 
-      # Deduplicate foreground services
+      # Deduplicate and sort foreground services
       unique_services = []
       seen_services = set()
       for svc in manifest_details["foreground_services"]:
@@ -1096,7 +1108,12 @@ def main():
         if svc_key not in seen_services:
           seen_services.add(svc_key)
           unique_services.append(svc)
-      manifest_details["foreground_services"] = unique_services
+      
+      # Final stable sort
+      manifest_details["foreground_services"] = sorted(
+          unique_services,
+          key=lambda x: (x.get("name") or "", x.get("type") or ""),
+      )
 
     # 3. Gather results
     data_safety_scan = scanner_future.result()

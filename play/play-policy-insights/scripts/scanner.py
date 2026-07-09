@@ -86,8 +86,8 @@ def collect_target_files(target_dir):
   supported_exts = get_supported_extensions()
 
   for root, dirs, files in os.walk(hybrid_root):
-    dirs[:] = [d for d in dirs if d not in ignored_dirs]
-    for file in files:
+    dirs[:] = sorted([d for d in dirs if d not in ignored_dirs])
+    for file in sorted(files):
       file_path = os.path.join(root, file)
       categorized["all_files"].append((file, file_path, root))
 
