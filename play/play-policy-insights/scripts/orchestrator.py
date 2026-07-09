@@ -86,16 +86,18 @@ GRADLE_ASSIGNMENT_PATTERNS = [
 ]
 
 
-def _strip_inline_comment(line):
+def _strip_inline_comment(line, support_quotes=True):
   """Strips inline comments starting with '#' while preserving quotes."""
   in_double = False
   in_single = False
   for i, char in enumerate(line):
-    if char == '"' and not in_single:
-      in_double = not in_double
-    elif char == "'" and not in_double:
-      in_single = not in_single
-    elif char == "#" and not in_double and not in_single:
+    if support_quotes:
+      if char == '"' and not in_single:
+        in_double = not in_double
+      elif char == "'" and not in_double:
+        in_single = not in_single
+
+    if char == "#" and not in_double and not in_single:
       return line[:i]
   return line
 
@@ -109,7 +111,7 @@ def load_gradle_properties(target_dir):
       try:
         with open(path, "r", encoding="utf-8", errors="ignore") as f:
           for line in f:
-            line = _strip_inline_comment(line).strip()
+            line = _strip_inline_comment(line, support_quotes=False).strip()
             if line and not line.startswith("#") and "=" in line:
               key, val = line.split("=", 1)
               properties[key.strip()] = val.strip()
