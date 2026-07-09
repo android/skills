@@ -1,0 +1,799 @@
+{
+    "signal_categories": {
+        "data_sources": {
+            "PRECISE_LOCATION": [
+                "ACCESS_FINE_LOCATION",
+                "FusedLocationProviderClient",
+                "requestSingleUpdate",
+                "getLastKnownLocation",
+                "navigator.geolocation",
+                "Geolocator",
+                "location.getLocation()",
+                "latitude",
+                "longitude",
+                "gps_coords",
+                "watchPosition",
+                "getCurrentPosition",
+                "getPositionStream",
+                "LocationAccuracy.high",
+                "react-native-geolocation-service",
+                "Expo.Location"
+            ],
+            "APPROX_LOCATION": [
+                "ACCESS_COARSE_LOCATION",
+                "ACCESS_BACKGROUND_LOCATION",
+                "LocationManager",
+                "coarse_location",
+                "ip_location",
+                "ip_country",
+                "LocationAccuracy.low",
+                "LocationAccuracy.balanced"
+            ],
+            "USER_ACCOUNT": [
+                "AccountManager",
+                "registerUser",
+                "login",
+                "signIn",
+                "signUp",
+                "createAccount",
+                "GET_ACCOUNTS",
+                "isLoggedIn",
+                "sign in",
+                "firebaseAuth",
+                "CredentialManager",
+                "credentials",
+                "auth_token",
+                "session_token",
+                "user_id",
+                "uid",
+                "FirebaseAuth",
+                "GoogleSignIn",
+                "SignInWithApple",
+                "flutter_facebook_auth",
+                "Auth0",
+                "@react-native-firebase/auth",
+                "react-native-google-signin",
+                "react-native-app-auth"
+            ],
+            "ACCOUNT_DELETION": [
+                "deleteAccount",
+                "purgeUserData",
+                "closeAccount",
+                "removeUser",
+                "deactivate",
+                "requestDelete",
+                "delete_profile",
+                "destroy_account"
+            ],
+            "NAME": [
+                "textPersonName",
+                "user_name",
+                "firstName",
+                "lastName",
+                "display_name",
+		"full_name",
+                "fullName",
+                "real_name",
+                "realName",
+                "family_name",
+		"familyName",
+                "given_name",
+                "contact_name",
+                "profile_name",
+                "NAME_DATA_EXTRA",
+                "middleName",
+                "nickname",
+                "TextInputType.name"
+            ],
+            "EMAIL": [
+                "textEmailAddress",
+                "email_address",
+                "user_email",
+                ".email",
+                "emailAddress",
+                "userEmail",
+                "accountEmail",
+                "senderEmail",
+                "recipientEmail",
+                "mailAddress",
+                "getEmail(",
+                "setEmail(",
+                "email_id",
+                "primary_email",
+                "keyboardType=\"email-address\"",
+                "TextInputType.emailAddress"
+            ],
+            "ADDRESS": [
+                "textPostalAddress",
+                "postal_address",
+                "user_address",
+                "street_address",
+                "billing_address",
+                "shipping_address",
+                "postal_code",
+                "zip_code",
+                "country_code",
+                "autoComplete=\"postal-address\"",
+                "TextInputType.streetAddress"
+            ],
+            "PHONE": [
+                "textPhone",
+                "phone_number",
+                "user_phone",
+                "getLine1Number",
+                "READ_PHONE_NUMBERS",
+                "mobile_phone",
+                "telephone",
+                "phone_id",
+                "textContentType=\"telephoneNumber\"",
+                "TextInputType.phone"
+            ],
+            "RACE_ETHNICITY": [
+                "race",
+                "ethnicity",
+                "tribal",
+                "demographics"
+            ],
+            "POLITICAL_RELIGIOUS_BELIEFS": [
+                "religion",
+                "religious",
+                "political_affiliation",
+                "political_party",
+                "political_beliefs"
+            ],
+            "SEXUAL_ORIENTATION": [
+                "sexual_orientation",
+                "gender_identity",
+                "gender_preference"
+            ],
+            "PERSONAL_INFO_OTHER": [
+                "date_of_birth",
+                "dob",
+                "birth_date",
+                "gender",
+                "sex",
+                "salutation"
+            ],
+            "CREDIT_DEBIT_BANK_ACCOUNT_NUMBER": [
+                "cardNumber",
+                "card_number",
+                "cvv",
+                "expiry_date",
+                "stripe",
+                "paypal",
+                "bank_account",
+                "iban",
+                "swift_code",
+                "credit_card",
+                "card_holder",
+                "routing_number",
+                "flutter_stripe",
+                "stripe-react-native",
+                "initPaymentSheet"
+            ],
+            "PURCHASE_HISTORY": [
+                "purchaseHistory",
+                "transactionHistory",
+                "orderHistory",
+                "orderId",
+                "purchaseToken",
+                "queryPurchases",
+                "queryPurchasesAsync",
+                "startPurchaseFlow",
+                "PurchasesUpdatedListener",
+                "BillingClient",
+                "receipt",
+                "invoice",
+                "payment_history",
+                "in_app_purchase",
+                "react-native-iap",
+                "RNIap"
+            ],
+            "CREDIT_SCORE": [
+                "credit_score",
+                "fico",
+                "credit_rating",
+                "equifax",
+                "experian",
+                "transunion"
+            ],
+            "FINANCIAL_INFO_OTHER": [
+                "salary",
+                "income",
+                "net_worth",
+                "outstanding_debt",
+                "user_debt"
+            ],
+            "HEALTH": [
+                "BODY_SENSORS",
+                "BODY_SENSORS_BACKGROUND",
+                "SensorManager",
+                "Health Connect",
+                "medical_record",
+                "symptoms",
+                "blood_pressure",
+                "glucose_level",
+                "HealthFactory",
+                "HealthDataType",
+                "getHealthDataFromTypes",
+                "HealthConnectClient",
+                "AppleHealthKit"
+            ],
+            "FITNESS": [
+                "ACTIVITY_RECOGNITION",
+                "Google Fit",
+                "HealthConnect",
+                "Sleep API",
+                "step_counter",
+                "HeartRate",
+                "Heart_Rate",
+                "Cadence",
+                "PowerMeter",
+                "CyclingPower",
+                "CaloriesBurned",
+                "Workout",
+                "PhysicalActivity",
+                "GPX",
+                "ANT+",
+                "react-native-google-fit",
+                "GoogleFit",
+                "fitbit"
+            ],
+            "EMAILS": [
+                "javax.mail",
+                "smtp",
+                "imap",
+                "pop3",
+                "message/rfc822",
+                "mailserver",
+                "email_body",
+                "sendMail",
+                "mail_subject",
+                "email_attachment"
+            ],
+            "SMS_CALL_LOG": [
+                "READ_SMS",
+                "RECEIVE_SMS",
+                "SEND_SMS",
+                "READ_CALL_LOG",
+                "WRITE_CALL_LOG",
+                "SmsRetriever"
+            ],
+            "OTHER_MESSAGES": [
+                "chat_message",
+                "instant_message",
+                "xmpp",
+                "matrix_sdk",
+                "chat_history",
+                "direct_message",
+                "send_message",
+                "websocket_chat"
+            ],
+            "MEDIA": [
+                "READ_MEDIA_IMAGES",
+                "READ_MEDIA_VIDEO",
+                "PhotoPicker",
+                "MediaStore",
+                "ACTION_GET_CONTENT",
+                "ACTION_OPEN_DOCUMENT",
+                "image/*",
+                "video/*"
+            ],
+            "PHOTOS": [
+                "READ_MEDIA_IMAGES",
+                "READ_MEDIA_VISUAL_USER_SELECTED",
+                "PhotoPicker",
+                "PickVisualMedia",
+                "MediaStore.Images",
+                "ACTION_PICK",
+                "ACTION_GET_CONTENT",
+                "image/*",
+                "TakePicture",
+                "ImageCapture",
+                "CAMERA",
+                "image_picker",
+                "launchImageLibrary",
+                "launchCamera",
+                "react-native-image-picker",
+                "expo-image-picker",
+                "wechat_assets_picker"
+            ],
+            "VIDEOS": [
+                "READ_MEDIA_VIDEO",
+                "READ_MEDIA_VISUAL_USER_SELECTED",
+                "MediaStore.Video",
+                "video/*",
+                "PickVisualMedia.VideoOnly",
+                "ACTION_VIDEO_CAPTURE",
+                "VideoCapture",
+                "MediaRecorder",
+                "ExoPlayer",
+                "MediaController",
+                "pickVideo",
+                "react-native-vision-camera",
+                "CameraRoll",
+                "expo-image-picker"
+            ],
+            "AUDIO": [
+                "AudioRecord",
+                "MediaRecorder",
+                "RECORD_AUDIO",
+                "CAPTURE_AUDIO_OUTPUT",
+                "SpeechRecognizer",
+                "RecognitionListener",
+                "VoiceInteractionService",
+                "audio/*",
+                "audio/amr",
+                "audio/3gpp",
+                "voice_note",
+                "voice_memo",
+                "voicemail",
+                "dictation",
+                "voice_recorder",
+                "ambient_sound",
+                "record_button",
+                "mic_icon",
+                "record",
+                "Record.hasPermission",
+                "flutter_sound",
+                "FlutterSoundRecorder",
+                "react-native-audio-recorder-player",
+                "expo-av"
+            ],
+            "MUSIC": [
+                "MediaPlayer",
+                "ExoPlayer",
+                "SimpleExoPlayer",
+                "AudioTrack",
+                "MediaController",
+                "MediaSession",
+                "PlaybackState",
+                "IS_MUSIC",
+                "MediaStore.Audio.Media",
+                "MediaStore.Audio.Playlists",
+                "MediaStore.Audio.Albums",
+                "MediaStore.Audio.Artists",
+                "audio/mpeg",
+                "audio/mp3",
+                "audio/flac",
+                "audio/x-wav",
+                "music",
+                "playlist",
+                "artist",
+                "album",
+                "track",
+                "song",
+                "mp3",
+                "flac",
+                "m4a",
+                "wma",
+                "audioplayers",
+                "assets_audio_player",
+                "react-native-track-player",
+                "react-native-sound"
+            ],
+            "OTHER_AUDIO": [
+                "RingtoneManager",
+                "SoundPool",
+                "ACTUAL_DEFAULT_RINGTONE_URI",
+                "ACTION_RINGTONE_PICKER",
+                "IS_RINGTONE",
+                "IS_NOTIFICATION",
+                "IS_ALARM",
+                "IS_PODCAST",
+                "audio/ogg",
+                "audio/aac",
+                "audio/webm",
+                "ringtone",
+                "notification_sound",
+                "alarm_sound",
+                "podcast",
+                "sound_effect",
+                "audio_effect",
+                "sfx",
+                "soundboard"
+            ],
+            "FILES_AND_DOCS": [
+                "READ_EXTERNAL_STORAGE",
+                "WRITE_EXTERNAL_STORAGE",
+                "MANAGE_EXTERNAL_STORAGE",
+                "*/*",
+                "localStorage",
+                "sessionStorage",
+                "AsyncStorage",
+                "shared_preferences",
+                "flutter_secure_storage",
+                "Hive",
+                "sqflite",
+                "application/pdf",
+                "application/msword",
+                "text/plain",
+                "path_provider",
+                "getApplicationDocumentsDirectory",
+                "getExternalStorageDirectory",
+                "getTemporaryDirectory",
+                "react-native-fs",
+                "RNFS",
+                "expo-file-system",
+                "MMKV",
+                "react-native-mmkv",
+                "Sembast",
+                "RxDB",
+                "Realm"
+            ],
+            "CALENDAR": [
+                "READ_CALENDAR",
+                "WRITE_CALENDAR",
+                "CalendarContract",
+                "device_calendar",
+                "retrieveCalendars",
+                "react-native-calendar-events",
+                "RNCalendarEvents"
+            ],
+            "CONTACTS": [
+                "READ_CONTACTS",
+                "WRITE_CONTACTS",
+                "ContactsContract",
+                "contacts_service",
+                "ContactsService.getContacts",
+                "flutter_contacts",
+                "FlutterContacts",
+                "react-native-contacts",
+                "Contacts.getAll"
+            ],
+            "APP_INTERACTIONS": [
+                "logEvent",
+                "trackScreen",
+                "onItemClick",
+                "onClickListener",
+                "firebase.analytics()",
+                "Mixpanel",
+                "Amplitude",
+                "FirebaseAnalytics",
+                "AmplitudeFlutter",
+                "user_session",
+                "event_params",
+                "page_view",
+                "FirebaseAnalytics.instance",
+                "facebook_app_events",
+                "amplitude_flutter",
+                "mixpanel_flutter",
+                "@react-native-firebase/analytics",
+                "react-native-fbsdk-next",
+                "mixpanel-react-native",
+                "AppEventsLogger"
+            ],
+            "IN_APP_SEARCH_HISTORY": [
+                "searchHistory",
+                "search_query",
+                "SearchRecentSuggestions",
+                "search_term",
+                "query_string"
+            ],
+            "APPS_ON_DEVICE": [
+                "QUERY_ALL_PACKAGES",
+                "getPackageInfo",
+                "getInstalledPackages",
+                "queryIntentActivities"
+            ],
+            "USER_GENERATED_CONTENT": [
+                "textMultiLine",
+                "edit_text",
+                "user_note",
+                "user_bio",
+                "user_feedback",
+                "comment_text"
+            ],
+            "WEB_BROWSING_HISTORY": [
+                "WebView",
+                "loadUrl",
+                "WebSettings",
+                "setJavaScriptEnabled",
+                "browser_history",
+                "visited_url"
+            ],
+            "CRASH_LOGS": [
+                "ApplicationErrorReport",
+                "Crashlytics",
+                "ACRA",
+                "Bugsnag",
+                "Sentry",
+                "uncaughtException",
+                "recordFlutterError",
+                "recordError",
+                "SentryFlutter",
+                "crashlytics()"
+            ],
+            "PERFORMANCE_DIAGNOSTICS": [
+                "ActivityManager",
+                "BatteryManager",
+                "Choreographer",
+                "Debug",
+                "PowerManager",
+                "StrictMode",
+                "FirebasePerf",
+                "trace",
+                "api_latency",
+                "write_latency",
+                "query_time",
+                "elapsed_time",
+                "execution_time"
+            ],
+            "OTHER_APP_PERFORMANCE": [
+                "WorkInfo",
+                "sync_status",
+                "sync_failed",
+                "api_error",
+                "request_timeout",
+                "status_code",
+                "getDatabasePath",
+                "db_size",
+                "database_size",
+                "Macrobenchmark",
+                "benchmark",
+                "telemetry",
+                "cpu_usage",
+                "memory_usage",
+                "heap_usage",
+                "bytes_sent",
+                "bytes_received",
+                "payload_size",
+                "heartbeat",
+                "foreground_duration",
+                "background_duration",
+                "cache_hit_rate",
+                "cache_size",
+                "queue_depth"
+            ],
+            "DEVICE_ID": [
+                "TelephonyManager",
+                "getDeviceId",
+                "getSubscriberId",
+                "IMEI",
+                "IMSI",
+                "AndroidId",
+                "Settings.Secure.ANDROID_ID",
+                "AdvertisingIdClient",
+                "instanceId",
+                "firebase_token",
+                "push_token",
+                "fcm_token",
+                "device_info_plus",
+                "DeviceInfoPlugin",
+                "AndroidDeviceInfo",
+                "react-native-device-info",
+                "DeviceInfo",
+                "getUniqueId",
+                "getAndroidId",
+                "getAdvertisingId"
+            ],
+            "OTHER_ACTIONS": [
+                "gameplay",
+                "button_click",
+                "option_selected",
+                "user_action"
+            ]
+        },
+        "network_transmission": {
+            "-": [
+                "fetch",
+                "axios",
+                "XMLHttpRequest",
+                "WebSocket",
+                "http.get",
+                "http.post",
+                "Dio",
+                "HttpClient"
+            ]
+        },
+        "exact_alarm": {
+            "-": [
+                "USE_EXACT_ALARM",
+                "SCHEDULE_EXACT_ALARM",
+                "setExact",
+                "setExactAndAllowWhileIdle",
+                "AlarmManager"
+            ]
+        },
+        "accessibility": {
+            "-": [
+                "AccessibilityService",
+                "AccessibilityEvent",
+                "BIND_ACCESSIBILITY_SERVICE"
+            ]
+        },
+        "foreground_service": {
+            "-": [
+                "FOREGROUND_SERVICE",
+                "startForeground",
+                "foregroundServiceType",
+                "ServiceInfo.FOREGROUND_SERVICE_TYPE",
+                "FOREGROUND_SERVICE_SPECIAL_USE",
+                "PROPERTY_SPECIAL_USE_FGS_SUBTYPE",
+                "specialUse"
+            ]
+        },
+        "disclosure": {
+            "-": [
+                "AlertDialog",
+                "Dialog",
+                "MaterialAlertDialogBuilder",
+                "Consent",
+                "Disclosure",
+                "Privacy Policy",
+                "Accept",
+                "Agree",
+                "collect",
+                "share",
+                "transmit",
+                "data safety",
+                "privacy"
+            ]
+        }
+    },
+    "file_patterns": {
+        "USER_ACCOUNT": [
+            "account",
+            "login",
+            "auth"
+        ],
+        "SUPPORT": [
+            "support",
+            "help"
+        ],
+        "LEGAL": [
+            "privacy",
+            "terms",
+            "legal"
+        ],
+        "CONFIG": [
+            "config"
+        ],
+        "AUDIO": [
+            "record",
+            "voice",
+            "mic"
+        ],
+        "MUSIC": [
+            "music",
+            "playlist",
+            "song",
+            "player"
+        ],
+        "OTHER_AUDIO": [
+            "ringtone",
+            "sound",
+            "effect",
+            "podcast",
+            "sfx"
+        ],
+        "OTHER_APP_PERFORMANCE": [
+            "telemetry",
+            "benchmark",
+            "sync",
+            "performance"
+        ],
+        "PHOTOS": [
+            "photo",
+            "image",
+            "picture",
+            "camera",
+            "avatar",
+            "gallery"
+        ],
+        "VIDEOS": [
+            "video",
+            "movie",
+            "playback",
+            "camcorder",
+            "recording"
+        ]
+    },
+    "permission_groups": {
+        "LOCATION": [
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.ACCESS_BACKGROUND_LOCATION"
+        ],
+        "CONTACTS": [
+            "android.permission.READ_CONTACTS",
+            "android.permission.WRITE_CONTACTS"
+        ],
+        "SMS_CALL_LOG": [
+            "android.permission.READ_SMS",
+            "android.permission.RECEIVE_SMS",
+            "android.permission.SEND_SMS",
+            "android.permission.RECEIVE_MMS",
+            "android.permission.RECEIVE_WAP_PUSH",
+            "android.permission.READ_CALL_LOG",
+            "android.permission.WRITE_CALL_LOG",
+            "android.permission.PROCESS_OUTGOING_CALLS"
+        ],
+        "MEDIA": [
+            "android.permission.READ_MEDIA_IMAGES",
+            "android.permission.READ_MEDIA_VIDEO",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE"
+        ],
+        "PHOTOS": [
+            "android.permission.READ_MEDIA_IMAGES",
+            "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.CAMERA"
+        ],
+        "VIDEOS": [
+            "android.permission.READ_MEDIA_VIDEO",
+            "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.CAMERA",
+            "android.permission.RECORD_AUDIO"
+        ],
+        "ALL_FILES": [
+            "android.permission.MANAGE_EXTERNAL_STORAGE"
+        ],
+        "AUDIO": [
+            "android.permission.RECORD_AUDIO",
+            "android.permission.READ_MEDIA_AUDIO",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE"
+        ],
+        "MUSIC": [
+            "android.permission.READ_MEDIA_AUDIO",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE"
+        ],
+        "OTHER_AUDIO": [
+            "android.permission.READ_MEDIA_AUDIO",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE"
+        ],
+        "FILES_AND_DOCS": [
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE"
+        ],
+        "APPS_ON_DEVICE": [
+            "android.permission.QUERY_ALL_PACKAGES"
+        ],
+        "exact_alarm": [
+            "android.permission.USE_EXACT_ALARM",
+            "android.permission.SCHEDULE_EXACT_ALARM"
+        ],
+        "foreground_service": [
+            "android.permission.FOREGROUND_SERVICE"
+        ],
+        "accessibility": [
+            "android.permission.BIND_ACCESSIBILITY_SERVICE"
+        ]
+    },
+    "ignored_directories": [
+        ".git",
+        ".scratch",
+        "build",
+        ".gradle",
+        ".idea",
+        "test",
+        "androidTest",
+        "tests",
+        "testFixtures",
+        "node_modules",
+        ".pub-cache",
+        "ios",
+        "web",
+        "macos",
+        "windows",
+        "linux"
+    ],
+    "supported_extensions": [
+        ".java",
+        ".kt",
+        ".js",
+        ".ts",
+        ".jsx",
+        ".tsx",
+        ".dart",
+        ".cs",
+        ".vue"
+    ]
+}
