@@ -143,7 +143,7 @@ class EachNode(Node):
     elif isinstance(val, list):
       for item in val:
         new_ctx = ctx.copy()
-        new_ctx["ITEM"] = str(item)
+        new_ctx["ITEM"] = item
         rendered_items.append(self._render_children(new_ctx))
 
     # Join iterations together with single newline
