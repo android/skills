@@ -1,0 +1,321 @@
+{
+  "data_safety_section": {
+    "name": "Data safety section",
+    "category": "User Data",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/10144311#safetysection",
+      "https://developer.android.com/privacy-and-security/declare-data-use",
+      "https://support.google.com/googleplay/android-developer/answer/10787469"
+    ],
+    "taxonomy": {
+      "PRECISE_LOCATION": {
+        "category": "Location",
+        "data_type": "Precise location",
+        "description": "User or device physical location within an area less than 3 square kilometers, such as location provided by Android’s ACCESS_FINE_LOCATION permission."
+      },
+      "APPROX_LOCATION": {
+        "category": "Location",
+        "data_type": "Approximate location",
+        "description": "User or device physical location to an area greater than or equal to 3 square kilometers, such as the city a user is in, or location provided by Android’s ACCESS_COARSE_LOCATION permission."
+      },
+      "USER_ACCOUNT": {
+        "category": "Personal info",
+        "data_type": "User IDs",
+        "description": "Identifiers that relate to an identifiable person. For example, an account ID, account number, or account name."
+      },
+      "NAME": {
+        "category": "Personal info",
+        "data_type": "Name",
+        "description": "How a user refers to themselves, such as their first or last name, or nickname."
+      },
+      "EMAIL": {
+        "category": "Personal info",
+        "data_type": "Email address",
+        "description": "A user’s email address."
+      },
+      "ADDRESS": {
+        "category": "Personal info",
+        "data_type": "Address",
+        "description": "A user’s address, such as a mailing or home address."
+      },
+      "PHONE": {
+        "category": "Personal info",
+        "data_type": "Phone number",
+        "description": "A user’s phone number."
+      },
+      "RACE_ETHNICITY": {
+        "category": "Personal info",
+        "data_type": "Race and ethnicity",
+        "description": "Information about a user’s race or ethnicity."
+      },
+      "POLITICAL_RELIGIOUS_BELIEFS": {
+        "category": "Personal info",
+        "data_type": "Political or religious beliefs",
+        "description": "Information about a user’s political or religious beliefs."
+      },
+      "SEXUAL_ORIENTATION": {
+        "category": "Personal info",
+        "data_type": "Sexual orientation",
+        "description": "Information about a user’s sexual orientation."
+      },
+      "PERSONAL_INFO_OTHER": {
+        "category": "Personal info",
+        "data_type": "Other info",
+        "description": "Any other personal information such as date of birth, gender identity, veteran status, etc."
+      },
+      "CREDIT_DEBIT_BANK_ACCOUNT_NUMBER": {
+        "category": "Financial info",
+        "data_type": "User payment info",
+        "description": "Information about a user’s financial accounts such as credit card number."
+      },
+      "PURCHASE_HISTORY": {
+        "category": "Financial info",
+        "data_type": "Purchase history",
+        "description": "Information about purchases or transactions a user has made."
+      },
+      "CREDIT_SCORE": {
+        "category": "Financial info",
+        "data_type": "Credit score",
+        "description": "Information about a user’s credit score."
+      },
+      "FINANCIAL_INFO_OTHER": {
+        "category": "Financial info",
+        "data_type": "Other financial info",
+        "description": "Any other financial information such as user salary or debts."
+      },
+      "HEALTH": {
+        "category": "Health and fitness",
+        "data_type": "Health info",
+        "description": "Information about a user's health, such as medical records or symptoms."
+      },
+      "FITNESS": {
+        "category": "Health and fitness",
+        "data_type": "Fitness info",
+        "description": "Information about a user's fitness, such as exercise or other physical activity."
+      },
+      "EMAILS": {
+        "category": "Messages",
+        "data_type": "Emails",
+        "description": "A user’s emails including the email subject line, sender, recipients, and the content of the email."
+      },
+      "SMS_CALL_LOG": {
+        "category": "Messages",
+        "data_type": "SMS or MMS",
+        "description": "A user’s text messages including the sender, recipients, and the content of the message."
+      },
+      "OTHER_MESSAGES": {
+        "category": "Messages",
+        "data_type": "Other in-app messages",
+        "description": "Any other types of messages. For example, instant messages or chat content."
+      },
+      "PHOTOS": {
+        "category": "Photos and videos",
+        "data_type": "Photos",
+        "description": "A user’s photos."
+      },
+      "VIDEOS": {
+        "category": "Photos and videos",
+        "data_type": "Videos",
+        "description": "A user’s videos."
+      },
+      "AUDIO": {
+        "category": "Audio files",
+        "data_type": "Voice or sound recordings",
+        "description": "A user’s voice such as a voicemail or a sound recording."
+      },
+      "MUSIC": {
+        "category": "Audio files",
+        "data_type": "Music files",
+        "description": "A user’s music files."
+      },
+      "OTHER_AUDIO": {
+        "category": "Audio files",
+        "data_type": "Other audio files",
+        "description": "Any other user-created or user-provided audio files."
+      },
+      "FILES_AND_DOCS": {
+        "category": "Files and docs",
+        "data_type": "Files and docs",
+        "description": "A user’s files or documents, or information about their files or documents such as file names."
+      },
+      "CALENDAR": {
+        "category": "Calendar",
+        "data_type": "Calendar events",
+        "description": "Information from a user’s calendar such as events, event notes, and attendees."
+      },
+      "CONTACTS": {
+        "category": "Contacts",
+        "data_type": "Contacts",
+        "description": "Information about the user’s contacts such as contact names, message history, and social graph information like usernames, contact recency, contact frequency, interaction duration and call history."
+      },
+      "APP_INTERACTIONS": {
+        "category": "App activity",
+        "data_type": "App interactions",
+        "description": "Information about how a user interacts with the app. For example, the number of times they visit a page or sections they tap on."
+      },
+      "IN_APP_SEARCH_HISTORY": {
+        "category": "App activity",
+        "data_type": "In-app search history",
+        "description": "Information about what a user has searched for in your app."
+      },
+      "APPS_ON_DEVICE": {
+        "category": "App activity",
+        "data_type": "Installed apps",
+        "description": "Information about the apps installed on a user's device."
+      },
+      "USER_GENERATED_CONTENT": {
+        "category": "App activity",
+        "data_type": "Other user-generated content",
+        "description": "Any other user-generated content not listed here, or in any other section. For example, user bios, notes, or open-ended responses."
+      },
+      "OTHER_ACTIONS": {
+        "category": "App activity",
+        "data_type": "Other actions",
+        "description": "Any other user activity or actions in-app not listed here such as gameplay, likes, and dialog options."
+      },
+      "WEB_BROWSING_HISTORY": {
+        "category": "Web browsing",
+        "data_type": "Web browsing history",
+        "description": "Information about the websites a user has visited."
+      },
+      "CRASH_LOGS": {
+        "category": "App info and performance",
+        "data_type": "Crash logs",
+        "description": "Crash log data from your app. For example, the number of times your app has crashed, stack traces, or other information directly related to a crash."
+      },
+      "PERFORMANCE_DIAGNOSTICS": {
+        "category": "App info and performance",
+        "data_type": "Diagnostics",
+        "description": "Information about the performance of your app. For example battery life, loading time, latency, framerate, or any technical diagnostics."
+      },
+      "OTHER_APP_PERFORMANCE": {
+        "category": "App info and performance",
+        "data_type": "Other app performance data",
+        "description": "Any other app performance data excluding crash log data (e.g., stack traces) and diagnostics (e.g., battery life, loading time, latency, or framerate)."
+      },
+      "DEVICE_ID": {
+        "category": "Device or other IDs",
+        "data_type": "Device or other IDs",
+        "description": "Identifiers that relate to an individual device, browser or app. For example, an IMEI number, MAC address, Widevine Device ID, Firebase installation ID, or advertising identifier."
+      }
+    }
+  },
+  "login_credentials": {
+    "name": "Login credentials",
+    "category": "Play Console Requirements",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/15748846"
+    ]
+  },
+  "sms_call_log_policy": {
+    "name": "SMS and Call Log Permissions",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16558241#sms-call-permissions",
+      "https://support.google.com/googleplay/android-developer/answer/10208820"
+    ]
+  },
+  "package_visibility_policy": {
+    "name": "Package Visibility",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16558241#package-vis",
+      "https://support.google.com/googleplay/android-developer/answer/10158779"
+    ]
+  },
+  "all_files_access_policy": {
+    "name": "All Files Access",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16558241#all-files-access",
+      "https://developer.android.com/training/data-storage/manage-all-files",
+      "https://support.google.com/googleplay/android-developer/answer/10467955"
+    ]
+  },
+  "photo_video_access_policy": {
+    "name": "Photo and Video Permissions",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16558241#photo-and-video-permissions",
+      "https://support.google.com/googleplay/android-developer/answer/16935362",
+      "https://developer.android.com/training/data-storage/shared/media"
+    ]
+  },
+  "location_access_policy": {
+    "name": "Location Permissions",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16558241",
+      "https://support.google.com/googleplay/android-developer/answer/9799150"
+    ] 
+  },
+  "contacts_access_policy": {
+    "name": "Contacts Permissions",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16909972#contacts-permissions",
+      "https://support.google.com/googleplay/android-developer/answer/16935362"
+    ] 
+  },
+  "audio_recording_policy": {
+    "name": "Audio Recording Policy",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/10144311",
+      "https://support.google.com/googleplay/android-developer/answer/16558241"
+    ]
+  },
+  "files_and_docs_policy": {
+    "name": "Files and Docs Access Policy",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/10467955",
+      "https://support.google.com/googleplay/android-developer/answer/16558241"
+    ]
+  },
+  "prominent_disclosure_policy": {
+    "name": "Prominent Disclosure Policy",
+    "category": "User Data",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/10144311"
+    ]
+  },
+  "account_deletion": {
+    "name": "Account Deletion Requirement",
+    "category": "User Data",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/10144311#account_deletion",
+      "https://support.google.com/googleplay/android-developer/answer/13327111"
+    ]
+  },
+  "target_api_level": {
+    "name": "Target API Level Requirements",
+    "category": "Privacy, Deception and Device Abuse",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16561298",
+      "https://support.google.com/googleplay/android-developer/answer/11926878"
+    ]
+  },
+  "accessibility_api_policy": {
+    "name": "Accessibility API Policy",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16558241#accessibility"
+    ]
+  },
+  "exact_alarm_policy": {
+    "name": "Exact Alarm Policy",
+    "category": "Permissions",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/16558241#exact_alarm"
+    ]
+  },
+  "foreground_services_policy": {
+    "name": "Foreground Services",
+    "category": "Privacy, Deception and Device Abuse",
+    "urls": [
+      "https://support.google.com/googleplay/android-developer/answer/13392821",
+      "https://support.google.com/googleplay/android-developer/answer/16559646#foreground_service"
+    ]
+  }
+}
