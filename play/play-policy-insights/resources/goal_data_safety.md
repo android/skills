@@ -139,8 +139,8 @@ Extrapolation Boundaries defined in your Execution Mandates:
    logger that uploads payloads off-device, this counts as **transferred**
    (`is_transferred`: true).
 2. **Third-Party SDK Siphoning**: Look at the project's build files on-demand
-   (e.g., build.gradle or libs.versions.toml). If SDKs like Facebook, Google
-   Ads, or Firebase are initialized and have access to the context, evaluate if
+   (e.g., build.gradle or libs.versions.toml). If SDKs like Google Ads, or
+   Firebase are initialized and have access to the context, evaluate if
    they are siphoning advertiser IDs or device identifiers automatically. If
    those libraries are loaded and the manifest requests broad network
    permissions, treat those device identifiers as **transferred**

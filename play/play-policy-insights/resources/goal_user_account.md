@@ -79,7 +79,7 @@ providers like Google Sign-In or Firebase Auth), look for:
      delete/purge network API call to clean up backend user records, flag this
      as a `IMPORTANT` violation of the deletion mandate.
   2. **Indirect User Accounts**: If the app uses third-party sign-in bridges
-     (e.g., Google Sign-In, Firebase, Facebook Auth) but does not store an
+     (e.g., Google Sign-In, Firebase) but does not store an
      explicit account profile on its own server, it still handles user account
      details if any user preferences or device identifiers are cached remotely.
      If so, a delete link/button is still required.
