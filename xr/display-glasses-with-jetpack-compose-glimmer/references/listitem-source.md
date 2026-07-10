@@ -205,12 +205,6 @@ private fun ListItemImpl(
     val iconSize = GlimmerTheme.iconSizes.large
     val typography = GlimmerTheme.typography
     val innerPadding = GlimmerTheme.componentSpacingValues.small
-    val depthEffect =
-        SurfaceDepthEffect(
-            depthEffect = null,
-            focusedDepthEffect = GlimmerTheme.depthEffectLevels.level4,
-        )
-
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
     val surfaceModifier =
@@ -218,7 +212,8 @@ private fun ListItemImpl(
                 shape = shape,
                 color = color,
                 contentColor = contentColor,
-                depthEffect = depthEffect,
+                // TODO(b/532516157): Reenable depthEffect after b/446294492 is fixed.
+                depthEffect = null,
                 border = border,
                 interactionSource = internalInteractionSource,
             )

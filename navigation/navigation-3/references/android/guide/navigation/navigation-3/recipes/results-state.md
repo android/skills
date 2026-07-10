@@ -91,11 +91,10 @@ class PersonDetailsForm : NavKey
 
 package com.example.nav3recipes.results.common
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
-@Parcelize
-data class Person(val name: String, val favoriteColor: String) : Parcelable
+@Serializable
+data class Person(val name: String, val favoriteColor: String)
 ```
 
 ```
@@ -208,16 +207,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
-import androidx.navigation3.runtime.result.ResultEffect
 import androidx.navigation3.runtime.result.rememberResultEventBusNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.nav3recipes.results.common.Home
 import com.example.nav3recipes.results.common.HomeScreen
-import com.example.nav3recipes.results.common.HomeViewModel
 import com.example.nav3recipes.results.common.Person
 import com.example.nav3recipes.results.common.PersonDetailsForm
 import com.example.nav3recipes.results.common.PersonDetailsScreen
@@ -236,7 +233,10 @@ class ResultStateActivity : ComponentActivity() {
                     backStack = backStack,
                     modifier = Modifier.padding(paddingValues),
                     onBack = { backStack.removeLastOrNull() },
-                    entryDecorators = listOf(rememberResultEventBusNavEntryDecorator()),
+                    entryDecorators = listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberResultEventBusNavEntryDecorator()
+                    ),
                     entryProvider = entryProvider {
                         entry<Home> {
                             val resultState = LocalResultEventBus

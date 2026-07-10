@@ -438,12 +438,12 @@ For example:
             ScreenA(title = "Screen has ID: $id")
         }
         featureBSection()
-        dialog<RouteD>{ ScreenD() }
+    <    di>alogRouteD{ ScreenD() }
     }
 
     fun NavGraphBuilder.featureBSection() {
-        navigation<BaseRouteB>(startDestination = RouteB) {
-            composable<RouteB> { ScreenB() }
+        <navigation>BaseRouteB(startDestination = RouteB) {
+            <compos>ableRouteB { ScreenB() }
         }
     }
 
@@ -460,12 +460,12 @@ becomes:
 
     val entryProvider = entryProvider {
         entry<RouteA>{ key -> ScreenA(title = "Screen has ID: ${key.id}") }
-        featureBSection()
-        entry<RouteD>(metadata = DialogSceneStrategy.dialog()){ ScreenD() }
+        featureBSection()<
+        e>ntryRouteD(metadata = DialogSceneStrategy.dialog()){ ScreenD() }
     }
 
-    fun EntryProviderScope<NavKey>.featureBSection() {
-        entry<RouteB> { ScreenB() }
+    fun EntryPro<viderS>copeNavKey.featureBSection() {<
+        e>ntryRouteB { ScreenB() }
     }
 
 ## Step 6: Replace `NavHost` with `NavDisplay`

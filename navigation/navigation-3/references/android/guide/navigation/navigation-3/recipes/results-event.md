@@ -91,11 +91,10 @@ class PersonDetailsForm : NavKey
 
 package com.example.nav3recipes.results.common
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
-@Parcelize
-data class Person(val name: String, val favoriteColor: String) : Parcelable
+@Serializable
+data class Person(val name: String, val favoriteColor: String)
 ```
 
 ```
@@ -207,14 +206,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEffect
-import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.runtime.result.rememberResultEventBusNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.nav3recipes.results.common.Home
@@ -240,7 +238,10 @@ class ResultEventActivity : ComponentActivity() {
                     backStack = backStack,
                     modifier = Modifier.padding(paddingValues),
                     onBack = { backStack.removeLastOrNull() },
-                    entryDecorators = listOf(rememberResultEventBusNavEntryDecorator()),
+                    entryDecorators = listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberResultEventBusNavEntryDecorator()
+                    ),
                     entryProvider = entryProvider {
                         entry<Home> {
                             val viewModel = viewModel<HomeViewModel>(key = Home.toString())

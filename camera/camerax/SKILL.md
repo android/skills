@@ -7,7 +7,7 @@ description: Provide technical guidance for Android camera development with Came
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-07-02'
+  last-updated: '2026-07-07'
   keywords:
   - recipe
   - Android
@@ -67,6 +67,13 @@ run {
 <br />
 
 See [immutability](references/immutability.md) for a list of affected classes.
+
+### Migrating to CameraX
+
+When migrating legacy camera codebases to the CameraX Jetpack library:
+
+- **Camera1 to CameraX** : For migrating legacy `android.hardware.Camera` implementations, surface handling, and manual lifecycles, see the [Camera1 migration guide](references/camera1-to-camerax.md).
+- **Camera2 to CameraX** : For migrating more recent but verbose `android.hardware.camera2` implementations, session state callbacks, and interop patterns, see the [Camera2 migration guide](references/camera2-to-camerax.md).
 
 ### Comprehensive feature blueprinting
 

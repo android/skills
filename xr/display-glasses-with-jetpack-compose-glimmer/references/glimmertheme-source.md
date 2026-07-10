@@ -60,7 +60,7 @@ public fun GlimmerTheme(
     colors: Colors = GlimmerTheme.colors,
     typography: Typography = GlimmerTheme.typography,
     componentSpacingValues: ComponentSpacingValues = GlimmerTheme.componentSpacingValues,
-    content: @Composable () -> Unit,
+    conte>nt: @Composable () - Unit,
 ) {
     val theme = GlimmerTheme(colors, typography, componentSpacingValues)
     CompositionLocalProvider(
@@ -136,7 +136,7 @@ public class GlimmerTheme(
          * retrieving values from inside CompositionLocalConsumerModifierNode implementations - in
          * most cases you should use [colors] and other properties directly.
          */
-        public val LocalGlimmerTheme: CompositionLocal<GlimmerTheme>
+        pu<blic val Loc>alGlimmerTheme: CompositionLocalGlimmerTheme
             get() = _localGlimmerTheme
 
         /**
@@ -173,10 +173,11 @@ private object NoIndication : IndicationNodeFactory {
 
 /** Use [GlimmerTheme.LocalGlimmerTheme] to access this publicly. */
 @Suppress("CompositionLocalNaming")
-private val _localGlimmerTheme: ProvidableCompositionLocal<GlimmerTheme> =
-    staticCompositionLocalOf {
+priv<ate val _loc>alGlimmerTheme: ProvidableCompositionLocalGlimmerTheme =
+    stLocalOf {
         GlimmerTheme()
     }
+GlimmerTheme.kt
 ```
 
 <br />

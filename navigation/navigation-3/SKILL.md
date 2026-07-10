@@ -8,7 +8,7 @@ description: Learn how to install and migrate to Jetpack Navigation 3, and how t
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-07-02'
+  last-updated: '2026-07-09'
   keywords:
   - recipe
   - Android
@@ -63,7 +63,7 @@ Code examples showcasing common patterns.
 
 ### Deep links
 
-- *[Basic](references/android/guide/navigation/navigation-3/recipes/deeplinks-basic.md)*: Shows how to parse a deep link URL from an Android Intent into a navigation key.
+- *[Basic](https://developer.android.com/guide/navigation/navigation-3/recipes/deeplinks-basic)*: Shows how to parse a deep link URL from an Android Intent into a navigation key.
 - *[Advanced](references/android/guide/navigation/navigation-3/recipes/deeplinks-advanced.md)*: Shows how to handle deep links with a synthetic back stack and correct "Up" navigation behavior.
 
 ### Scenes
