@@ -6,7 +6,8 @@
   **informational and advisory purposes only**. It does NOT constitute legal
   advice, a guarantee of Play Store approval, or a definitive compliance check.
   The Google Play Review team has final authority. Undiscovered issues may still
-  exist.
+  exist. The developer retains sole responsibility and liability for the apps’
+  security, data privacy compliance, and final Play Store submission.
 
 ---
 
@@ -44,7 +45,7 @@ Follow these personalized steps to resolve the identified risks.
 
 | Overall Status | Meaning & Rejection Risk | Required Action |
 | :--- | :--- | :--- |
-| **🟢 Compliant** | The application code and metadata appear fully compliant with analyzed Play Store policies. No active policy violations or high-risk discrepancies were identified. | **Safe to Submit**: Safe for Play Store submission. |
+| **🟢 Compliant** | The application code and metadata appear fully compliant with analyzed Play Store policies. No active policy violations or high-risk discrepancies were identified. | **No issues detected**: No active policy violations were identified by this automatic scan. |
 | **🟡 Needs Review** | No critical violations were found in the code, but the app implements features requiring manual Play Console configurations (e.g., submitting **Reviewer Demo Credentials** for login screens) or requests restricted, high-risk permissions (e.g., Exact Alarms, All Files Access, or Background Location) requiring Play Console declaration forms. | **Must Review**: Review the findings. You must either **migrate to modern scoped alternatives (highly recommended)** to bypass declaration scrutiny, OR **manually verify that your Play Console settings (like Reviewer Credentials and Declaration Forms) are completely and carefully configured** before submitting. |
 | **🔴 Non-Compliant** | Severe, direct policy violations (e.g., silent background data tracking, default-only permission abuse) or active Data Safety declaration mismatches were identified. | **Must Fix**: Immediate rejection or account-level policy suspension risk. You must remediate these issues before submitting to the Play Store. |
 
@@ -52,7 +53,7 @@ Follow these personalized steps to resolve the identified risks.
 
 | Finding Severity | Description | Action Required |
 | :--- | :--- | :--- |
-| **🔴 Critical** | Direct, verified policy violation (e.g., unauthorized data collection/sharing). | **Must Fix**: Immediate rejection risk. |
+| **🔴 Critical** | Direct, verified policy violation (e.g., unauthorized data collection/sharing). | Critical action recommended. |
 | **🟡 Important** | Deprecated permission use or API discrepancy where scoped pathways are mandated. | **Should Fix**: Highly recommended to migrate to prevent manual reviewer flags. |
 | **🔵 Suggestion** | Standard advisory reminder or administrative checklist item (fully compliant). | **Good to Know**: Clean-path confirmation or helper checklist. |
 
