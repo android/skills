@@ -74,7 +74,7 @@ To tap on this button, you would execute `adb shell input tap 152 23`. This taps
   "center": "[250,400]"
 }
 ```
-To scroll down on this list, you would execute `adb shell input swipe 250 400 600 500`. This swipes from the center to the bottom over 500ms.
+To scroll down on this list, you would execute `adb shell input swipe 250 400 250 200 500`. This swipes from the center to the top over 500ms.
 
 # Android Interaction Rules
 1. Always ensure text input fields have `"focused"` in their `"state"` list before entering text
