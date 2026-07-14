@@ -290,8 +290,8 @@ purpose", use these fast heuristics:
 - **Common Evaluation Matrix**:
   | Service Configuration | Real Code Usage | Justified? | Severity | Direct Actionable Recommendation |
   | :--- | :--- | :--- | :--- | :--- |
-  | **`isAccessibilityTool="true"`** | Code performs screen scraping, ad blocking, or automated click routines for standard users. | No (Violation) | `CRITICAL` | **Immediate Rejection Risk**: Remove accessibility helper configs. Migrate UI automation to standard Android testing libraries. |
-  | **`isAccessibilityTool` false/missing** | Code implements an accessibility listener but is not a dedicated helper app. | No prominent disclosure | `CRITICAL` | **Immediate Rejection Risk**: Because you request accessibility permission for a standard utility, you MUST implement an in-app **Prominent Disclosure and Affirmative Consent screen** before asking the user to enable the service, otherwise your app will be rejected. |
+  | **`isAccessibilityTool="true"`** | Code performs screen scraping, ad blocking, or automated click routines for standard users. | No (Violation) | `CRITICAL` | **High Risk of Play Store Rejection**: Remove accessibility helper configs. Migrate UI automation to standard Android testing libraries. |
+  | **`isAccessibilityTool` false/missing** | Code implements an accessibility listener but is not a dedicated helper app. | No prominent disclosure | `CRITICAL` | **High Risk of Play Store Rejection**: Because you request accessibility permission for a standard utility, you MUST implement an in-app **Prominent Disclosure and Affirmative Consent screen** before asking the user to enable the service, otherwise your app will be rejected. |
 
 - **Domain-Specific Heuristics (Strictly Bounded)**:
   Trace the ingestion of accessibility events:

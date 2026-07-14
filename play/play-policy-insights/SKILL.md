@@ -4,7 +4,7 @@ description: Automated auditor designed to verify Android applications against G
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-07-10'
+  last-updated: '2026-07-13'
   keywords:
   - account deletion
   - accessibility api
