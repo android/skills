@@ -6,7 +6,7 @@ description: Analyzes Perfetto traces to find the root cause of latency, memory,
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-05-14'
+  last-updated: '2026-06-09'
   keywords:
   - Perfetto
   - trace analysis
@@ -40,7 +40,22 @@ metadata:
 
 ## Investigation Protocol
 
-Follow this iterative loop until you have isolated the definitive root cause(s):
+### Trace Type Validation (Fail Fast)
+Since this skill explicitly targets system traces, you must verify if the trace
+is a system trace before proceeding. Run the following probe to confirm:
+```sql
+SELECT (
+    EXISTS(SELECT 1 FROM sched LIMIT 1) OR
+    EXISTS(SELECT 1 FROM cpu_counter_track LIMIT 1) OR
+    EXISTS(SELECT 1 FROM raw LIMIT 1)
+) AS is_system_trace
+```
+
+If this returns `0`, stop execution and inform the user in general
+language without exposing the internal mechanics.
+
+If the system trace is valid, follow this iterative loop until you have
+isolated the definitive root cause(s):
 
 ### 1. Formulate Hypothesis
 
@@ -53,6 +68,9 @@ Follow this iterative loop until you have isolated the definitive root cause(s):
 
 - **Metrics First:** Start with a high-level view using trace metrics before diving into custom SQL (e.g., `./trace_processor --run-metrics
   android_startup`).
+  **Note:** Follow these instructions on how to fetch and
+  set up the trace_processor:
+  [`setup.md`](references/setup.md)
 - **Broad to Narrow:** Begin with broad queries using minimal filters. Favor fuzzy matching (e.g., `GLOB '*abc*'`) over exact matching.
 - **Overlapping Time:** When filtering by time, you MUST check for events that overlap with the target time range (e.g., `start1 < end2 AND start2 < end1`) to ensure you don't miss slices that span across the boundaries.
 
@@ -72,8 +90,9 @@ Follow this iterative loop until you have isolated the definitive root cause(s):
 
 Only when you have followed the entire chain of dependencies to the root
 cause(s) AND confirmed through exhaustive search that no other major bottlenecks
-exist: 1. Summarize your findings detailing the verified chain of evidence. 2.
-Conclude with: "This concludes the trace analysis. You can review the full chain
-of evidence in \[scratchpad_filename\]. Let me know if you would like me to drill
-down into any of these specific threads, or if you'd like help drafting a bug
-report."
+exist:
+1. Summarize your findings detailing the verified chain of evidence.
+2. Conclude with: "This concludes the trace analysis. You can review the full chain
+   of evidence in \[scratchpad_filename\]. Let me know if you would like me to drill
+   down into any of these specific threads, or if you'd like help drafting a bug
+   report."
