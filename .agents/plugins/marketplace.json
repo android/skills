@@ -1,0 +1,21 @@
+{
+  "name": "android-skills",
+  "interface": {
+    "displayName": "Android Skills"
+  },
+  "plugins": [
+    {
+      "name": "android-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/android/skills",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

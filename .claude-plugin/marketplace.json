@@ -1,0 +1,42 @@
+{
+  "name": "android-skills",
+  "owner": {
+    "name": "Google / Android"
+  },
+  "plugins": [
+    {
+      "name": "android-skills",
+      "description": "Android skills are Google's official dedicated repository of AI-optimized, modular instructions and resources, to help LLMs better understand and execute specific patterns that follow the best practices and guidance on Android development. Android skills follow the open-standard agent skills - markdown files (SKILL.md) that provide a technical specification of a task, and ground LLMs with information on specialized domains and workflows.",
+      "author": {
+        "name": "Google / Android"
+      },
+      "category": "development",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./build/agp/agp-9-upgrade",
+        "./camera/camerax",
+        "./device-ai/appfunctions",
+        "./devtools/android-cli",
+        "./identity/verified-email",
+        "./jetpack-compose/adaptive",
+        "./jetpack-compose/migration/migrate-xml-views-to-jetpack-compose",
+        "./jetpack-compose/theming/styles",
+        "./navigation/navigation-3",
+        "./performance/r8-analyzer",
+        "./play/engage-sdk-integration",
+        "./play/play-billing-library-version-upgrade",
+        "./play/play-policy-insights",
+        "./profilers/perfetto-sql",
+        "./profilers/perfetto-trace-analysis",
+        "./security/android-intent-security",
+        "./system/edge-to-edge",
+        "./testing/testing-setup",
+        "./wear/jetpack-compose-m3",
+        "./xr/display-glasses-with-jetpack-compose-glimmer"
+      ],
+      "homepage": "https://github.com/android/skills",
+      "license": "Apache-2.0"
+    }
+  ]
+}

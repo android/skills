@@ -1,0 +1,134 @@
+{
+  "name": "android-skills",
+  "version": "1.0.5",
+  "description": "Android skills are Google's official dedicated repository of AI-optimized, modular instructions and resources, to help LLMs better understand and execute specific patterns that follow the best practices and guidance on Android development. Android skills follow the open-standard agent skills - markdown files (SKILL.md) that provide a technical specification of a task, and ground LLMs with information on specialized domains and workflows.",
+  "author": {
+    "name": "Google / Android",
+    "url": "https://github.com/android"
+  },
+  "repository": "https://github.com/android/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "android",
+    "kotlin",
+    "jetpack-compose",
+    "skills"
+  ],
+  "skills": [
+    {
+      "source": {
+        "path": "./build/agp/agp-9-upgrade"
+      }
+    },
+    {
+      "source": {
+        "path": "./camera/camerax"
+      }
+    },
+    {
+      "source": {
+        "path": "./device-ai/appfunctions"
+      }
+    },
+    {
+      "source": {
+        "path": "./devtools/android-cli"
+      }
+    },
+    {
+      "source": {
+        "path": "./identity/verified-email"
+      }
+    },
+    {
+      "source": {
+        "path": "./jetpack-compose/adaptive"
+      }
+    },
+    {
+      "source": {
+        "path": "./jetpack-compose/migration/migrate-xml-views-to-jetpack-compose"
+      }
+    },
+    {
+      "source": {
+        "path": "./jetpack-compose/theming/styles"
+      }
+    },
+    {
+      "source": {
+        "path": "./navigation/navigation-3"
+      }
+    },
+    {
+      "source": {
+        "path": "./performance/r8-analyzer"
+      }
+    },
+    {
+      "source": {
+        "path": "./play/engage-sdk-integration"
+      }
+    },
+    {
+      "source": {
+        "path": "./play/play-billing-library-version-upgrade"
+      }
+    },
+    {
+      "source": {
+        "path": "./play/play-policy-insights"
+      }
+    },
+    {
+      "source": {
+        "path": "./profilers/perfetto-sql"
+      }
+    },
+    {
+      "source": {
+        "path": "./profilers/perfetto-trace-analysis"
+      }
+    },
+    {
+      "source": {
+        "path": "./security/android-intent-security"
+      }
+    },
+    {
+      "source": {
+        "path": "./system/edge-to-edge"
+      }
+    },
+    {
+      "source": {
+        "path": "./testing/testing-setup"
+      }
+    },
+    {
+      "source": {
+        "path": "./wear/jetpack-compose-m3"
+      }
+    },
+    {
+      "source": {
+        "path": "./xr/display-glasses-with-jetpack-compose-glimmer"
+      }
+    }
+  ],
+  "interface": {
+    "displayName": "Android Skills",
+    "shortDescription": "AI-optimized Android development skills from Google.",
+    "longDescription": "Android skills are Google's official dedicated repository of AI-optimized, modular instructions and resources, to help LLMs better understand and execute specific patterns that follow the best practices and guidance on Android development. Android skills follow the open-standard agent skills - markdown files (SKILL.md) that provide a technical specification of a task, and ground LLMs with information on specialized domains and workflows.",
+    "developerName": "Google / Android",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Skills"
+    ],
+    "websiteURL": "https://github.com/android/skills",
+    "defaultPrompt": [
+      "Help me upgrade my app to AGP 9.",
+      "Migrate this Camera1 code to CameraX."
+    ]
+  }
+}
