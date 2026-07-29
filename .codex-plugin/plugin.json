@@ -17,7 +17,7 @@
   "skills": [
     {
       "source": {
-        "path": "./build/agp/agp-9-upgrade"
+        "path": "./build-system/agp/agp-9-upgrade"
       }
     },
     {
@@ -107,7 +107,7 @@
     },
     {
       "source": {
-        "path": "./wear/jetpack-compose-m3"
+        "path": "./wear/wear-compose-m3"
       }
     },
     {

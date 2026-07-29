@@ -14,7 +14,7 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./build/agp/agp-9-upgrade",
+        "./build-system/agp/agp-9-upgrade",
         "./camera/camerax",
         "./device-ai/appfunctions",
         "./devtools/android-cli",
@@ -32,7 +32,7 @@
         "./security/android-intent-security",
         "./system/edge-to-edge",
         "./testing/testing-setup",
-        "./wear/jetpack-compose-m3",
+        "./wear/wear-compose-m3",
         "./xr/display-glasses-with-jetpack-compose-glimmer"
       ],
       "homepage": "https://github.com/android/skills",
