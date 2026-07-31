@@ -1,7 +1,7 @@
 ## Android skills
 
 **Android skills** are a dedicated repository of **AI-optimized, modular instructions** and
-resources, to help LLMs better understand and execute specific patterns that follow the best
+resources, to help agents better understand and execute specific patterns that follow the best
 practices and guidance on Android development
 from [developer.android.com](https://developer.android.com).
 
@@ -46,6 +46,11 @@ will be installed for Gemini and Antigravity at `~/.gemini/antigravity/skills`.
 - `--skill` - Specific skill that you want to install. If omitted (and `--all` isn't specified),
   only the `android-cli` skill will be installed.
 - `--project` - Path to a project root in which to install the skills.
+
+### Activate skills
+
+Your coding agent automatically activates skills that are relevant to your task. To use a skill, prompt your agent to complete a task that is related to the skill, for example "Make my app UI edge-to-edge." The agent should automatically find and use the skill if it has been installed.
+
 
 ## Disclaimer
 
