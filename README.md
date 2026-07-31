@@ -49,7 +49,7 @@ will be installed for Gemini and Antigravity at `~/.gemini/antigravity/skills`.
 
 ### Activate skills
 
-Your coding agent automatically activates skills that are relevant to your task. To use a skill, prompt your agent to complete a task that is related to the skill, for example "Make my app UI edge-to-edge." The agent should automatically find and use the skill if it has been installed.
+Your agent automatically activates skills that are relevant to your task. To use a skill, prompt your agent to complete a task that is related to the skill, for example "Make my app UI edge-to-edge." The agent should automatically find and use the skill if it has been installed.
 
 ## Disclaimer
 
