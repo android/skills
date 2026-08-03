@@ -29,10 +29,21 @@ jobs:
           curl -L -O https://dl.google.com/dac/dac_skills.zip
           mkdir temp_extract
           unzip -o dac_skills.zip -d temp_extract
-          # Only copy directories from the root of the zip, ignoring files in the root
+
+          # 1. Copy non-hidden skill category directories
           if ls -d temp_extract/[!.]*/ >/dev/null 2>&1; then
             cp -r temp_extract/[!.]*/ .
           fi
+
+          # 2. Copy the agent marketplace & plugin directories (.agents, .claude-plugin, .codex-plugin)
+          for dir in .agents .claude-plugin .codex-plugin; do
+            if [ -d "temp_extract/$dir" ]; then
+              rm -rf "$dir"
+              cp -r "temp_extract/$dir" .
+              echo "Copied $dir directory."
+            fi
+          done
+
           rm -rf temp_extract dac_skills.zip
 
       - name: Copy contents of github-skills branch
