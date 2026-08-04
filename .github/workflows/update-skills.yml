@@ -76,24 +76,28 @@ jobs:
 
           # 1. Update .claude-plugin/marketplace.json in-place
           claude_file = pathlib.Path('.claude-plugin/marketplace.json')
-          if claude_file.exists():
-              with open(claude_file, 'r') as f:
-                  data = json.load(f)
-              if 'plugins' in data and len(data['plugins']) > 0:
-                  data['plugins'][0]['skills'] = skill_paths
-              with open(claude_file, 'w') as f:
-                  json.dump(data, f, indent=2)
-                  f.write('\n')
+          if not claude_file.exists():
+              raise FileNotFoundError(f'Required file {claude_file} does not exist. Ensure you are running on the correct branch.')
+
+          with open(claude_file, 'r') as f:
+              data = json.load(f)
+          if 'plugins' in data and len(data['plugins']) > 0:
+              data['plugins'][0]['skills'] = skill_paths
+          with open(claude_file, 'w') as f:
+              json.dump(data, f, indent=2)
+              f.write('\n')
 
           # 2. Update .codex-plugin/plugin.json in-place
           codex_file = pathlib.Path('.codex-plugin/plugin.json')
-          if codex_file.exists():
-              with open(codex_file, 'r') as f:
-                  data = json.load(f)
-              data['skills'] = [{'source': {'path': p}} for p in skill_paths]
-              with open(codex_file, 'w') as f:
-                  json.dump(data, f, indent=2)
-                  f.write('\n')
+          if not codex_file.exists():
+              raise FileNotFoundError(f'Required file {codex_file} does not exist. Ensure you are running on the correct branch.')
+
+          with open(codex_file, 'r') as f:
+              data = json.load(f)
+          data['skills'] = [{'source': {'path': p}} for p in skill_paths]
+          with open(codex_file, 'w') as f:
+              json.dump(data, f, indent=2)
+              f.write('\n')
           "
 
       - name: Commit and push changes
