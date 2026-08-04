@@ -29,21 +29,10 @@ jobs:
           curl -L -O https://dl.google.com/dac/dac_skills.zip
           mkdir temp_extract
           unzip -o dac_skills.zip -d temp_extract
-
-          # 1. Copy non-hidden skill category directories
+          # Only copy directories from the root of the zip, ignoring files in the root
           if ls -d temp_extract/[!.]*/ >/dev/null 2>&1; then
             cp -r temp_extract/[!.]*/ .
           fi
-
-          # 2. Copy the agent marketplace & plugin directories (.agents, .claude-plugin, .codex-plugin)
-          for dir in .agents .claude-plugin .codex-plugin; do
-            if [ -d "temp_extract/$dir" ]; then
-              rm -rf "$dir"
-              cp -r "temp_extract/$dir" .
-              echo "Copied $dir directory."
-            fi
-          done
-
           rm -rf temp_extract dac_skills.zip
 
       - name: Copy contents of github-skills branch
@@ -69,6 +58,50 @@ jobs:
           # 5. Clean up the temp folder
           rm -rf temp_skills
           echo "Successfully copied directories from github-skills branch."
+
+      - name: Update Skill Lists in Plugin Files
+        run: |
+          python3 -c "
+          import json
+          import pathlib
+
+          # Discover all skills
+          skill_paths = []
+          for path in pathlib.Path('.').glob('**/SKILL.md'):
+              if any(p.startswith('.') for p in path.parts[:-1]):
+                  continue
+              skill_paths.append(f'./{path.parent.as_posix()}')
+
+          for path in pathlib.Path('.').glob('**/skill.md'):
+              if any(p.startswith('.') for p in path.parts[:-1]):
+                  continue
+              p_str = f'./{path.parent.as_posix()}'
+              if p_str not in skill_paths:
+                  skill_paths.append(p_str)
+
+          skill_paths = sorted(list(set(skill_paths)))
+
+          # 1. Update .claude-plugin/marketplace.json in-place
+          claude_file = pathlib.Path('.claude-plugin/marketplace.json')
+          if claude_file.exists():
+              with open(claude_file, 'r') as f:
+                  data = json.load(f)
+              if 'plugins' in data and len(data['plugins']) > 0:
+                  data['plugins'][0]['skills'] = skill_paths
+              with open(claude_file, 'w') as f:
+                  json.dump(data, f, indent=2)
+                  f.write('\n')
+
+          # 2. Update .codex-plugin/plugin.json in-place
+          codex_file = pathlib.Path('.codex-plugin/plugin.json')
+          if codex_file.exists():
+              with open(codex_file, 'r') as f:
+                  data = json.load(f)
+              data['skills'] = [{'source': {'path': p}} for p in skill_paths]
+              with open(codex_file, 'w') as f:
+                  json.dump(data, f, indent=2)
+                  f.write('\n')
+          "
 
       - name: Commit and push changes
         run: |
