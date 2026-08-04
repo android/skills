@@ -65,19 +65,12 @@ jobs:
           import json
           import pathlib
 
-          # Discover all skills
+          # Discover all skills with SKILL.md
           skill_paths = []
           for path in pathlib.Path('.').glob('**/SKILL.md'):
               if any(p.startswith('.') for p in path.parts[:-1]):
                   continue
               skill_paths.append(f'./{path.parent.as_posix()}')
-
-          for path in pathlib.Path('.').glob('**/skill.md'):
-              if any(p.startswith('.') for p in path.parts[:-1]):
-                  continue
-              p_str = f'./{path.parent.as_posix()}'
-              if p_str not in skill_paths:
-                  skill_paths.append(p_str)
 
           skill_paths = sorted(list(set(skill_paths)))
 
