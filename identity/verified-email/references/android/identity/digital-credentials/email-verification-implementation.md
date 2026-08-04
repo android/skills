@@ -1,16 +1,6 @@
-## Android skills
-
-[View on GitHub](https://github.com/android/skills/tree/main/identity/verified-email)
-
-### Retrieve verified email
-
-Use an Android skill to integrate a secure, OTP-less email verification flow into your app. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
-
-    android skills add --skill verified-email
-
-<br />
-
-## Overview
+> [!IMPORTANT]
+> **Important:** We released an agent skill to help you implement email verification with the Digital Credentials API. Try out the skill from the [Android skills
+> repository](https://github.com/android/skills).
 
 This guide describes how to implement verified email retrieval using the
 [Digital Credentials Verifier API](https://developer.android.com/identity/digital-credentials/credential-verifier) through an [OpenID for Verifiable
@@ -25,8 +15,8 @@ Manager:
 
 ```kotlin
 dependencies {
-    implementation("androidx.credentials:credentials:1.7.0-alpha03")
-    implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha03")
+    implementation("androidx.credentials:credentials:1.7.0-alpha02")
+    implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha02")
 }
 ```
 
@@ -34,8 +24,8 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation "androidx.credentials:credentials:1.7.0-alpha03"
-    implementation "androidx.credentials:credentials-play-services-auth:1.7.0-alpha03"
+    implementation "androidx.credentials:credentials:1.7.0-alpha02"
+    implementation "androidx.credentials:credentials-play-services-auth:1.7.0-alpha02"
 }
 ```
 

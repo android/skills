@@ -48,18 +48,12 @@ Before you begin, complete the following steps:
 6. Test your implementation using the verification app as outlined in the
    [Testing section](https://developer.android.com/guide/playcore/engage/tv/getting-started#testing).
 
-7. In your production app, set the Engage service environment to production by
-   adding the `<meta-data>` element directly under the `<application>` tag
-   in your `AndroidManifest.xml` file.
-   Don't place this tag inside an `<activity>`.
+7. In your production app, set the Engage service environment to production in
+   the `AndroidManifest.xml` file.
 
-       <application ...>
-           <!-- Other application configurations -->
-
-           <meta-data
-               android:name="com.google.android.engage.service.ENV"
-               android:value="PRODUCTION" />
-       </application>
+       <meta-data
+           android:name="com.google.android.engage.service.ENV"
+           android:value="PRODUCTION" />
 
    > [!IMPORTANT]
    > **Important:** The Engage service environment declaration is only needed for your release build. For your local testing with the verification app, don't include this element.

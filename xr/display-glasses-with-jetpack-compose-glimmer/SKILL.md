@@ -9,7 +9,7 @@ description: Provides guidelines for developing projected Android XR apps for di
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-07-30'
+  last-updated: '2026-07-22'
   keywords:
   - Jetpack Compose Glimmer
   - audio glasses
@@ -250,7 +250,7 @@ feedback for interactive elements.
 If you are creating a Glimmer Icon component, read the:
 
 - **Developer Guidance:** [Jetpack Compose Glimmer: Icons](references/android/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/icons.md)
-- **API Source Code (Icon):** Use [references/icon-source.md](https://developer.android.com/agents/skills/xr/display-glasses-with-jetpack-compose-glimmer/references/icon-source).
+- **API Source Code (Icon):** Use [references/icon-source.md](references/icon-source.md).
 - **API Source Code (IconButton):** Use [references/iconbutton-source.md](references/iconbutton-source.md).
 - **API Source Code (IconSizes):** Use [references/iconsizes-source.md](references/iconsizes-source.md).
 
@@ -264,7 +264,7 @@ different types.
 
 ##### Guidelines and usage
 
-- **ListItem Slots:** Use the `ListItem` composable for rows. It provides predefined slots. Use [references/listitem-source.md](https://developer.android.com/agents/skills/xr/display-glasses-with-jetpack-compose-glimmer/references/listitem-source) for reference.
+- **ListItem Slots:** Use the `ListItem` composable for rows. It provides predefined slots. Use [references/listitem-source.md](references/listitem-source.md) for reference.
 - **Visual Consistency:** When building lists of similar items, always use a consistent background color (typically `GlimmerTheme.colors.surface`) and corner radius (standard 36.dp) for every item. Don't vary these unless you are visually grouping different *types* of content.
 - **Integrated Title Chips:** Glimmer Lists support integrated title chips. **IF** you need a section header within a list: **THEN** enable the integrated title chip rather than adding a standalone `TitleChip` to maintain spatial consistency.
 - **Vertical Arrangement:** ALWAYS use `verticalArrangement =
@@ -276,7 +276,7 @@ different types.
 If you are creating a Glimmer List component, read the:
 
 - **API Source Code (List):** Use [references/list-source.md](references/list-source.md).
-- **API Source Code (ListItem):** Use [references/listitem-source.md](https://developer.android.com/agents/skills/xr/display-glasses-with-jetpack-compose-glimmer/references/listitem-source).
+- **API Source Code (ListItem):** Use [references/listitem-source.md](references/listitem-source.md).
 - **API Source Code (GlimmerLazyListState):** Use [references/liststate-source.md](references/liststate-source.md).
 
 #### Stacks

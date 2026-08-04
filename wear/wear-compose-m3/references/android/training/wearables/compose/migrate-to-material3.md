@@ -27,19 +27,19 @@ M3 has a separate package and version to M2.5:
 
 ### M3
 
-    implementation("androidx.wear.compose:compose-material3:1.7.0-alpha07")
+    implementation("androidx.wear.compose:compose-material3:1.7.0-alpha06")
 
 See the latest M3 versions on the [Wear Compose Material 3 releases page](https://developer.android.com/jetpack/androidx/releases/wear-compose-m3).
 
-Wear Compose Foundation library version 1.7.0-alpha07 introduced
+Wear Compose Foundation library version 1.7.0-alpha06 introduced
 some new components that are designed to work with Material 3 components.
 Similarly, `SwipeDismissableNavHost` from Wear Compose Navigation library has an
 updated animation when running on Wear OS 6 (API level 36) or higher. When
 updating to Wear Compose Material 3 version, we suggest to also update the Wear
 Compose Foundation and Navigation libraries:
 
-    implementation("androidx.wear.compose:compose-foundation:1.7.0-alpha07")
-    implementation("androidx.wear.compose:compose-navigation:1.7.0-alpha07")
+    implementation("androidx.wear.compose:compose-foundation:1.7.0-alpha06")
+    implementation("androidx.wear.compose:compose-navigation:1.7.0-alpha06")
 
 ## Theme
 
@@ -329,7 +329,7 @@ Here is a full list of all the Material 3 components:
 And finally a list of some relevant components from Wear Compose Foundation
 library:
 
-| Wear Compose Foundation 1.7.0-alpha07 |   |
+| Wear Compose Foundation 1.7.0-alpha06 |   |
 |---|---|
 | [androidx.wear.compose.foundation.hierarchicalFocusGroup](https://developer.android.com/reference/kotlin/androidx/wear/compose/foundation/package-summary#(androidx.compose.ui.Modifier).hierarchicalFocusGroup(kotlin.Boolean)) | Used to annotate composables in an application, to keep track of the active part of the composition and coordinate focus. |
 | [androidx.wear.compose.foundation.pager.HorizontalPager](https://developer.android.com/reference/kotlin/androidx/wear/compose/foundation/pager/package-summary#HorizontalPager(androidx.wear.compose.foundation.pager.PagerState,androidx.compose.ui.Modifier,androidx.compose.foundation.layout.PaddingValues,kotlin.Int,androidx.compose.foundation.gestures.TargetedFlingBehavior,kotlin.Boolean,androidx.wear.compose.foundation.GestureInclusion,kotlin.Boolean,kotlin.Function1,androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior,kotlin.Function2)) | A horizontally scrolling pager, built on the Compose Foundation components with Wear-specific enhancements to improve performance and adherence to Wear OS guidelines. |

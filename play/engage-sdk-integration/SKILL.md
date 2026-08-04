@@ -6,7 +6,7 @@ description: Helps developers integrate, debug, and resolve Play Engage SDK impl
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-07-31'
+  last-updated: '2026-07-18'
   keywords:
   - android
   - engage
@@ -29,7 +29,7 @@ Follow these steps to assist the developer:
    - Check if the integration is for TV or mobile. If the integration is for TV, read the TV-specific sections in [patterns.md](references/patterns.md) as well.
    - Use `{VERTICAL}.md` in the **[references/schemas/](references/schemas)** directory to identify the corresponding Engage entities and the `client` class name. The `client` field in the JSON provides the full class name. For example, `com.google.android.engage.food.service.AppEngageFoodClient`.
    - **Note:** Initializing the client class requires a `Context` parameter. For example, `AppEngageFoodClient(context)`.
-   - Always refer to [common.md](https://developer.android.com/agents/skills/play/engage-sdk-integration/references/common) for common entities.
+   - Always refer to [common.md](references/common.md) for common entities.
    - Ask which cluster type they want to publish from the supported cluster types for that vertical.
    - Find the method to call from `{VERTICAL}.md` in the **[references/schemas/](references/schemas)** directory for the specified cluster. Each method will specify the request it expects.
    - Get the request structure from [requests.md](references/requests.md) and clusters from [clusters.md](references/clusters.md). Then suggest and use sources to fill the fields in the request structure correctly, along with the required entities and clusters.
@@ -69,7 +69,7 @@ Follow these steps to assist the developer:
 
    - Perform a Gradle sync.
    - If errors occur, follow this resolution order:
-     - Fix import errors. For package `com.google.android.engage` or classes starting with `AppEngage`, verify the package name in the `{VERTICAL}.md` in **[references/schemas/](references/schemas)** directory or [common.md](https://developer.android.com/agents/skills/play/engage-sdk-integration/references/common).
+     - Fix import errors. For package `com.google.android.engage` or classes starting with `AppEngage`, verify the package name in the `{VERTICAL}.md` in **[references/schemas/](references/schemas)** directory or [common.md](references/common.md).
      - Fix any other errors.
    - Execute a full Gradle build and resolve any remaining compilation issues. Repeat this step until the Gradle build is successful.
 7. **User checklist:** At the end of code generation, notify the user to go
@@ -102,7 +102,7 @@ Follow these steps to assist the developer:
   - [Listen Vertical](references/android/guide/playcore/engage/listen.md)
   - [Read Vertical](references/android/guide/playcore/engage/read.md)
   - [Shopping Vertical](references/android/guide/playcore/engage/shopping.md)
-  - [Social Vertical](references/android/guide/playcore/engage/social.md)
+  - [Social Vertical](https://developer.android.com/guide/playcore/engage/social)
   - [Travel Vertical](references/android/guide/playcore/engage/travel.md)
   - [Health and Fitness Vertical](references/android/guide/playcore/engage/healthandfitness.md)
   - [Other Verticals](references/android/guide/playcore/engage/otherverticals.md)

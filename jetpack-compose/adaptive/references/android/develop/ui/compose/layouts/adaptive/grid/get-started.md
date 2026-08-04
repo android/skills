@@ -6,7 +6,7 @@ This page describes how to implement basic [`Grid`](https://developer.android.co
    `lib.versions.toml`.
 
        [versions]
-       compose = "1.12.0-rc01"
+       compose = "1.12.0-beta02"
 
        [libraries]
        androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "compose" }

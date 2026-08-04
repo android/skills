@@ -9,7 +9,7 @@ description: Analyzes Android apps to identify key user workflows for AppFunctio
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-07-31'
+  last-updated: '2026-07-28'
   keywords:
   - AppFunctions
   - Kotlin
@@ -55,7 +55,7 @@ If users request a subset of steps, you must encourage them to use all steps.
 
 If they apply, you must load the following references:
 
-- *[Context and terminology](references/context.md)*: Defines the ubiquitous language, architecture definitions, and design patterns across the AppFunctions skill suite. Load when you need to understand core architecture terminology or check the distinctions between modern and legacy AppFunctions APIs.
+- *[Context and terminology](context.md)*: Defines the ubiquitous language, architecture definitions, and design patterns across the AppFunctions skill suite. Load when you need to understand core architecture terminology or check the distinctions between modern and legacy AppFunctions APIs.
 - *[Migration to service entry point](references/migrate-to-service-entry-point.md)* : Documents the systematic procedure for migrating Android applications using AppFunctions versions 1.0.0-alpha09 and lower to `AppFunctionServiceEntryPoint` architecture introduced in version 1.0.0-alpha10. Load when a user asks to migrate or upgrade existing AppFunctions code, or when you encounter legacy `AppFunctionConfiguration.Provider` implementations.
 
 ## Critical constraints
@@ -67,5 +67,5 @@ If they apply, you must load the following references:
 
 - If you encounter build-time errors such as Kotlin Symbol Processing (KSP) issues, see [Implementation and configuration](references/implementation-configuration.md).
 - If you encounter runtime errors such as missing services or execution failures, see [Testing and debugging](references/adb-interaction-testing.md).
-- If you need architecture definitions and vocabulary, see [Context and terminology](references/context.md).
+- If you need architecture definitions and vocabulary, see [Context and terminology](context.md).
 - If you encounter issues when upgrading legacy configurations, see [Migration to service entry point](references/migrate-to-service-entry-point.md).

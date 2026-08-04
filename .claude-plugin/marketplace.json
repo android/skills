@@ -25,6 +25,7 @@
         "./navigation/navigation-3",
         "./performance/r8-analyzer",
         "./play/engage-sdk-integration",
+        "./play/play-billing-library-version-upgrade",
         "./play/play-policy-insights",
         "./profilers/perfetto-sql",
         "./profilers/perfetto-trace-analysis",

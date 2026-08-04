@@ -72,6 +72,11 @@
     },
     {
       "source": {
+        "path": "./play/play-billing-library-version-upgrade"
+      }
+    },
+    {
+      "source": {
         "path": "./play/play-policy-insights"
       }
     },

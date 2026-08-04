@@ -8,7 +8,7 @@ description: Provides a complete workflow for implementing verified email retrie
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-07-30'
+  last-updated: '2026-07-02'
   keywords:
   - implementation
   - Android
@@ -26,7 +26,7 @@ metadata:
 
 ## Fundamentals
 
-- *[Overview of Digital Credentials](https://developer.android.com/identity/digital-credentials/email-verification)*: Learn about cryptographically verifiable documents and the role of Credential Manager.
+- *[Overview of Digital Credentials](references/android/identity/digital-credentials/email-verification.md)*: Learn about cryptographically verifiable documents and the role of Credential Manager.
 - *[Glossary](references/android/identity/digital-credentials/email-verification-implementation.md)* : Definitions for `dcql_query`, `UserInfoCredential`, and `GetDigitalCredentialOption`.
 
 ### Standards \& Examples
@@ -130,8 +130,8 @@ Manager:
 
 ```kotlin
 dependencies {
-    implementation("androidx.credentials:credentials:1.7.0-alpha03")
-    implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha03")
+    implementation("androidx.credentials:credentials:1.7.0-alpha02")
+    implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha02")
 }
 ```
 
@@ -139,8 +139,8 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation "androidx.credentials:credentials:1.7.0-alpha03"
-    implementation "androidx.credentials:credentials-play-services-auth:1.7.0-alpha03"
+    implementation "androidx.credentials:credentials:1.7.0-alpha02"
+    implementation "androidx.credentials:credentials-play-services-auth:1.7.0-alpha02"
 }
 ```
 
@@ -404,7 +404,7 @@ actual call to the Credential Manager API.
 
 ## See also
 
-- [Overview of verified email retrieval](https://developer.android.com/identity/digital-credentials/email-verification)
+- [Overview of verified email retrieval](references/android/identity/digital-credentials/email-verification.md)
 - [Credential Manager](references/android/identity/credential-manager/index.md)
 
 ## Critical Security Guidelines
