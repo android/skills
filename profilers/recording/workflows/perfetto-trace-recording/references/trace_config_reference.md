@@ -1,16 +1,16 @@
 # Synthesizing Perfetto Trace Configs (Mix & Match)
 
-Read this when you need a custom trace config — a mixture of data sources the
+Read this when you need a custom trace config - a mixture of data sources the
 specialized helper scripts do not cover. Start from the exemplar configs in
 `$SKILL_ROOT/recording/workflows/perfetto-trace-recording/references/example-configs/`,
 then add, remove, or merge the pieces described below.
 
 ## Shape of a config
 
-A config is a `TraceConfig` protobuf — authoritative schema:
+A config is a `TraceConfig` protobuf - authoritative schema:
 <https://raw.githubusercontent.com/google/perfetto/main/protos/perfetto/config/trace_config.proto>
 (per-source option messages live under `protos/perfetto/config/` in the same
-repo, e.g. `.../ftrace/ftrace_config.proto`) — written in protobuf **text
+repo, e.g. `.../ftrace/ftrace_config.proto`) - written in protobuf **text
 format** (conventionally saved as `config.pftxt`):
 
 ```protobuf
@@ -77,9 +77,9 @@ per-source guides live under
 
 ## Top-level knobs
 
-- `duration_ms` — trace length. Omit it to trace until the recording command
+- `duration_ms` - trace length. Omit it to trace until the recording command
   is stopped (Ctrl-C on `record_android_trace`).
-- `buffers.fill_policy` — `RING_BUFFER` keeps newest data (right choice when
+- `buffers.fill_policy` - `RING_BUFFER` keeps newest data (right choice when
   the interesting moment is at the end); `DISCARD` keeps the oldest.
 - Long traces: `write_into_file: true` + `file_write_period_ms` stream buffer
   to disk periodically so the trace can exceed RAM; `flush_period_ms: 30000`
@@ -92,7 +92,7 @@ per-source guides live under
 - All buffer sizes are **KB** (`size_kb: 32768` = 32 MB); durations are
   **ms**.
 - atrace data (categories and app events) only flows through the
-  `linux.ftrace` data source — there is no separate "atrace" source, and an
+  `linux.ftrace` data source - there is no separate "atrace" source, and an
   app's custom trace events appear only if its package is listed in
   `atrace_apps` (or `atrace_apps: "*"`).
 - Field-name typos are only caught when the config is parsed at record time:

@@ -27,11 +27,14 @@ Follow these steps in order:
    > After identifying the specific instance to investigate and the symptom
    > window (for example, janky frame at `ts = 5.1s`), check whether the first
    > blocking event was caused by a stall that _started before_ the symptom
-   > window:
+   > window. Expanding the window upstream is essential because stalls (for
+   > example, in binder servers, memory reclamation or kernel locks) often
+   > originate hundreds of milliseconds before the user-visible frame drop or
+   > latency spike occurs.
    >
    > - Find the victim's first non-Running state transition within the symptom
    >   window.
-   > - Follow the waker chain for that transition. Check waker timestamps —
+   > - Follow the waker chain for that transition. Check waker timestamps -
    >   if the blocking event began significantly before the symptom window,
    >   expand the investigation window upstream to include that origin.
    > - If it cascades down to an origin in another process (for example, a
@@ -49,14 +52,14 @@ Key available metrics for `--run-metrics`:
 
 Quick lookup table based on symptom:
 
-| Symptom/Issue | What to check | Useful Perfetto tables |
-| :--- | :--- | :--- |
-| App startup | Main thread | `android_startups` |
-| App jank | Main, render threads | `actual_frame_timeline_slice` |
-| System jank | SurfaceFlinger | `actual_frame_timeline_slice` |
-| App/system crash | `Process crashed` or `tombstoned` | `slice` |
-| ANR | Main thread, `system_server` watchdog | `thread_state`, `slice` |
-| Frame issues | `DrawFrame` or `doFrame` slices | `slice` |
+| Symptom/Issue    | What to check                         | Useful Perfetto tables        |
+| :--------------- | :------------------------------------ | :---------------------------- |
+| App startup      | Main thread                           | `android_startups`            |
+| App jank         | Main, render threads                  | `actual_frame_timeline_slice` |
+| System jank      | SurfaceFlinger                        | `actual_frame_timeline_slice` |
+| App/system crash | `Process crashed` or `tombstoned`     | `slice`                       |
+| ANR              | Main thread, `system_server` watchdog | `thread_state`, `slice`       |
+| Frame issues     | `DrawFrame` or `doFrame` slices       | `slice`                       |
 
 ## Final Output Format
 

@@ -10,7 +10,7 @@ The `trace_processor` binary is what every other Perfetto analysis tool
 runs on top of, including the Perfetto UI. Reference docs:
 <https://perfetto.dev/docs/analysis/trace-processor>.
 
-> **Prerequisite — `trace_processor` must be invokable.** Before
+> **Prerequisite - `trace_processor` must be invokable.** Before
 > running any of the shell commands below, read
 > `$SKILL_ROOT/references/perfetto/setup.md`. It defines how to make
 > the bare `trace_processor` commands below work in this environment.
@@ -24,7 +24,7 @@ trace); the session pays it once, and every real analysis runs more than
 one query.
 
 ```sh
-# 1. Load the trace into a background session — once per trace.
+# 1. Load the trace into a background session - once per trace.
 #    Pick a descriptive session name (e.g. derived from the trace file).
 trace_processor server unix --name mysession --daemonize TRACE_FILE
 
@@ -41,14 +41,14 @@ Multiple statements separated by `;` are supported in one invocation.
 Session rules:
 
 - Session names are managed by trace_processor in a per-user session
-  directory — there are no ports to choose and no collisions with other
+  directory - there are no ports to choose and no collisions with other
   agents or the Perfetto UI.
 - **Session state persists across `query --remote` calls.** A
   `CREATE PERFETTO TABLE` or `INCLUDE PERFETTO MODULE` run in one call is
   visible in the next, so materializing intermediate results pays off
   across invocations.
 - Flags that configure trace loading (`--full-sort`, `--add-sql-package`, ...)
-  belong on the `server unix` invocation, not on `query --remote` — the client
+  belong on the `server unix` invocation, not on `query --remote` - the client
   rejects them with an explanatory error.
 - `--remote` also accepts an absolute `*.sock` path or `host:port`;
   names are the common case.
@@ -56,7 +56,7 @@ Session rules:
   (`--idle-timeout`), but kill your session when the analysis is done.
 
 `TRACE_FILE` can be a local path, an `http(s)://` URL, or a Perfetto UI
-share link (`https://ui.perfetto.dev/#!/?s=<hash>`) — in the last two
+share link (`https://ui.perfetto.dev/#!/?s=<hash>`) - in the last two
 cases trace_processor downloads the trace for you (cached under
 `~/.cache/perfetto/` or the platform equivalent), resolving the share
 link to its underlying trace first.
@@ -70,7 +70,7 @@ calls. Default to a session.
 ## Discovering what's in the trace
 
 PerfettoSQL ships with **intrinsic table-functions** for browsing the
-loaded standard library — modules, tables/views, functions, macros. Use
+loaded standard library - modules, tables/views, functions, macros. Use
 these to find what's available and to verify if a Standard Library module
 already provides the needed abstraction before drafting custom logic.
 
@@ -78,11 +78,11 @@ already provides the needed abstraction before drafting custom logic.
 use a plain `LIMIT 0` query to read the exact column schema of any specific
 table, view, or query result before drafting your query.
 
-> **Intrinsic surface — not stable API.** The `__intrinsic_*` names below
+> **Intrinsic surface - not stable API.** The `__intrinsic_*` names below
 > are an implementation detail of trace processor. They're fair game for
 > an agent to use during a session because this reference is loaded, but
 > **don't bake `__intrinsic_*` names into committed scripts, dashboards,
-> or stdlib modules** — they can change without notice.
+> or stdlib modules** - they can change without notice.
 
 ```sql
 -- 1. List every stdlib module currently available.
@@ -144,11 +144,11 @@ LIMIT 20;
 
 A few commonly used modules to know:
 
-- `slices.with_context` — slice rows joined with their thread / process.
-- `sched.with_context` — `sched_slice` joined with thread / process.
-- `android.startup.startups` — one row per app startup.
-- `stacks.cpu_profiling` — flat samples and call-graph helpers.
-- `android.memory.heap_graph.dominator_tree` — retained-size analysis for
+- `slices.with_context` - slice rows joined with their thread / process.
+- `sched.with_context` - `sched_slice` joined with thread / process.
+- `android.startup.startups` - one row per app startup.
+- `stacks.cpu_profiling` - flat samples and call-graph helpers.
+- `android.memory.heap_graph.dominator_tree` - retained-size analysis for
   Java heap dumps.
 
 The module name maps directly to the file path under the stdlib root:

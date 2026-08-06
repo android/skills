@@ -1,5 +1,5 @@
 ---
-domain: The specific domain or product, for example 'Pixel'
+domain: The specific domain or product.
 description: Description of the domain/subsystem for effective routing
 keywords:
   - List of symptoms and keywords where these hints are applicable,

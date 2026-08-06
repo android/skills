@@ -12,8 +12,8 @@ Window, UTID, System Vitals) provided in your initial prompt.
 **High-Level Algorithm:**
 
 1. Prerequisites (Step 1)
-2. Calculate time distribution & identify state buckets (Step 2)
-3. Domain & system hints discovery for the candidate (Step 3)
+2. Calculate time distribution and identify state buckets (Step 2)
+3. Domain and System hints discovery for the candidate (Step 3)
 4. Wait for user confirmation (Step 3)
 5. Run exhaustive investigation for each significant state bucket sequentially
    (Steps 4 and 5), starting with the largest bucket. Output total time
@@ -23,8 +23,7 @@ Window, UTID, System Vitals) provided in your initial prompt.
 
 ### Step 1: Prerequisites
 
-- Read `$SKILL_ROOT/references/perfetto/sql.md` and follow its execution
-  protocol for all query generation.
+- Follow `$SKILL_ROOT/references/perfetto/sql.md` for session-based query execution.
 - Read
   `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/guiding_principles.md`
   to identify best practices, ensure data-driven analysis, and avoid pitfalls.
@@ -43,8 +42,11 @@ Window, UTID, System Vitals) provided in your initial prompt.
    - A thread in `S` state could be normal behavior -> investigate only if
      the sleep actually overlaps with a pending obligation (for example, a
      pending binder reply).
-   - A thread in `Running/R` state for a significant portion -> do not just
-     blame software:
+   - A thread in `Running/Runnable`: When a thread spends high duration in
+     in `Running/Runnable`, inspect CPU frequency, throttling counters, and core
+     migrations before attributing latency to code inefficiency, because
+     hardware throttling inflates wall time without increasing instruction
+     overhead:
      - Verify first that an identified code path is actually doing
        disproportionate work.
      - Query the trace to find what the thread was doing during this window.
@@ -53,17 +55,12 @@ Window, UTID, System Vitals) provided in your initial prompt.
      - Beyond blocking slices, query and identify repetitive micro-operations
        or gaps that collectively exhaust the budget to prevent tunnel vision.
      - Perform a system-wide check to identify if there was CPU throttling or
-       core migrations around the symptom window.
-
-> **Action:** Use `MIN`/`MAX` instead of `AVG` to identify true anomalies (See
-> Principle 7 in `guiding_principles.md`).
-
+       core migrations around the symptom window (see Principle 7).
 4. **Drill down:** For every significant bucket revealed from the time
    distribution analysis during the symptom window, identify what the thread
    was doing at the transition point. Investigate every significant bucket (for
    example, >= 20% of the time window) to avoid missing real bottlenecks or
    composite issues.
-
 > **Action:** Tag missing data as `[GAP]`. Do not guess.
 
 ### Step 3: Domain and Hints Discovery
@@ -100,34 +97,35 @@ in order:
     **Terminal root cause**, **Blocked by another thread**, or
     **Partial suspect**.
 
-> A finding is a "terminal root cause" if:
->
-> - You can trace it down to a physical bottleneck (thermal throttle, GPU,
->   storage). **Require Specificity:** Do not conclude with generic labels.
->   Specify the _what_ clearly.
-> - A specific function or code path is identified as doing disproportionate
->   work relative to its purpose (for example, synchronous disk IO on main
->   thread, unnecessary object allocation triggering GC).
-> - A scheduling policy or resource limit is identified as artificially
->   constraining the thread (for example, background CPU cap, foreground
->   service restriction).
-> - The bottleneck is identified in a different process/service that the
->   investigated process cannot control (for example, `system_server` lock
->   contention, `SurfaceFlinger` throttling).
+    > A finding is a "terminal root cause" if:
+    >
+    > - You can trace it down to a physical bottleneck (thermal throttle, GPU,
+    >   storage). **Require Specificity:** Do not conclude with generic labels.
+    >   Specify the _what_ clearly.
+    > - A specific function or code path is identified as doing disproportionate
+    >   work relative to its purpose (for example, synchronous disk IO on main
+    >   thread, unnecessary object allocation triggering GC).
+    > - A scheduling policy or resource limit is identified as artificially
+    >   constraining the thread (for example, background CPU cap, foreground
+    >   service restriction).
+    > - The bottleneck is identified in a different process/service that the
+    >   investigated process cannot control (for example, `system_server` lock
+    >   contention, `SurfaceFlinger` throttling).
 
 - **Systemic sweep before concluding:** Discovering an application-layer
   bottleneck (software root cause) does not terminate the investigation of a
   state bucket. Before concluding any state bucket as a terminal root cause,
   check relevant system hints for that state (`CPU`, `IO`, `Memory`, `IPC`)
-  and verify whether platform-level confounds — such as CPU scaling, memory
-  pressure, thermal throttling, or I/O saturation — simultaneously degraded
-  performance during the window. Report discovered systemic confounds as
-  **co-root causes** or duration modifiers.
+  and verify whether platform-level confounds - such as CPU scaling, memory
+  pressure, thermal throttling, or I/O saturation - simultaneously degraded
+  performance **around the symptom window.** Report discovered systemic
+  confounds as **co-root causes** or duration modifiers (see Principle 7 in
+  `guiding_principles.md`).
 
 **Why:** Software execution duration is not an absolute constant; it is
 modulated by platform state (frequency scaling, thermals, memory reclamation).
 Always check system-wide confounds before reporting an inefficient code path as
-the sole root cause — to avoid concluding inflated software duration as the
+the sole root cause - to avoid concluding inflated software duration as the
 sole root cause while missing the underlying kernel or hardware anomaly that
 magnified it. Back findings with empirical proof (`[SQL]`) or mark as `[GAP]`
 if inconclusive.

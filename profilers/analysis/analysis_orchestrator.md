@@ -10,8 +10,8 @@ investigate a memory leak".
 ## Handling Composite Requests
 
 If the user's request involves multiple distinct analysis goals (for example,
-analyzing a trace for jank AND checking for memory leaks), do not execute them
-simultaneously.
+analyzing a trace for jank AND checking for memory leaks or GPU issues),
+do not execute them simultaneously.
 
 1. Break down the request and propose a sequential execution plan to the user.
 2. Ask the user for confirmation to start the first step.

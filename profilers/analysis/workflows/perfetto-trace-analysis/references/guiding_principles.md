@@ -9,40 +9,43 @@ bottleneck causing a cascade of failures). The principles below keep your
 analysis grounded in truth and ensure that you investigate the entire causal
 chain to discover the true bottleneck.
 
-1. **Do not guess schemas:** Read `$SKILL_ROOT/references/perfetto/sql.md` on
-   how to query traces, discover the correct schemas, and learn DOs/DON'Ts
-   (for example, using `GLOB` over `LIKE`, preferring fuzzy matching).
-2. **Data is the only evidence:** Every claim needs tool output or queried data
-   behind it (for example, SQL queries). Do not guess what "should" happen.
-   General Android knowledge cannot substitute for environment-specific ground
-   truth data.
-
-> **When queries return nothing:** Do not conclude. Instead, broaden your
-> search constraints (for example, fuzzy matching, wider time windows).
-
-3. **Causation, not correlation:** Just because two anomalies occurred together
-   does not mean one caused the other. For example, just because thread A was
-   busy while thread B was waiting does not mean thread A caused the wait. Did
-   the blocker's active period overlap with the victim's wait period?
-4. **Follow evidence, not hop counts:** A causal chain can take multiple hops.
-   Keep going as long as **each hop meaningfully explains the symptom**. Cut
-   when evidence gets thin — not at an arbitrary depth limit. Real performance
-   issues frequently cross subsystem boundaries; stopping too early risks
-   reporting a symptom as a root cause.
-5. **When you don't know, say so:** If you identify a gap in your investigation
-   (for example, missing data, empty results), report the gap. Ranking partial
-   suspects by evidence strength is more useful than fabricating a clean root
-   cause.
-6. **Explain causes only after you have evidence:** Platform context is useful
-   (for example, "this is consistent with thermal throttling because ..."), but
-   only after you have data to back it up, citing the data as proof (for
-   example, specific timestamps or metrics you retrieved).
-7. **Check for system-wide issues:** Before attributing a bottleneck to
+1. **Schema Validation via Intrinsic Discovery:**
+   Read `$SKILL_ROOT/references/perfetto/sql.md` and query table schemas
+   using `LIMIT 0` before drafting queries.
+   - **Why:** Trace processor schemas evolve across versions; discovering
+   schema directly prevents invalid assumptions and syntax failures.
+2. **Empirical Data Grounding:** Support every claim with tool output or
+   queried timestamps, slice durations or counter values (`[SQL]`).
+   - **Why:** General Android heuristics cannot substitute for ground-truth
+     trace metrics. When queries return empty results, broaden search
+     constraints using fuzzy matching or wider time windows.
+3. **Causation vs. Correlation:** Verify that the blocker's active execution
+   overlaps with the victim's wait interval.
+   - **Why:** Concurrent anomalies are only causally linked if their
+     execution lifetimes intersect. For example, just because thread A was busy
+     while thread B was waiting does not necessarily mean thread A caused the
+     wait.
+4. **Follow Evidence:** Follow dependency chains across thread, process and
+   kernel boundaries to the terminal root cause. Keep going as long as
+   **each hop meaningfully explains the symptom**.
+   - **Why:** Halting blocker traversal prematurely reports intermediate
+     symptoms rather than the true origin.
+5. **Explicit Uncertainty Reporting:** Categorize unverified execution paths
+   as `[GAP]` or partial suspects.
+   - **Why:** Transparent reporting of missing data enables engineers to evaluate
+     probabilities without false certainty.
+6. **Evidence-First Explanation:** Cite concrete retrieved metrics and slice
+   timestamps before asserting platform behavioral context.
+   - **Why:** Contextual explanations are only reliable when anchored in
+     empirical trace observations.
+7. **Systemic Confound Sweeps:** Before attributing a bottleneck to
    application software, verify that thermal throttling, CPU capping
    (`cpufreq`), scheduling (`sched_slice`), or LMKD pressure isn't uniformly
    degrading the system. Report such confounds as root cause modifiers.
-   **Note:** Check `MIN`, `MAX`, `AVG` to ensure that anomalies are not missed
-   because we just checked aggregates.
-8. **Never assume, follow the methodology:** At every step of your
-   investigation, strictly follow the defined investigation steps and
-   guidelines to prevent blind spots, even when a cause seems obvious.
+   > To uncover short-lived anomalies that get mathematically missed by simple
+   > averages or aggregate queries, isolate and look around the symptom window
+   > and query for individual event spikes or percentiles.
+8. **Systematic Step Adherence:** At every step of your investigation, strictly
+   follow the defined investigation steps.
+   - **Why:** Structured verification prevents analytical blind spots and
+     premature conclusions on obvious but non-critical anomalies.

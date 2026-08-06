@@ -34,7 +34,7 @@ singular as well as composite needs.
 
 Before executing any workflows, read
 [`references/env_setup.md`](references/env_setup.md) (it sits next to this file
-in the skill root). It defines what to set `$SKILL_ROOT` to — the anchor every
+in the skill root). It defines what to set `$SKILL_ROOT` to - the anchor every
 other path in this skill is written against.
 
 ## Intent Disambiguation

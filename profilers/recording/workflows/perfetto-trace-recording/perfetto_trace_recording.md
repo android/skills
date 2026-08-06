@@ -145,4 +145,4 @@ long traces, per-counter polling), synthesize a config:
 ```
 
 If the config has a typo, this fails fast with a parse error naming the bad
-field — fix the config and retry.
+field - fix the config and retry.
