@@ -1,0 +1,37 @@
+# Long / field trace: runs until stopped, keeps the most recent data in a
+# ring buffer, and periodically flushes to the output file so the trace
+# survives longer than RAM allows.
+buffers {
+  size_kb: 65536
+  fill_policy: RING_BUFFER
+}
+
+# No duration_ms: stop manually (Ctrl-C on record_android_trace), or add one.
+# Move data to the output file periodically instead of only at the end.
+write_into_file: true
+file_write_period_ms: 2500
+# Commit app shared-memory buffers periodically so events stay ordered.
+flush_period_ms: 30000
+# Stop when the output file reaches this size (bytes).
+max_file_size_bytes: 1000000000
+
+data_sources {
+  config {
+    name: "linux.ftrace"
+    ftrace_config {
+      ftrace_events: "sched/sched_switch"
+      ftrace_events: "sched/sched_wakeup"
+      ftrace_events: "power/cpu_frequency"
+      ftrace_events: "power/cpu_idle"
+    }
+  }
+}
+
+data_sources {
+  config {
+    name: "linux.process_stats"
+    process_stats_config {
+      scan_all_processes_on_start: true
+    }
+  }
+}
