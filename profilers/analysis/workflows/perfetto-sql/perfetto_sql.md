@@ -6,11 +6,11 @@ description: >
   extract slice, thread, or memory data from Android Perfetto traces using
   trace_processor.
 keywords:
-  - Android
   - Perfetto SQL
-  - Query Guidelines
-  - Performance Profiling
+  - SQL Guidelines
   - SQL Best Practices
+  - Ad-hoc Query
+  - Trace Processor
   - SPAN_JOIN
   - Idempotency
 ---
