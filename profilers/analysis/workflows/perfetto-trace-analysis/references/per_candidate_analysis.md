@@ -13,13 +13,11 @@ Window, UTID, System Vitals) provided in your initial prompt.
 
 1. Prerequisites (Step 1)
 2. Calculate time distribution and identify state buckets (Step 2)
-3. Domain and System hints discovery for the candidate (Step 3)
-4. Wait for user confirmation (Step 3)
-5. Run exhaustive investigation for each significant state bucket sequentially
+3. Domain and System hints discovery and selection (Step 3)
+4. Run exhaustive investigation for each significant state bucket sequentially
    (Steps 4 and 5), starting with the largest bucket. Output total time
    explained so far after investigating each.
-6. Verification (Step 6)
-7. Output the result (Step 7)
+5. Output the result (Step 6)
 
 ### Step 1: Prerequisites
 
@@ -43,7 +41,7 @@ Window, UTID, System Vitals) provided in your initial prompt.
      the sleep actually overlaps with a pending obligation (for example, a
      pending binder reply).
    - A thread in `Running/Runnable`: When a thread spends high duration in
-     in `Running/Runnable`, inspect CPU frequency, throttling counters, and core
+     `Running/Runnable`, inspect CPU frequency, throttling counters, and core
      migrations before attributing latency to code inefficiency, because
      hardware throttling inflates wall time without increasing instruction
      overhead:
@@ -78,9 +76,9 @@ in order:
   (`subsystem:`, `description:`, `keywords:`) in
   `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/hints/subsystems/`
   for relevant tracks (for example, keywords for sleep states, memory, IPC).
-- **User confirmation:** Before starting the exhaustive investigation loop,
-  present a summary to the user indicating all subsystem and domain hint files
-  found relevant. Do not proceed to Step 4 until they confirm.
+- **Hint Selection and Application:** Apply all the matched subsystem and
+  domain hint files during the Step 4 investigation, and list them under
+  `Applied Hints` in your Step 6 output.
 
 ### Step 4: Exhaustive Investigation (Do Not Give Up Early)
 
@@ -138,18 +136,7 @@ triggered it. Explain the _why_, not just the _what_. This workload context
 ensures that we can provide actionable next steps for the user instead of
 leaving them confused.
 
-### Step 6: Verification
-
-Before concluding your investigation, confirm the following:
-
-- [yes/no] Any state bucket that could be relevant but never investigated?
-- [yes/no] Every claim backed by query/data?
-- [yes/no] Total explained time accounts for most of the symptom window? Flag
-  gaps with (`[GAP]`).
-- [yes/no] Was the workload contextualized (e.g., specific slices/layers
-  involved)?
-
-### Step 7: Output
+### Step 6: Output
 
 Output the following investigation result:
 
@@ -160,6 +147,7 @@ Candidate:
 Symptom Window: [Start TS] and [End TS]
 Symptom Duration: [Duration]
 Budget (Expected Duration): [If applicable]
+Applied Hints: [List of matched subsystem and domain hint files used]
 
 ## Primary Finding
 
@@ -180,5 +168,5 @@ Budget (Expected Duration): [If applicable]
 - All claims tagged (`[SQL]`/`[GAP]`/`[INFERRED]`): [yes/no]
 - Total explained time accounts for most of the symptom window: [yes/no]
 - Unexplored state buckets: [none/list with reason why]
-- Workload contextualized: [yes/no]
+- Workload contextualized (for example, specific slices/layers involved): [yes/no]
 ```

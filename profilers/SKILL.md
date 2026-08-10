@@ -8,19 +8,19 @@ description: >
   Android, or when the user asks to write, debug, or execute ad-hoc SQL
   queries. Applies to both user and system apps or services.
 license: Complete terms in LICENSE.txt
-version: 1.0
-keywords:
-  - Android performance
-  - debugging
-  - profiling
-  - trace analysis
-  - memory leaks
-  - bottleneck
-  - jank
-  - SQL
 metadata:
   author: Google LLC
-  last-updated: "2026-08-06"
+  last-updated: '2026-08-06'
+  keywords:
+    - Android performance
+    - debugging
+    - profiling
+    - recording
+    - trace analysis
+    - memory leaks
+    - bottleneck
+    - jank
+    - SQL
 ---
 
 # Android Profiler Orchestrator

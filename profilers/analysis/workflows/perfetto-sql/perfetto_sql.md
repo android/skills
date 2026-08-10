@@ -2,7 +2,7 @@
 name: perfetto-sql
 description: >
   Translates natural language data intents into syntactically valid PerfettoSQL
-  queries and executes them against a local trace file. Use this skill to
+  queries and executes them against a local trace file. Use this workflow to
   extract slice, thread, or memory data from Android Perfetto traces using
   trace_processor.
 keywords:
