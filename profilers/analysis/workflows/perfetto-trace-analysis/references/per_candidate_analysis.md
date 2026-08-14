@@ -5,7 +5,7 @@ This is the execution protocol for a deep-dive subagent during trace analysis.
 ## Context
 
 Execute the protocol below using the candidate details (Trace Paths, Symptom
-Window, UTID, System Vitals) provided in your initial prompt.
+Window, UTID, UPID, System Vitals) provided in your initial prompt.
 
 ## Investigation Protocol
 

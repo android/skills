@@ -32,6 +32,11 @@ understand the following:
 - _Who is the victim:_ Where did they observe the symptom? For example, "a
   frame drop in `com.example.sample`".
 
+> **Input Trace Required:** Confirm that the user has provided a trace file
+> path or URL (for example, `.pftrace`, `.perfetto-trace`, or a Perfetto UI
+> link). If none is provided, pause and ask the user to provide one before
+> proceeding.
+
 > If you do not know the symptom, pause and ask the user for clarification.
 
 > If you know the symptom but not the victim, proceed to Step 2 (Triage) to
@@ -72,7 +77,7 @@ Construct a prompt for each candidate containing:
 ```markdown
 Trace path: [path]
 Baseline Trace Path: [path, if provided]
-Candidate Info: [`utid`, `pid`, thread_name, process_name]
+Candidate Info: [`utid`, `upid`, thread_name, process_name, `render_thread_utid` (if applicable)]
 Symptom Window: [start_ts, end_ts, duration]
 System Vitals: [payload from Step 2]
 Budget: [expected duration, if applicable]

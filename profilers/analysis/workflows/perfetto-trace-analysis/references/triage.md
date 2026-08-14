@@ -52,14 +52,14 @@ Key available metrics for `--run-metrics`:
 
 Quick lookup table based on symptom:
 
-| Symptom/Issue    | What to check                         | Useful Perfetto tables        |
-| :--------------- | :------------------------------------ | :---------------------------- |
-| App startup      | Main thread                           | `android_startups`            |
-| App jank         | Main, render threads                  | `actual_frame_timeline_slice` |
-| System jank      | SurfaceFlinger                        | `actual_frame_timeline_slice` |
-| App/system crash | `Process crashed` or `tombstoned`     | `slice`                       |
-| ANR              | Main thread, `system_server` watchdog | `thread_state`, `slice`       |
-| Frame issues     | `DrawFrame` or `doFrame` slices       | `slice`                       |
+| Symptom/Issue    | What to check                         | Useful Perfetto tables                          |
+| :--------------- | :------------------------------------ | :---------------------------------------------- |
+| App startup      | Main thread                           | `android.startup.startups` (`android_startups`) |
+| App jank         | Main, render threads                  | `actual_frame_timeline_slice`                   |
+| System jank      | SurfaceFlinger                        | `actual_frame_timeline_slice`                   |
+| App/system crash | `Process crashed` or `tombstoned`     | `slice`                                         |
+| ANR              | Main thread, `system_server` watchdog | `thread_state`, `slice`                         |
+| Frame issues     | `DrawFrame` or `doFrame` slices       | `slice`                                         |
 
 ## Final Output Format
 

@@ -3,9 +3,9 @@
 Use the guidelines below to find the right analysis workflow to execute based
 on the user intent (for example, analyzing a system trace or a heap dump).
 
-Ensure you can answer the following: "User intends to analyze _____ to
-investigate _____". For example, "User intends to analyze a heap dump to
-investigate a memory leak".
+Ensure you can answer the following: "User intends to
+[analyze/query/investigate] ______". For example,
+"User intends to analyze a heap dump to investigate a memory leak".
 
 ## Handling Composite Requests
 
@@ -22,9 +22,11 @@ do not execute them simultaneously.
 This skill supports multiple specialized analysis workflows. To determine the
 right workflows to use:
 
-1. Use your file search tools (for example, `grep_search`) to scan the
-   `$SKILL_ROOT/analysis/workflows/` directory for `name:`, `description:` and
-   `keywords:` fields in the markdown frontmatter.
-2. Compare the user's request and intent against the keywords and descriptions
-   to identify matching workflows. If multiple are found, present them as
-   options to the user and proceed with the user's selection.
+1. Use your file search tools (for example, `grep_search`) to recursively scan
+   the `$SKILL_ROOT/analysis/workflows/` directory for workflow entrypoints
+   (markdown files defining a top-level `name:` key in their frontmatter,
+   ignoring internal `references/` subdirectories).
+2. Compare the user's request and intent against the `name:`, `description:`,
+   and `keywords:` fields to identify matching workflows. If multiple are
+   found, present them as options to the user and proceed with the
+   user's selection.

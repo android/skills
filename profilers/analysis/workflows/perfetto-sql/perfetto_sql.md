@@ -2,9 +2,9 @@
 name: perfetto-sql
 description: >
   Translates natural language data intents into syntactically valid PerfettoSQL
-  queries and executes them against a local trace file. Use this workflow to
-  extract slice, thread, or memory data from Android Perfetto traces using
-  trace_processor.
+  queries and/or executes them against a trace file, if provided. Use this
+  workflow to draft, debug, or execute queries extracting slice, thread, or
+  memory data from Android Perfetto traces using trace_processor.
 keywords:
   - Perfetto SQL
   - SQL Guidelines
@@ -17,7 +17,12 @@ keywords:
 
 # Ad-Hoc PerfettoSQL Querying
 
-To write, debug, or execute ad-hoc PerfettoSQL queries or `trace_processor`
-commands against a Perfetto trace, follow the guidelines and analytical
-workflow in `$SKILL_ROOT/references/perfetto/sql.md`, and verify environment
-prerequisites in `$SKILL_ROOT/references/perfetto/setup.md`.
+Use this workflow to write, debug, or execute PerfettoSQL queries:
+
+- **Executing against a trace:** If a trace file path or URL is provided, verify
+  environment prerequisites in `$SKILL_ROOT/references/perfetto/setup.md` and
+  follow the session execution workflow in
+  `$SKILL_ROOT/references/perfetto/sql.md`.
+- **Static query authoring or debugging:** If no trace is attached, draft,
+  optimize, or debug the queries using the syntax, schema guidelines, and
+  standard library best practices in `$SKILL_ROOT/references/perfetto/sql.md`.

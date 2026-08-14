@@ -55,7 +55,3 @@ example, a system trace or a heap dump).
 
 Route all analysis requests through
 `$SKILL_ROOT/analysis/analysis_orchestrator.md`.
-
-Before routing to the analysis orchestrator, confirm that the user has provided
-an input artifact to analyze (for example, a trace file or a heap dump). If none
-is provided, stop and ask the user to provide one.

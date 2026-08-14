@@ -110,15 +110,15 @@ SELECT * FROM (SELECT ts, dur, name FROM slice WHERE dur > 0) LIMIT 0;
 
 Useful starting points for any trace:
 
-| View | What's in it |
-| :--- | :--- |
-| `slice` | Atrace slices, async slices, anything with a duration on a track |
-| `thread` | One row per thread |
-| `process` | One row per process |
-| `thread_state` | State transitions (Running, Runnable, Sleeping, ...) |
-| `sched_slice` | When threads were on-CPU |
-| `counter` | Time-series counter samples |
-| `track` | Every track in the trace; join on `track_id` to other tables |
+| View           | What's in it                                                     |
+| :------------- | :--------------------------------------------------------------- |
+| `slice`        | Atrace slices, async slices, anything with a duration on a track |
+| `thread`       | One row per thread                                               |
+| `process`      | One row per process                                              |
+| `thread_state` | State transitions (Running, Runnable, Sleeping, ...)             |
+| `sched_slice`  | When threads were on-CPU                                         |
+| `counter`      | Time-series counter samples                                      |
+| `track`        | Every track in the trace; join on `track_id` to other tables     |
 
 Static reference for the public surface (does not require a running
 trace_processor): <https://perfetto.dev/docs/analysis/sql-tables>.
@@ -238,7 +238,9 @@ reference linked above.
      - **Important:** Incomplete Perfetto slices have a duration of -1
        (`dur = -1`). Always calculate the effective end time using
        `ts + IIF(dur = -1, trace_end() - ts, dur)` before applying this logic.
-- Query `android_thread_slices_for_all_startups` for app startup requests.
+- Include the `android.startup.startups` module and query
+  `android_thread_slices_for_all_startups` (or `android_startups`) for
+  app startup requests.
 - Join `counter_track` with `counter` to get values of counter with a
   specific name.
 - When querying for a CPU frequency counter, include the `linux.cpu.frequency`
@@ -265,15 +267,16 @@ To ensure accuracy and efficiency, follow these steps:
 
 1. **Research & Dissection:** Identify the core question and required data
    points.
-2. **Mandatory Schema Validation:** Locate relevant tables via
-   `__intrinsic_stdlib_tables`. Verify column names and types.
+2. **Mandatory Schema Validation:** Locate relevant modules via
+   `__intrinsic_stdlib_modules` and their tables via
+   `__intrinsic_stdlib_tables('module_name')`. Verify column names and types.
    - **Intent Check:** You must verify if a stdlib module already provides
      the needed abstraction before drafting manual arithmetic or custom joins.
 
-- **IMPORTANT:** If your query requires calculating overlaps,
-  intersections, or boundaries between intervals, you MUST search the
-  `__intrinsic_*` tables globally (for example, `GLOB 'overlap*'`) before
-  writing `MIN()/MAX()` or `IIF(dur = -1...)` logic.
+- **IMPORTANT:** If your query requires calculating overlaps, intersections,
+  or boundaries between intervals, you MUST search `__intrinsic_stdlib_modules`
+  globally (for example, `WHERE module GLOB '*overlap*'`) before writing
+  `MIN()/MAX()` or `IIF(dur = -1...)` logic.
 
 3. **Draft & Validate Loop (Max 3 Iterations):**
 
