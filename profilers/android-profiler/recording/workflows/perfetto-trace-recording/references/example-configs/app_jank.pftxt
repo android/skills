@@ -1,0 +1,43 @@
+# App jank / slow UI: framework + app atrace events, frame deadlines from
+# SurfaceFlinger, and the scheduling context underneath.
+# Replace com.example.myapp with the app's package name.
+buffers {
+  size_kb: 65536
+  fill_policy: RING_BUFFER
+}
+duration_ms: 10000
+
+data_sources {
+  config {
+    name: "linux.ftrace"
+    ftrace_config {
+      ftrace_events: "sched/sched_switch"
+      ftrace_events: "sched/sched_wakeup"
+      ftrace_events: "sched/sched_waking"
+      ftrace_events: "power/cpu_frequency"
+      ftrace_events: "power/cpu_idle"
+      atrace_categories: "gfx"
+      atrace_categories: "view"
+      atrace_categories: "wm"
+      atrace_categories: "am"
+      atrace_categories: "input"
+      atrace_apps: "com.example.myapp"
+    }
+  }
+}
+
+# Per-frame expected vs actual timelines (actual jank classification).
+data_sources {
+  config {
+    name: "android.surfaceflinger.frametimeline"
+  }
+}
+
+data_sources {
+  config {
+    name: "linux.process_stats"
+    process_stats_config {
+      scan_all_processes_on_start: true
+    }
+  }
+}

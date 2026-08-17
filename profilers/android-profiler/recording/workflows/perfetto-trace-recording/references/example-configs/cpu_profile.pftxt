@@ -1,0 +1,35 @@
+# CPU callstack sampling via traced_perf: periodic stack samples to find hot
+# functions. Prefer the cpu_profile helper script for a standalone profile;
+# use this config when combining with other data sources.
+# Replace com.example.myapp with the app's package name, or drop the scope
+# block to sample all processes.
+buffers {
+  size_kb: 65536
+  fill_policy: RING_BUFFER
+}
+duration_ms: 10000
+
+data_sources {
+  config {
+    name: "linux.perf"
+    perf_event_config {
+      timebase {
+        frequency: 100
+      }
+      callstack_sampling {
+        scope {
+          target_cmdline: "com.example.myapp"
+        }
+      }
+    }
+  }
+}
+
+data_sources {
+  config {
+    name: "linux.process_stats"
+    process_stats_config {
+      scan_all_processes_on_start: true
+    }
+  }
+}
