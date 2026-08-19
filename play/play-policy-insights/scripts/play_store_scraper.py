@@ -165,7 +165,7 @@ def load_taxonomy():
   repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
   policy_path = os.path.join(repo_root, "resources", "policies.json")
   try:
-    with open(policy_path, "r") as f:
+    with open(policy_path, "r", encoding="utf-8", errors="ignore") as f:
       data = json.load(f)
       taxonomy = data.get("data_safety_section", {}).get("taxonomy", {})
       return {

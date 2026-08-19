@@ -17,7 +17,11 @@
                 "getPositionStream",
                 "LocationAccuracy.high",
                 "react-native-geolocation-service",
-                "Expo.Location"
+                "Expo.Location",
+                "Geolocation.GetLocationAsync",
+                "GeolocationRequest",
+                "GeolocationAccuracy",
+                "Microsoft.Maui.Devices.Sensors"
             ],
             "APPROX_LOCATION": [
                 "ACCESS_COARSE_LOCATION",
@@ -27,7 +31,9 @@
                 "ip_location",
                 "ip_country",
                 "LocationAccuracy.low",
-                "LocationAccuracy.balanced"
+                "LocationAccuracy.balanced",
+                "GeolocationAccuracy.Low",
+                "GeolocationAccuracy.Lowest"
             ],
             "USER_ACCOUNT": [
                 "AccountManager",
@@ -53,7 +59,12 @@
                 "Auth0",
                 "@react-native-firebase/auth",
                 "react-native-google-signin",
-                "react-native-app-auth"
+                "react-native-app-auth",
+                "WebAuthenticator",
+                "IPublicClientApplication",
+                "AcquireTokenInteractive",
+                "SecureStorage.SetAsync",
+                "Microsoft.Identity.Client"
             ],
             "ACCOUNT_DELETION": [
                 "deleteAccount",
@@ -71,12 +82,12 @@
                 "firstName",
                 "lastName",
                 "display_name",
-		"full_name",
+                "full_name",
                 "fullName",
                 "real_name",
                 "realName",
                 "family_name",
-		"familyName",
+                "familyName",
                 "given_name",
                 "contact_name",
                 "profile_name",
@@ -101,7 +112,9 @@
                 "email_id",
                 "primary_email",
                 "keyboardType=\"email-address\"",
-                "TextInputType.emailAddress"
+                "TextInputType.emailAddress",
+                "Email.ComposeAsync",
+                "EmailMessage"
             ],
             "ADDRESS": [
                 "textPostalAddress",
@@ -126,7 +139,9 @@
                 "telephone",
                 "phone_id",
                 "textContentType=\"telephoneNumber\"",
-                "TextInputType.phone"
+                "TextInputType.phone",
+                "PhoneDialer.Open",
+                "PhoneDialer.Default"
             ],
             "RACE_ETHNICITY": [
                 "race",
@@ -257,7 +272,9 @@
                 "SEND_SMS",
                 "READ_CALL_LOG",
                 "WRITE_CALL_LOG",
-                "SmsRetriever"
+                "SmsRetriever",
+                "Sms.ComposeAsync",
+                "SmsMessage"
             ],
             "OTHER_MESSAGES": [
                 "chat_message",
@@ -296,7 +313,9 @@
                 "launchCamera",
                 "react-native-image-picker",
                 "expo-image-picker",
-                "wechat_assets_picker"
+                "wechat_assets_picker",
+                "MediaPicker.PickPhotoAsync",
+                "MediaPicker.CapturePhotoAsync"
             ],
             "VIDEOS": [
                 "READ_MEDIA_VIDEO",
@@ -312,7 +331,9 @@
                 "pickVideo",
                 "react-native-vision-camera",
                 "CameraRoll",
-                "expo-image-picker"
+                "expo-image-picker",
+                "MediaPicker.PickVideoAsync",
+                "MediaPicker.CaptureVideoAsync"
             ],
             "AUDIO": [
                 "AudioRecord",
@@ -338,7 +359,10 @@
                 "flutter_sound",
                 "FlutterSoundRecorder",
                 "react-native-audio-recorder-player",
-                "expo-av"
+                "expo-av",
+                "Permissions.Microphone",
+                "SpeechToText",
+                "AudioRecorder"
             ],
             "MUSIC": [
                 "MediaPlayer",
@@ -419,7 +443,9 @@
                 "react-native-mmkv",
                 "Sembast",
                 "RxDB",
-                "Realm"
+                "Realm",
+                "FilePicker.PickAsync",
+                "FilePicker.PickMultipleAsync"
             ],
             "CALENDAR": [
                 "READ_CALENDAR",
@@ -428,7 +454,9 @@
                 "device_calendar",
                 "retrieveCalendars",
                 "react-native-calendar-events",
-                "RNCalendarEvents"
+                "RNCalendarEvents",
+                "Permissions.CalendarRead",
+                "Permissions.CalendarWrite"
             ],
             "CONTACTS": [
                 "READ_CONTACTS",
@@ -439,7 +467,10 @@
                 "flutter_contacts",
                 "FlutterContacts",
                 "react-native-contacts",
-                "Contacts.getAll"
+                "Contacts.getAll",
+                "Contacts.PickContactAsync",
+                "Contacts.GetAllAsync",
+                "Microsoft.Maui.ApplicationModel.Communication.Contacts"
             ],
             "APP_INTERACTIONS": [
                 "logEvent",
@@ -502,7 +533,9 @@
                 "recordFlutterError",
                 "recordError",
                 "SentryFlutter",
-                "crashlytics()"
+                "crashlytics()",
+                "Microsoft.AppCenter.Crashes",
+                "SentrySdk"
             ],
             "PERFORMANCE_DIAGNOSTICS": [
                 "ActivityManager",
@@ -565,7 +598,9 @@
                 "DeviceInfo",
                 "getUniqueId",
                 "getAndroidId",
-                "getAdvertisingId"
+                "getAdvertisingId",
+                "DeviceInfo.Current",
+                "Microsoft.Maui.Devices.DeviceInfo"
             ],
             "OTHER_ACTIONS": [
                 "gameplay",
@@ -583,7 +618,12 @@
                 "http.get",
                 "http.post",
                 "Dio",
-                "HttpClient"
+                "HttpClient",
+                "HttpRequestMessage",
+                "GetStringAsync",
+                "RestSharp",
+                "Refit",
+                "Flurl"
             ]
         },
         "exact_alarm": {
@@ -783,7 +823,9 @@
         "web",
         "macos",
         "windows",
-        "linux"
+        "linux",
+        "bin",
+        "obj"
     ],
     "supported_extensions": [
         ".java",
@@ -794,6 +836,8 @@
         ".tsx",
         ".dart",
         ".cs",
-        ".vue"
+        ".vue",
+        ".csproj",
+        ".xaml"
     ]
 }

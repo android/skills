@@ -184,9 +184,11 @@ def _scan_single_file(file_path, all_signal_categories, target_dir):
         if any(kw in url.lower() for kw in policy_url_keywords):
           found_urls.append(url)
 
-      # Cleanup comments based on file type
+      # Cleanup comments based on file type. .csproj and .xaml are XML documents
+      # despite their extensions, so they use XML comment syntax rather than the
+      # C-style stripping applied to source files.
       file_path_lower = file_path.lower()
-      if file_path_lower.endswith(".xml"):
+      if file_path_lower.endswith((".xml", ".csproj", ".xaml")):
         content = XML_COMMENT_PATTERN.sub("", content)
       elif file_path_lower.endswith(supported_exts):
         content = COMMENT_STRIP_PATTERN.sub(
