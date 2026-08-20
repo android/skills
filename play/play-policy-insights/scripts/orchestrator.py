@@ -58,6 +58,21 @@ FRAMEWORK_DEFAULTS = {
     "flutter.ndkVersion": "25.1.8937393",
 }
 
+# .NET MAUI / .NET for Android express the target SDK through the target framework
+# moniker rather than a manifest or Gradle file. An explicit platform level wins
+# (net9.0-android35.0 -> 35); an unqualified moniker (net9.0-android) resolves to
+# the highest API the installed workload supports, which is fixed per .NET release.
+DOTNET_ANDROID_TARGET_SDK = {
+    "8.0": 34,
+    "9.0": 35,
+    "10.0": 36,
+}
+
+# net10.0-android, net10.0-android36.0, net8.0-android34.0 ...
+DOTNET_TFM_PATTERN = re.compile(
+    r"net(\d+\.\d+)-android(\d+)?(?:\.\d+)?", re.IGNORECASE
+)
+
 # Patterns for diverse assignment styles (Groovy & Kotlin DSL)
 # 1. Standard: targetSdkVersion = 35, ext.targetSdkVersion = 35, etc.
 # 2. Delegated: val targetSdkVersion by extra(35)
@@ -402,7 +417,7 @@ def determine_primary_identity(
   if not primary_id or not primary_sdk:
     for m_file in manifest_files:
       try:
-        with open(m_file, "r", encoding="utf-8") as f:
+        with open(m_file, "r", encoding="utf-8-sig") as f:
           content = f.read()
           details = extract_manifest_details(content)
           if not primary_id:
@@ -439,7 +454,87 @@ def determine_primary_identity(
       except Exception:  # pylint: disable=broad-exception-caught
         pass
 
+    # Check for .NET MAUI / .NET for Android (*.csproj)
+    if not primary_id or not primary_sdk:
+      dotnet_id, dotnet_sdk, dotnet_label = extract_dotnet_android_details(
+          app_dir
+      )
+      primary_id = primary_id or dotnet_id
+      primary_sdk = primary_sdk or dotnet_sdk
+      primary_label = primary_label or dotnet_label
+
   return primary_id, primary_sdk, primary_label
+
+
+def _msbuild_property(content, tag):
+  """Reads a single MSBuild property value out of a project file."""
+  match = re.search(
+      rf"<{tag}[^>]*>([^<]+)</{tag}>", content, re.IGNORECASE
+  )
+  return match.group(1).strip() if match else None
+
+
+def extract_dotnet_android_details(app_dir):
+  """Finds the .NET MAUI / .NET for Android project and reads its identity.
+
+  A .NET for Android app has no Gradle files, and its AndroidManifest.xml carries
+  neither the package name nor uses-sdk -- both are MSBuild properties merged into
+  the manifest at build time. Without this the audit sees an app with no id and no
+  target SDK and reports nothing, which reads as a clean bill of health.
+
+  Args:
+    app_dir: Absolute path to the directory containing the app's code.
+
+  Returns:
+    A tuple of (application_id, target_sdk, application_title). Any element is
+    None when it could not be determined.
+  """
+  app_id = None
+  target_sdk = None
+  label = None
+
+  config = scanner.get_scanner_config()
+  ignored_dirs = set(config.get("ignored_directories", []))
+
+  candidates = []
+  for root, dirs, files in os.walk(app_dir):
+    dirs[:] = [d for d in dirs if d not in ignored_dirs]
+    for f in files:
+      if f.lower().endswith(".csproj"):
+        candidates.append(os.path.join(root, f))
+
+  for csproj in sorted(candidates):
+    try:
+      with open(csproj, "r", encoding="utf-8", errors="ignore") as f:
+        content = f.read()
+    except Exception:  # pylint: disable=broad-exception-caught
+      continue
+
+    content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
+
+    tfm_match = DOTNET_TFM_PATTERN.search(content)
+    if not tfm_match:
+      # Not an Android head project (class libraries, test projects).
+      continue
+
+    app_id = app_id or _msbuild_property(content, "ApplicationId")
+    label = label or _msbuild_property(content, "ApplicationTitle")
+
+    if target_sdk is None:
+      # Explicit override wins, then the moniker's platform level, then the
+      # workload default for that .NET release.
+      explicit = _msbuild_property(content, "AndroidTargetSdkVersion")
+      if explicit and explicit.isdigit():
+        target_sdk = int(explicit)
+      elif tfm_match.group(2):
+        target_sdk = int(tfm_match.group(2))
+      else:
+        target_sdk = DOTNET_ANDROID_TARGET_SDK.get(tfm_match.group(1))
+
+    if app_id and target_sdk and label:
+      break
+
+  return app_id, target_sdk, label
 
 
 def extract_manifest_details(xml_content):
@@ -453,8 +548,12 @@ def extract_manifest_details(xml_content):
   }
 
   try:
-    # Handle XML with namespaces
-    root = ET.fromstring(xml_content)
+    # Strip a UTF-8 BOM before parsing. Visual Studio writes one into
+    # AndroidManifest.xml by default, and ElementTree rejects it as an invalid
+    # token at line 1. The permission scan below is regex-based and survives, so
+    # the failure is silent: the manifest still yields permissions while quietly
+    # losing the package name, target SDK and app label.
+    root = ET.fromstring(xml_content.lstrip("\ufeff"))
     ns = {"android": "http://schemas.android.com/apk/res/android"}
 
     details["package_name"] = root.get("package")
@@ -731,7 +830,7 @@ def run_aggregation(temp_dir, repo_root):
   for w_file in worker_files:
     basename = os.path.basename(w_file)
     try:
-      with open(w_file, "r") as f:
+      with open(w_file, "r", encoding="utf-8") as f:
         w_data = json.load(f)
       findings_list = w_data.get("findings", [])
       if isinstance(findings_list, list):
@@ -750,7 +849,7 @@ def run_aggregation(temp_dir, repo_root):
 
   # Save the master list of all findings
   aggregated_path = os.path.join(temp_dir, "aggregated_findings.json")
-  with open(aggregated_path, "w") as f:
+  with open(aggregated_path, "w", encoding="utf-8") as f:
     json.dump({"findings": all_findings}, f, indent=4)
 
   # Filter findings that need Critic evaluation: skip only SUGGESTION findings
@@ -772,7 +871,7 @@ def run_aggregation(temp_dir, repo_root):
   critic_template_path = os.path.join(repo_root, "resources", "critic.md")
   critic_template = ""
   if os.path.exists(critic_template_path):
-    with open(critic_template_path, "r") as f:
+    with open(critic_template_path, "r", encoding="utf-8") as f:
       critic_template = f.read()
 
   common_mandates_path = os.path.join(
@@ -780,7 +879,7 @@ def run_aggregation(temp_dir, repo_root):
   )
   common_mandates = ""
   if os.path.exists(common_mandates_path):
-    with open(common_mandates_path, "r") as f:
+    with open(common_mandates_path, "r", encoding="utf-8") as f:
       common_mandates = f.read()
 
   full_template = critic_template + "\n\n" + common_mandates
@@ -790,7 +889,7 @@ def run_aggregation(temp_dir, repo_root):
   base_context = {}
   if os.path.exists(manifest_path):
     try:
-      with open(manifest_path, "r") as f:
+      with open(manifest_path, "r", encoding="utf-8", errors="ignore") as f:
         m_details = json.load(f)
         base_context["APP_DIR"] = m_details.get("app_dir")
     except Exception:  # pylint: disable=broad-exception-caught
@@ -806,7 +905,7 @@ def run_aggregation(temp_dir, repo_root):
     # Create input_critic_<idx>.json
     chunk_dict = {f["finding_id"]: f for f in chunk}
     chunk_input_path = os.path.join(temp_dir, f"input_critic_{idx}.json")
-    with open(chunk_input_path, "w") as f:
+    with open(chunk_input_path, "w", encoding="utf-8") as f:
       json.dump(chunk_dict, f, indent=4)
 
     # Render prompt_critic_<idx>.md
@@ -815,7 +914,7 @@ def run_aggregation(temp_dir, repo_root):
 
     final_prompt = render_template(full_template, chunk_context)
     chunk_prompt_path = os.path.join(temp_dir, f"prompt_critic_{idx}.md")
-    with open(chunk_prompt_path, "w") as f:
+    with open(chunk_prompt_path, "w", encoding="utf-8") as f:
       f.write(final_prompt)
 
   return len(chunks)
@@ -1066,7 +1165,10 @@ def main():
 
         if os.path.exists(manifest_path):
           try:
-            with open(manifest_path, "r") as f:
+            # Manifests are UTF-8. Without an explicit encoding this falls back
+            # to the platform default, which on Windows is the locale codepage:
+            # the file arrives mojibake and every downstream parse fails.
+            with open(manifest_path, "r", encoding="utf-8-sig") as f:
               content = f.read()
               if not manifest_content:
                 manifest_content = content
@@ -1139,7 +1241,11 @@ def main():
         if "store_url" not in play_store_info:
           play_store_info["store_url"] = f"file://{local_info_path}"
 
-        with open(os.path.join(temp_dir, "play_store_info.json"), "w") as out_f:
+        with open(
+            os.path.join(temp_dir, "play_store_info.json"),
+            "w",
+            encoding="utf-8",
+        ) as out_f:
           json.dump(play_store_info, out_f, indent=4)
       print(
           f"Ingested local Play Store info from {local_info_path}",
