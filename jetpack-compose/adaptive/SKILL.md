@@ -284,13 +284,13 @@ Check the FlexBox documentation:
 - [Set container behavior](references/android/develop/ui/compose/layouts/adaptive/flexbox/container-behavior.md)
 - [Set item behavior](references/android/develop/ui/compose/layouts/adaptive/flexbox/item-behavior.md)
 
-## MediaQuery
+### MediaQuery
 
 Check the [MediaQuery documentation](references/android/develop/ui/compose/layouts/adaptive/mediaquery/index.md) when you need to query the device's
 screen size, pointer precision, keyboard type, whether it has cameras or
 microphones, and other device capabilities.
 
-## Grid
+### Grid
 
 Check the Grid documentation when you need to display a fixed number of items in
 a grid layout:
