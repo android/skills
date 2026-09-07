@@ -6,7 +6,7 @@
 
 Use the R8 Analyzer [Android skill](https://developer.android.com/tools/agents/android-skills) to analyze build files and identify redundant, broad, or subsumed [keep rules](https://developer.android.com/topic/performance/app-optimization/keep-rules-overview). To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
 
-    android skills add --skill r8-analyzer
+    android skills add r8-analyzer
 
 <br />
 
@@ -247,7 +247,6 @@ apps, you might use an alternative build system like [Bazel](https://bazel.build
 you're using Bazel, you can integrate R8 into your build pipeline to shrink,
 obfuscate, and optimize your app.
 
-For information about building an Android app using Bazel, see the [Android
-Bazel tutorial](https://bazel.build/start/android-app) and the official [rules_android
-repository](https://github.com/bazelbuild/rules_android). Note that Bazel isn't [officially supported](https://developer.android.com/build#other-build-systems)
-for Android app development.
+For information about optimizing an Android app using Bazel, see Bazel's
+[`rules_android` documentation](https://github.com/bazelbuild/rules_android/tree/main/docs/r8-optimization.md). Note that Bazel isn't
+[officially supported](https://developer.android.com/build#other-build-systems) for Android app development.

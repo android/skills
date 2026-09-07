@@ -380,7 +380,7 @@ whether the content can be presented on the device.
 
 To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
 
-    android skills add --skill engage-sdk-integration
+    android skills add engage-sdk-integration
 
 If your team uses AI coding tools (such as Gemini in Android Studio), you can automate this migration by prompting your AI assistant:
 

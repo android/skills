@@ -8,7 +8,7 @@ description: Use this skill to integrate the Jetpack Compose Styles API into an 
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-08-14'
+  last-updated: '2026-09-03'
   keywords:
   - Jetpack Compose
   - Styles

@@ -95,7 +95,7 @@ audio processing, or standard Bluetooth audio input.
 
 | Recording method | Microphone access | Common use case |
 |---|---|---|
-| Projected Context | Multiple microphones | Recording using a projected context lets your app access multiple microphones from the glasses and its specialized hardware features, such as: - XR-specific spatialization. - Advanced denoising. - Voice separation that distinguishes between wearer's and bystander's voices. - Maintain recording access in multidevice environments even when the glasses are not the active Bluetooth device. |
+| Projected Context | Multiple microphones | Recording using a projected context lets your app access multiple microphones from the glasses and its specialized hardware features, such as: - XR-specific spatialization. - Advanced denoising. - Voice separation that isolates the wearer's voice. - Maintain recording access in multidevice environments even when the glasses are not the active Bluetooth device. |
 | Bluetooth HFP | Single microphone | Relies on the Bluetooth Hands-Free Profile (HFP) for immediate, out-of-the-box compatibility. In this mode, the glasses connect to the phone using standard Headset and Advanced Audio Distribution Profile (A2DP) [profiles](https://developer.android.com/develop/connectivity/bluetooth/profiles), functioning like a typical Bluetooth peripheral. If your app is already designed for standard Bluetooth recording, you can use this method to record audio from the glasses without integrating any XR-specific capabilities. |
 
 ### Record audio using a projected context
@@ -152,9 +152,10 @@ audioRecord.startRecording()
   case.
 
   For example, use `VOICE_COMMUNICATION` if your use case needs automatic
-  noise reduction. `VOICE_RECOGNITION` is processed with acoustic echo
-  cancellation (AEC). And if you need raw, unaltered audio, select
-  `UNPROCESSED` or `CAMCORDER`.
+  noise reduction or to isolate the wearer's voice. `VOICE_RECOGNITION` is
+  processed with acoustic echo cancellation (AEC), which can be useful when
+  there's concurrent audio playback while recording. And if you need raw,
+  unaltered audio, select `UNPROCESSED` or `CAMCORDER`.
 - To ensure compatibility with the glasses, the `audioFormat` object must
   define a sample rate of 16kHz and a channel configuration of either mono or
   stereo (using [`CHANNEL_IN_MONO`](https://developer.android.com/reference/kotlin/android/media/AudioFormat#channel_in_mono) or [`CHANNEL_IN_STEREO`](https://developer.android.com/reference/kotlin/android/media/AudioFormat#channel_in_stereo)).
@@ -327,6 +328,7 @@ private fun startCameraOnGlasses(activity: ComponentActivity) {
 - A custom [`ResolutionSelector`](https://developer.android.com/reference/kotlin/androidx/camera/core/resolutionselector/ResolutionSelector) is built to precisely control the output image resolution for [`ImageCapture`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageCapture).
 - Creates an `ImageCapture` use case that is configured with a custom `ResolutionSelector`.
 - Binds the `ImageCapture` use case to the activity's lifecycle. This automatically manages the opening and closing of the camera based on the activity's state (for example, stopping the camera when the activity is paused).
+- **Configuring for single-stream hardware:** The glasses camera pipeline is constrained to a single active stream at a time. When `ImageCapture` is bound alone, CameraX attaches an internal repeating stream (`MeteringRepeating`) for focus and metering by default, which causes the single-stream pipeline to stall. To bind `ImageCapture` by itself without a preview stream, disable the forced repeating stream by setting [`setRepeatingStreamForced(false)`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Builder#setRepeatingStreamForced(kotlin.Boolean)) on [`CameraXConfig.Builder`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Builder) (for example, by implementing [`CameraXConfig.Provider`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Provider) in your `Application` class or configuring `ProcessCameraProvider` before initialization).
 
 After the glasses' camera is set up, you can capture an image with the
 CameraX's `ImageCapture` class. Refer to the CameraX's documentation to learn

@@ -9,7 +9,7 @@ description: Provides knowledge and workflows to implement Android's Restore Cre
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-08-21'
+  last-updated: '2026-09-01'
   keywords:
   - Credential Manager
   - Restore Credentials
@@ -33,7 +33,7 @@ federated sign-in) and requires no UI changes to existing sign-in flows.
 **Crucial:** This skill focuses exclusively on the Android client-side
 integration. It does **not** implement the server-side cryptographic
 validation logic. The developer must be reminded of this and the
-[Points to inform the developer about](skill.md) after implementation is done.
+[Points to inform the developer about](#backend-guidelines) after implementation is done.
 
 ## Implementation Guidelines
 
@@ -41,8 +41,8 @@ When instructed to implement Restore Credentials on a developer's application,
 remember the following:
 
 1. Before the implementation, you **MUST** read and understand the [Two-Tier
-   Restoration Architecture](skill.md) and review the [DOs and DON'Ts](skill.md).
-2. After the implementation, you **MUST** present the developer with the [Backend Guidelines](skill.md) as a reminder for their backend setup. It is important that you remind the developer that they still have to implement the backend.
+   Restoration Architecture](#two-tier-restoration-architecture) and review the [DOs and DON'Ts](#dos-and-donts).
+2. After the implementation, you **MUST** present the developer with the [Backend Guidelines](#backend-guidelines) as a reminder for their backend setup. It is important that you remind the developer that they still have to implement the backend.
 
 ## Two-Tier Restoration Architecture
 
@@ -56,6 +56,10 @@ If `allowBackup` in the manifest is set to true, implement both. Otherwise, only
 implement tier 2 (Foreground Restoration). Do **NOT** change the value of
 `allowBackup` in the manifest.
 
+If you added a `BackupAgent` to the app, you **MUST** also set
+`android:fullBackupOnly="true"` in the manifest. Do **NOT** do this if there
+already existed a `BackupAgent` in the app before your implementation.
+
 ## DOs and DON'Ts
 
 **DO:**
@@ -63,6 +67,7 @@ implement tier 2 (Foreground Restoration). Do **NOT** change the value of
 - Do check `AndroidManifest.xml` for the value of allowBackup to determine what you have to implement.
 - Do implement a fallback for createCredential: always try calling it first with `isCloudBackupEnabled` set to true. If an `E2eeUnavailableException` is thrown, catch it and retry the call with `isCloudBackupEnabled` set to `false`.
 - Do implement a `BackupAgent` (subclass of `android.app.backup.BackupAgent`) if `allowBackup` is true in the manifest.
+- Do set `android:fullBackupOnly="true"` in the manifest if you added a `BackupAgent` to the app.
 - Call `clearCredentialState()` when the user signs out. This is a mandatory security measure to log the user out fully.
 - Do attempt to get the restore key on the first launch of the app on a new device and also within the `BackupAgent.onRestoreFinished()` callback if your app uses it.
 - Do ensure that a restore credential is created even if the user is already logged in.
@@ -70,7 +75,7 @@ implement tier 2 (Foreground Restoration). Do **NOT** change the value of
 - Do restore notifications in the `BackupAgent` if your app uses them. (For example capture and send FCM token to backend)
 - Do ensure that if you implement mock network requests or stubs, you replace all placeholders with valid, properly formatted JSON payloads for the credential requests.
 - Do encapsulate credential creation and retrieval into their own dedicated functions. Because credential creation must be called in multiple places (sign-up, sign-in) and retrieval across multiple tiers (`BackupAgent` and Launcher `Activity`), this prevents code duplication.
-- Do remind the developer of the [critical guidelines](skill.md) for implementing the backend once you're done with the implementation.
+- Do remind the developer of the [critical guidelines](#implementation-guide) for implementing the backend once you're done with the implementation.
 - Do generate a separate restore key for each application if the organization has multiple apps with different package names, as a restore key is tied to a unique application package name.
 
 **DON'T:**
@@ -86,18 +91,18 @@ implement tier 2 (Foreground Restoration). Do **NOT** change the value of
 
 Implement the Android client-side code by using the following guide. Follow it
 **step-by-step** and don't implement any backend functionality, only remind
-the user of the [Backend Guidelines](skill.md) once you're done.
+the user of the [Backend Guidelines](#backend-guidelines) once you're done.
 
 ## Version compatibility
 
-Credential Manager's Restore Credentials works on devices running Android 9 and
-higher, Google Play services (GMS) core version 24220000 or higher, and version
-1.5.0 or higher of the `androidx.credentials` library.
+Credential Manager's Restore Credentials works on devices running Android 9 (API
+level 28) and higher, Google Play services (GMS) core version 24220000 or
+higher, and version 1.5.0 or higher of the `androidx.credentials` library.
 
 ## Prerequisites
 
-Set up a [relying party server](skill.md) similar to the server for [passkeys](skill.md). If
-you already have a [server](skill.md) set up to handle authentication with passkeys,
+Set up a [relying party server](#backend-guidelines) similar to the server for [passkeys](#dos-and-donts). If
+you already have a [server](#two-tier-restoration-architecture) set up to handle authentication with passkeys,
 use the same server-side implementation for restore keys.
 
 > [!NOTE]
@@ -130,20 +135,20 @@ androidx.credentials library. However, it's recommended to use the latest stable
 versions of the dependencies where possible.
 
 > [!NOTE]
-> **Note:** The Restore Credentials feature works regardless of whether [`allowBackup`](references/android/guide/topics/manifest/application-element.md) is set in the `manifest`.
+> **Note:** The Restore Credentials feature works regardless of whether [`allowBackup`](references/android/guide/topics/manifest/application-element.md) is set in the manifest.
 
 ## Overview
 
-1. [**Create a restore key**](skill.md): To create a restore key, complete the following steps:
-   1. [**Instantiate Credential Manager**](skill.md): Create a `CredentialManager` object.
+1. [**Create a restore key**](#create-restore-key): To create a restore key, complete the following steps:
+   1. [**Instantiate Credential Manager**](#implementation-guide): Create a `CredentialManager` object.
    2. [**Get credential creation options from the app server**](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API): Send the client app the details required to create the restore key from your app server.
    3. [**Create the restore key**](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson): Create a restore key for the user's account if the user is signed in to your app.
    4. [**Handle the credential creation response**](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson): Send the credentials from your client app to your app server for processing, and handle any exceptions.
-2. [**Sign in with a restore key**](skill.md): To sign in with a restore key, complete the following steps:
-   1. [**Get credential retrieval options from the app server**](skill.md): Send the client app the details required to retrieve the restore key from your app server.
-   2. [**Get the restore key**](skill.md): Request the restore key from Credential Manager when the user sets up a new device. This lets the user sign in without additional input.
-   3. [**Handle the credential retrieval response**](skill.md): Send the restore key from the client app to the app server to sign in the user.
-3. [**Delete a restore key**](skill.md).
+2. [**Sign in with a restore key**](#sign-restore): To sign in with a restore key, complete the following steps:
+   1. [**Get credential retrieval options from the app server**](#get-credential-retrieval): Send the client app the details required to retrieve the restore key from your app server.
+   2. [**Get the restore key**](#get-restore): Request the restore key from Credential Manager when the user sets up a new device. This lets the user sign in without additional input.
+   3. [**Handle the credential retrieval response**](#handle-sign-in): Send the restore key from the client app to the app server to sign in the user.
+3. [**Delete a restore key**](#delete-restore).
 
 ## Create a restore key
 
@@ -200,7 +205,7 @@ restore key by wrapping these options in a
     - `false`: This value saves the key locally and not in the cloud. The key is not available on the new device if the user chooses to restore from the cloud.
 
   > [!CAUTION]
-  > **Caution:** It is recommended to set `isCloudBackupEnabled` to `true`. If cloud backup is disabled and the user restores from a cloud backup, the call to retrieve the restore key fails. Users who restore your app with a cloud backup don't receive the restore key and are not automatically signed in.
+  > **Caution:** It's recommended to set `isCloudBackupEnabled` to `true`. If cloud backup is disabled and the user restores from a cloud backup, the call to retrieve the restore key fails. Users who restore your app with a cloud backup don't receive the restore key and are not automatically signed in.
 
 ### Handle the credential creation response
 
@@ -217,9 +222,9 @@ guidance for passkeys](references/android/identity/passkeys/create-passkeys.md).
 During the restore key creation process, handle these exceptions:
 
 - [`CreateRestoreCredentialDomException`](https://developer.android.com/reference/androidx/credentials/exceptions/restorecredential/CreateRestoreCredentialDomException): This exception occurs if `requestJson` is invalid and does not follow the WebAuthn format for [`PublicKeyCredentialCreationOptionsJSON`](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
-- [`E2eeUnavailableException`](https://developer.android.com/reference/androidx/credentials/exceptions/restorecredential/E2eeUnavailableException): This exception occurs if `isCloudBackupEnabled` is `true`, but the user's device does not have data backup or end-to-end encryption, such as a screen lock.  
+- [`E2eeUnavailableException`](https://developer.android.com/reference/androidx/credentials/exceptions/restorecredential/E2eeUnavailableException): This exception occurs if `isCloudBackupEnabled` is `true`, but the user's device doesn't have data backup or end-to-end encryption, such as a screen lock.  
   To ensure that Restore Credentials are created in all cases, you must handle the `E2eeUnavailableException` explicitly by calling `createCredential` with `isCloudBackupEnabled` set to `true`. If `E2eeUnavailableException` is thrown, catch and call `createCredential` again with `isCloudBackupEnabled` set to `false`.
-- `IllegalArgumentException`: This exception occurs if `createRestoreRequest` is empty or not valid JSON, or if it does not have a valid `user.id` that conforms to the WebAuthn [specifications](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+- `IllegalArgumentException`: This exception occurs if `createRestoreRequest` is empty or not valid JSON, or if it doesn't have a valid `user.id` that conforms to the WebAuthn [specifications](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
 
 ## Sign in with a restore key
 
@@ -238,10 +243,15 @@ authentication guide](https://developers.google.com/identity/passkeys/developer-
 To get the restore key on the new device, call the `getCredential()` method on
 the `CredentialManager` object.
 
-It is recommended to fetch the restore key in both of the following scenarios:
+It's recommended to fetch the restore key in both of the following scenarios:
 
 - On the first launch of the app on the device. Credential restoration in this scenario is independent of restoration of the app data.
 - If app data backup and restore is enabled, get the restore key immediately after the app data is restored. Use [`BackupAgent`](https://developer.android.com/reference/android/app/backup/BackupAgent) to configure your app's backup and ensure you complete the `getCredential` functionality within the [`onRestoreFinished`](https://developer.android.com/reference/android/app/backup/BackupAgent#onRestoreFinished()) callback. Don't use the `onRestore` method, as it is only called for key-value backups, whereas `onRestoreFinished` is reliably called for any kind of backup restore. This avoids potential delays when users open their new device for the first time and lets users interact with the app without waiting for them to open your app. For example, this lets your app send the user notifications before they open the app for the first time on the new device, which is particularly relevant for messaging or communications apps.
+
+If you newly create a `BackupAgent` and previously had backup enabled with
+`allowBackup="true"`, set the boolean value `android:fullBackupOnly="true"`in
+your app's manifest. This ensures that your app's backup and restore behavior is
+maintained.
 
 > [!IMPORTANT]
 > **Important:** Notifications aren't automatically restored after the restore credentials are retrieved. If you use Firebase to handle notifications, you must fetch and send the Firebase Cloud Messaging (FCM) token to the backend to successfully resume background messaging and notifications.
@@ -275,7 +285,7 @@ the server-side implementation for passkeys, see [Sign in with a passkey](refere
 
 ## Delete the restore key
 
-Credential Manager is stateless and unaware of user activity, so it does not
+Credential Manager is stateless and unaware of user activity, so it doesn't
 automatically delete restore keys after use. To delete a restore key, call the
 `clearCredentialState()` method. For security, delete the key whenever a user
 signs out. This ensures that the next time the user opens the app on the same
@@ -311,7 +321,7 @@ developer as a reminder after the client-side implementation is complete.**
 
 1. **Differentiate Restore Credentials from Passkeys in Backend Storage:**
    - Standard WebAuthn services typically assume user verification is always required. Restore credentials are hidden from the user and not managed by them.
-   - **Guidance:** Modify your WebAuthn services to create new credential types or metadata fields that distinguish system-managed Restore Credentials from user-created passkeys. Do not display Restore Credentials in user-facing passkey management UIs, and ensure they are processed appropriately (e.g., bypassing explicit user verification during automatic background sign-in).
+   - **Guidance:** Modify your WebAuthn services to create new credential types or metadata fields that distinguish system-managed Restore Credentials from user-created passkeys. Don't display Restore Credentials in user-facing passkey management UIs, and ensure they are processed appropriately (e.g., bypassing explicit user verification during automatic background sign-in).
 2. **Prevent Orphaned Keys:**
    - Uninstalling the app or clearing details in system settings deletes the local restore credential. Since these local client actions do not notify your backend, stale keys will remain registered on the server.
    - **Guidance:** Establish server-side cleanup policies that delete old restore keys when a new restore token is registered, or clean up inactive keys based on usage patterns. You could, for example, enforce a limit of one key per user per device.

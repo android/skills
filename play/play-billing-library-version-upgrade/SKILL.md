@@ -6,7 +6,7 @@ description: Use this skill when upgrading or migrating an Android project from 
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-08-14'
+  last-updated: '2026-09-01'
   keywords:
   - android
   - play billing

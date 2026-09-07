@@ -2,17 +2,18 @@ TV devices provide a limited set of navigation controls for apps. Creating an
 effective navigation scheme for your TV app depends on understanding these
 limited controls as well as users' limitations while operating your app.
 As you build your Android app for TV, pay special attention to how the user
-navigates when using remote control buttons instead of a touch screen.
+navigates when using remote control buttons instead of a touchscreen.
 
 ## Principles
 
-The goal is for navigation to feel natural and familiar without dominating the user
-interface or diverting attention from content. The following principles help set
-a baseline for a consistent and intuitive user experience across TV apps.
+The goal is for navigation to feel natural and familiar without dominating the
+user interface or diverting attention from content. The following principles
+help set a baseline for a consistent and intuitive user experience across TV
+apps.
 **Efficient**
 
 
-Make it fast and easy to get to content. Users want to access content
+Simplify getting to content. Users want to access content
 quickly, using a minimal number of clicks. Organize your information in
 a way that requires the fewest screens.
 **Predictable**
@@ -24,15 +25,16 @@ unnecessarily, as this leads to confusion and unpredictability.
 **Intuitive**
 
 
-Make navigation simple enough to seamlessly support widely adopted user
-behaviors. Don't over-complicate by adding unnecessary layers of navigation.
+Simplify navigation enough to seamlessly support widely adopted user
+behaviors. Don't over-complicate by adding unnecessary layers of
+navigation.
 
 ## Controllers
 
 Controllers come in a variety of styles, from a minimalist remote control to
 complex game controllers. All controllers include a directional pad (D-pad) plus
 select, home, and back buttons. Other buttons vary by model.
-![Sample Remote](https://developer.android.com/static/training/tv/images/tv-nav-controller.png) **Figure 1.** Example of a TV remote.
+![A television remote control](https://developer.android.com/static/training/tv/images/tv-nav-controller.png) **Figure 1.** Example of a TV remote.
 
 **D-pad**   
 
@@ -60,8 +62,7 @@ Invokes either Google Assistant or voice input.
 <br />
 
 > [!NOTE]
-> **Note:** The remote control shown in figure 1 is for reference only. There are many layouts and styles of remotes and controllers, though all of them have the basic functionality described here. For more information, see [Manage
-> TV controllers](https://developer.android.com/training/tv/get-started/controllers).
+> **Note:** The remote control shown in figure 1 is for reference only. There are many layouts and styles of remotes and controllers, though all of them have the basic functionality described here. For more information, see [Manage TV controllers](https://developer.android.com/training/tv/get-started/controllers).
 
 ## D-pad navigation
 
@@ -71,12 +72,12 @@ build a great TV-optimized app, you must provide a navigation scheme where the
 user can quickly learn how to navigate your app using these limited controls.
 
 The Android framework handles directional navigation between layout elements
-automatically, so you typically do not need to do anything extra for your app.
+automatically, so you typically don't need to do anything extra for your app.
 However, you should thoroughly test navigation with a D-pad controller to
 discover any navigation problems.
 
-Follow these guidelines to test that your
-app's navigation system works well with a D-pad on a TV device:
+Follow these guidelines to test that your app's navigation system works well
+with a D-pad on a TV device:
 
 - Ensure that a user with a D-pad controller can navigate to all visible controls on the screen.
 - For scrolling lists with focus, make sure that the D-pad up and down buttons scroll the list and that the select button selects an item in the list. Verify that users can select an element in the list and that the list still scrolls when an element is selected.
@@ -85,9 +86,9 @@ app's navigation system works well with a D-pad on a TV device:
 ### Modify directional navigation
 
 The Android framework automatically applies a directional navigation scheme
-based on the relative position of focusable elements in your layouts. Test
-the generated navigation scheme in your app using a D-pad controller. After
-testing, if you decide that you want users to move through your layouts in a specific
+based on the relative position of focusable elements in your layouts. Test the
+generated navigation scheme in your app using a D-pad controller. After testing,
+if you decide that you want users to move through your layouts in a specific
 way, you can set up explicit directional navigation for your controls.
 
 > [!NOTE]
@@ -115,15 +116,16 @@ first one.
 
 ### Provide clear focus and selection
 
-The success of an app's navigation scheme on TV devices depends on how easy it
-is for a user to determine what user interface element is in focus. If
-you do not provide a clear indication of the focused item, and therefore what item a
-user can take action on, they can quickly become frustrated and exit your app.
-For the same reason, it is important to always have an item in focus that a user
-can take action on immediately after your app starts or any time it is idle.
+The success of an app's navigation scheme on TV devices depends on whether
+a user can quickly determine what user interface element is in focus. If
+you don't provide a clear indication of the focused item, and therefore what
+item a user can take action on, they can quickly become frustrated and exit your
+app. For the same reason, it is important to always have an item in focus that a
+user can take action on immediately after your app starts or any time it is
+idle.
 
 In your app layout and implementation, use color, size, animation, or a
-combination of these attributes to help users easily determine what actions they
+combination of these attributes to help users determine what actions they
 can take next. Use a uniform scheme for indicating focus across your
 application.
 
@@ -166,9 +168,9 @@ button follows these guidelines.
 
 ### Use predictable back button behavior
 
-To create an easy and predictable navigation experience, when the user presses
-the remote's back button, take them to the previous destination.
-![An image describing the flow of navigation when using top navigation](https://developer.android.com/static/training/tv/images/tv-nav-top.png) **Figure 2.** Flow using top navigation. ![An image describing the flow of navigation when using side navigation](https://developer.android.com/static/training/tv/images/tv-nav-left.png) **Figure 3.** Flow using side navigation.
+To create a straightforward and predictable navigation experience, when the user
+presses the remote's back button, take them to the previous destination.
+![The flow of navigation when using top navigation](https://developer.android.com/static/training/tv/images/tv-nav-top.png) **Figure 2.** Flow using top navigation. ![The flow of navigation when using side navigation](https://developer.android.com/static/training/tv/images/tv-nav-left.png) **Figure 3.** Flow using side navigation.
 
 If the user navigates from a menu item to a card on the middle of the
 page and then presses the back button, the result depends on whether the app
@@ -179,7 +181,7 @@ uses top navigation or left navigation:
 
 Ensure that the back button isn't gated by confirmation screens or part of an
 infinite loop.
-![Screenshot showing a dialog asking users if they want to exit](https://developer.android.com/static/training/tv/images/tv-nav-back-button-dialog.png) **Figure 4.** Exit gating
+![A dialog asking users if they want to exit](https://developer.android.com/static/training/tv/images/tv-nav-back-button-dialog.png) **Figure 4.** Exit gating
 Don't.  
 
 Avoid exit gating. Let users exit out of the app without
@@ -187,7 +189,7 @@ confirmation.
 
 <br />
 
-![Screenshot showing navigation looping](https://developer.android.com/static/training/tv/images/tv-nav-loop.gif) **Figure 5.** Navigation loop
+![Navigation looping between closing and opening the menu](https://developer.android.com/static/training/tv/images/tv-nav-loop.gif) **Figure 5.** Navigation loop
 Don't.  
 
 Never enter the infinite loop of closing and opening the
@@ -198,8 +200,9 @@ as a kids profile.
 ### Don't display an up or back button
 
 Unlike on handheld devices, the back button on the remote is used to navigate
-backward on a TV. It's not necessary to show a virtual back button on the screen:
-![Screenshot showing a soft back button on the screen](https://developer.android.com/static/training/tv/images/tv-nav-no-soft-back.png) **Figure 6.** Soft back button
+backward on a TV. It's not necessary to show a virtual back button on the
+screen:
+![A virtual back button displayed on the screen](https://developer.android.com/static/training/tv/images/tv-nav-no-soft-back.png) **Figure 6.** Soft back button
 
 Don't.
 
@@ -212,7 +215,7 @@ Don't.
 If the only visible actions are confirming, destructive, or purchase actions,
 it's good practice to have a **Cancel** button that returns to the previous
 destination:
-![Screenshot showing a soft cancel button on the screen](https://developer.android.com/static/training/tv/images/tv-nav-cancel.png) **Figure 7.** Soft cancel button.
+![A cancel button displayed alongside destructive actions](https://developer.android.com/static/training/tv/images/tv-nav-cancel.png) **Figure 7.** Soft cancel button.
 
 Do.
 
@@ -221,10 +224,10 @@ Do.
 ### Implement back navigation
 
 The Android framework generally handles back
-navigation well, as it does for the D-pad. If you use the [Navigation component](https://developer.android.com/guide/navigation),
-you can support a variety of navigation graphs. Occasionally, you might need
-to implement some custom behavior, such as having the back button reset the focus
-to the beginning of a long list.
+navigation well, as it does for the D-pad. If you use the
+[Navigation component](https://developer.android.com/guide/navigation), you can support a variety of navigation graphs.
+Occasionally, you might need to implement some custom behavior, such as having
+the back button reset the focus to the beginning of a long list.
 
 [`ComponentActivity`](https://developer.android.com/reference/androidx/activity/ComponentActivity),
 the base class for [`FragmentActivity`](https://developer.android.com/reference/androidx/fragment/app/FragmentActivity)
@@ -254,23 +257,14 @@ playback and direct-back requirements, as described in the following sections.
 
 #### Frictionless playback
 
-Frictionless playback applies to in-app behavior following any Live/Linear
+Frictionless playback applies to in-app behavior following any Live or Linear
 channel deep link from Google TV and Android TV.
 
-Users who click a Live/Linear channel deep link from Google TV and Android
-TV must be led directly to channel playback, without any blocking or delaying
-screens from the target app. Sign-in flows, sign-up flows, branding videos,
-and other delays are *not* permitted.
+When a user clicks a deep link, the following rules apply:
 
-However, if the deep link initiates the target app loading from a cold
-boot, this boot-up delay before playback *is* permitted. An app boot-up
-branding video or animation is also permitted in this case. Such a cold boot
-experience is unlikely to occur more than once per session.
-
-Also, if tuning into the deep-linked channel takes a few seconds, displaying
-channel and/or service branding *is* permitted. However, its
-duration should only be as long as it takes to load the channel (and similar
-to average channel load times within the app).
+- **No delays:** Users must be led directly to channel playback without blocking or delaying screens, such as sign-in or sign-up flows or branding videos.
+- **Cold boot exception:** If the deep link initiates the target app loading from a cold boot, the boot-up delay is permitted. App boot-up branding videos or animations are also allowed in this case.
+- **Loading delay exception:** If tuning into the channel takes a few seconds, displaying branding is permitted. The duration must only be as long as it takes to load the channel.
 
 If the user is signed out or isn't subscribed, you can block playback for a
 paid channel to complete a sign-in or sign-up flow.
@@ -307,6 +301,10 @@ section.
 
 ## Navigation architecture
 
+A well-defined navigation architecture helps users understand where they are in
+your app and how to access different content. Consider the following aspects of
+navigation design.
+
 ### Fixed start destination
 
 The first screen the user sees when they launch the app from the launcher
@@ -333,40 +331,40 @@ the Moviestar app.
 <br />
 
 > [!NOTE]
-> **Note:** This does not apply when launching from the Live Tab for direct playback. See the [Live Tab navigation](https://developer.android.com/training/tv/get-started/navigation#live_tab_navigation) section for details.
+> **Note:** This does not apply when launching from the Live Tab for direct playback. See the [Live Tab navigation](https://developer.android.com/training/tv/get-started/navigation#live-tab-navigation) section for details.
 
 ### Clear path to all focusable elements
 
 Let users navigate your UI with clear direction. If there isn't a
 straight path to get to a control, consider relocating it.
-![Navigation focusable example](https://developer.android.com/static/training/tv/images/tv-nav-focusable-2.png) **Figure 9.** Control focusability.
+![A layout with controls placed in non-overlapping locations](https://developer.android.com/static/training/tv/images/tv-nav-focusable-2.png) **Figure 9.** Control focusability.
 
 
 Do.  
 
 Place controls, like the search action shown here, in locations that don't overlap
 with other clickable elements.
-![Navigation focusable example](https://developer.android.com/static/training/tv/images/tv-nav-focusable-1.png) **Figure 10.** Control focusability.
+![A layout with controls in hard-to-reach locations](https://developer.android.com/static/training/tv/images/tv-nav-focusable-1.png) **Figure 10.** Control focusability.
 
 
 Don't.   
 
 Avoid layouts that contain controls in hard-to-reach places. Reaching
-the search action shown here is not easy to manage with the D-pad.
+the search action shown here might be difficult with the D-pad.
 
 ### Axes
 
 Design your layout to take advantage of both horizontal and vertical axes.
 Give each direction a specific function, making it fast to navigate large
 hierarchies.
-![Navigation axes example](https://developer.android.com/static/training/tv/images/tv-nav-axes-1.png) **Figure 11.** Traversal.
+![A layout using vertical categories and horizontal items](https://developer.android.com/static/training/tv/images/tv-nav-axes-1.png) **Figure 11.** Traversal.
 
 
 Do.  
 
 Categories can be traversed on the vertical axis, and items within each
 category can be browsed on the horizontal axis.
-![Navigation axes example](https://developer.android.com/static/training/tv/images/tv-nav-axes-2.png) **Figure 12.** Traversal.
+![A complex and nested layout hierarchy](https://developer.android.com/static/training/tv/images/tv-nav-axes-2.png) **Figure 12.** Traversal.
 
 
 Don't.  

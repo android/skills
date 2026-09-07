@@ -17,6 +17,19 @@ This guide assumes you are familiar with the following concepts:
 - [Digital Credentials](https://developer.android.com/identity/digital-credentials)
 - [Verifiable Credentials](https://developer.android.com/identity/digital-credentials#verifiable-credentials)
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/identity/verified-email)
+
+### Retrieve verified email
+
+Use an [Android skill](https://developer.android.com/tools/agents/android-skills) to integrate a secure, OTP-less email verification flow into your app. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add verified-email
+
+<br />
+
 ## Android compatibility
 
 This feature is supported on mobiles, tablets, and foldable devices running
@@ -45,14 +58,14 @@ The user experience for sharing a verified email is as follows:
    message.
 
    > [!NOTE]
-   > **Note:** If the verified email you receive does not match what you expect, inform the user about the mismatch and either ask them to try again with a different credential or provide an alternate verification method, such as through OTPs.
+   > **Note:** If the verified email you receive doesn't match what you expect, inform the user about the mismatch and either ask them to try again with a different credential or provide an alternate verification method, such as through OTPs.
 
-4. (Optional, recommended) If the user is signing up for your service, you
-   should prompt the user to [create](https://developer.android.com/identity/passkeys/create-passkeys) a [passkey](https://developer.android.com/identity/passkeys) to make it easier for
-   them to sign in subsequently.
+4. Optional: If the user is signing up for your service, prompt the user to
+   [create](https://developer.android.com/identity/passkeys/create-passkeys) a [passkey](https://developer.android.com/identity/passkeys) to make it easier for them to sign in
+   subsequently.
 
    > [!NOTE]
-   > **Note:** The email verification process doesn't automatically trigger passkey creation. However, it is highly recommended to include the steps for passkey creation. Passkeys help users by making it easier and more secure for them to sign in, and remove the need for the conventional username and password interaction.
+   > **Note:** The email verification process doesn't automatically trigger passkey creation. However, it's highly recommended to include the steps for passkey creation. Passkeys help users by making it easier and more secure for them to sign in, and remove the need for the conventional username and password interaction.
 
 ### Include primary and fallback flows
 
@@ -92,7 +105,7 @@ details, by requiring a quick reauthentication step.
 
 Email verification through Credential Manager only supports verification of
 consumer Google Accounts. [Workspace accounts](https://knowledge.workspace.google.com/admin/getting-started/set-up-google-workspace-for-your-organization) and [supervised
-accounts](https://support.google.com/families/answer/9499054) are not supported.
+accounts](https://support.google.com/families/answer/9499054) aren't supported.
 
 A consumer Google Account can be created with an email address from any
 provider, not necessarily @gmail.com. However, Google verifies these accounts
@@ -126,7 +139,7 @@ providing an expired VC or a VC for an inactive Google Account.
 
 ### Email deliverability
 
-While the process confirms the account's legitimacy, it does not guarantee inbox
+While the process confirms the account's legitimacy, it doesn't guarantee inbox
 delivery (for instance, the email might be diverted to spam). An OTP remains the
 definitive method for confirming email deliverability.
 
@@ -136,9 +149,9 @@ While both Digital Credentials and [Sign in with Google](https://developer.andro
 verified email, the user flows and use cases are different:
 
 - **Use cases**: The Credential Manager email verification flow is not exclusively used in sign up or sign in use cases, but rather can be used in any use case involving the retrieval of verified email. This could include account recovery as well.
-- **Registration**: The Credential Manager flow does not require Google registration, unlike Sign in with Google.
+- **Registration**: The Credential Manager flow doesn't require Google registration, unlike Sign in with Google.
 - **Platform support**: The Credential Manager flow is an Android-only solution.
-- **Scopes** : Unlike Sign in with Google, which can use OAuth 2.0 to request access to user data (such as Calendar or Drive through scopes), the Digital Credentials API is strictly for retrieving verified identity attributes. It cannot be used to request additional [authorization scopes](https://developers.google.com/identity/protocols/oauth2/scopes).
+- **Scopes** : Unlike Sign in with Google, which can use OAuth 2.0 to request access to user data (such as Calendar or Drive through scopes), the Digital Credentials API is strictly for retrieving verified identity attributes. It can't be used to request additional [authorization scopes](https://developers.google.com/identity/protocols/oauth2/scopes).
 
 ## Next steps
 

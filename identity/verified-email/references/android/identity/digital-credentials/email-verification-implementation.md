@@ -6,7 +6,7 @@
 
 Use an [Android skill](https://developer.android.com/tools/agents/android-skills) to integrate a secure, OTP-less email verification flow into your app. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
 
-    android skills add --skill verified-email
+    android skills add verified-email
 
 <br />
 
@@ -156,6 +156,9 @@ Present the user with the request, using the Credential Manager built-in UI.
 
 ## Parse the response on the client
 
+> [!WARNING]
+> **Warning:** From August 2026, the [response JSON](https://developer.android.com/reference/androidx/credentials/DigitalCredential#getCredentialJson()) format has been updated to strictly match the W3C standards. It contains `data` and `protocol` keys, with the OpenID4VP `vp_token` nested in `data`, while legacy formats hold the `vp_token` directly. Ensure your client-side parsing and server-side validation handle both formats during the transition period, while the older implementation is phased out. Apps that begin to integrate the email verification flow after August 2026 need to use the new format only.
+
 After receiving the response, you can perform a preliminary parse on the client.
 This is useful for immediately updating the UI, for example, by showing the
 user's name.
@@ -168,7 +171,8 @@ The following code extracts the raw [Selective Disclosure JWT
 
     // 1. Parse the outer JSON wrapper to get the `vp_token`
     val responseData = JSONObject(responseJsonString)
-    val vpToken = responseData.getJSONObject("vp_token")
+    val dataObject = responseData.getJSONObject("data")
+    val vpToken = dataObject.getJSONObject("vp_token")
 
     // 2. Extract the raw SD-JWT string
     val credentialId = vpToken.keys().next()
@@ -266,6 +270,9 @@ replay attacks.
 By combining these steps, your server can validate both the authenticity of the
 data and the identity of the presenter, ensuring the credential wasn't
 intercepted or spoofed before provisioning the new account.
+
+> [!WARNING]
+> **Warning:** As mentioned in [Parse the response on the client](https://developer.android.com/identity/digital-credentials/email-verification-implementation#parse-response), from August 2026, the [response JSON](https://developer.android.com/reference/androidx/credentials/DigitalCredential#getCredentialJson()) format has been updated to match W3C standards. Ensure your client-side parsing and server-side validation handle both formats during the transition period, while the older implementation is phased out. Apps that begin to integrate the email verification flow after August 2026 need to use the new format only.
 
     try {
         // Send the raw credential response and the original nonce to your server.

@@ -9,6 +9,19 @@ depends on where your app sits in relation to its adoption of Material Design:
 2. Using Material Design
    - **Recommendation**: Await Material adoption to integrate with Styles. Use styles on your own components where possible.
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/blob/main/jetpack-compose/theming/styles)
+
+### Use the Jetpack Compose Styles API
+
+Use the `styles` [Android skill](https://developer.android.com/tools/agents/android-skills) to create and customize components with the Styles API. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add styles
+
+<br />
+
 ## The Style layer
 
 In the traditional Compose model, customization often relies heavily on
@@ -75,9 +88,8 @@ val interactiveShadowAtomic = Style {
 
 #### Composition using "then"
 
-One of the powerful features of the new Styles API is the `then` operator, which
-lets you merge multiple `Style` objects. This lets you build a component using
-atomic utility classes.
+The `then` operator in the Styles API lets you merge multiple `Style` objects.
+This lets you build a component using atomic utility classes.
 
 **Traditional (non-atomic)**:
 
@@ -250,8 +262,8 @@ access your base styles from anywhere in your project.
    <br />
 
 Beyond global theme adoption, there are alternative strategies for incorporating
-`Styles` into your apps. You can leverage `Styles` inline for specific call
-sites or use static definitions when full theming capabilities are unnecessary.
+`Styles` into your apps. You can use `Styles` inline for specific call sites or
+use static definitions when full theming capabilities aren't necessary.
 `Styles` shouldn't be swapped conditionally unless the whole style is
-fundamentally different. You should prefer accessing dynamic tokens inside a
-visual definition rather than switching between distinct style objects.
+fundamentally different. Prefer accessing dynamic tokens inside a visual
+definition rather than switching between distinct style objects.

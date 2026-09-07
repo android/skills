@@ -76,12 +76,6 @@ public fun IconButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) {
-    val depthEffect =
-        SurfaceDepthEffect(
-            depthEffect = null,
-            focusedDepthEffect = GlimmerTheme.depthEffectLevels.level1,
-        )
-
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
     Box(
@@ -92,7 +86,7 @@ public fun IconButton(
                 shape = shape,
                 color = color,
                 contentColor = contentColor,
-                depthEffect = depthEffect,
+                depthEffect = null,
                 interactionSource = internalInteractionSource,
             )
             .clickable(

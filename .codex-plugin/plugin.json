@@ -32,6 +32,11 @@
     },
     {
       "source": {
+        "path": "./device-ai/ml-kit-genai-prompt-api"
+      }
+    },
+    {
+      "source": {
         "path": "./devtools/android-cli"
       }
     },
@@ -68,6 +73,11 @@
     {
       "source": {
         "path": "./navigation/navigation-3"
+      }
+    },
+    {
+      "source": {
+        "path": "./navigation/navigation-event"
       }
     },
     {

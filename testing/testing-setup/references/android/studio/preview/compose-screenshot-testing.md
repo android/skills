@@ -7,6 +7,19 @@ features of [composable previews](https://developer.android.com/develop/ui/compo
 gains of running host-side screenshot tests. Compose Preview Screenshot Testing
 is designed to be as straightforward to use as composable previews.
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/blob/main/testing/testing-setup)
+
+### Create screenshot tests
+
+Use the `testing-setup` [Android skill](https://developer.android.com/tools/agents/android-skills) to develop a testing strategy and create screenshot tests. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add testing-setup
+
+<br />
+
 A screenshot test is an automated test that takes a screenshot of a piece of UI
 and then compares it against a previously approved reference image. If the
 images don't match, the test fails and produces an HTML report to help you
@@ -157,6 +170,21 @@ preview. These reference images are used to identify changes later, after you
 make code changes. To generate reference images for your composable preview
 screenshot tests, follow the instructions in this section for the IDE
 integration or for the Gradle tasks.
+
+
+## Android CLI
+
+[Download the Android CLI](https://developer.android.com/tools/agents)
+
+### Try Android CLI to render a Compose preview
+
+Try [Android CLI](https://developer.android.com/tools/agents) if you're not using Android Studio or prefer to do things from the command line.  
+
+For example, use the [`android studio render-compose-preview`](https://developer.android.com/tools/agents/android-cli#studio-render-compose-preview) command when you need to render a Compose preview for visual testing.
+
+    android studio render-compose-preview
+
+<br />
 
 ### In the IDE
 

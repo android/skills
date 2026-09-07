@@ -6,7 +6,7 @@
 
 Use an Android skill to help you build using Jetpack Navigation 3. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
 
-    android skills add --skill navigation-3
+    android skills add navigation-3
 
 <br />
 

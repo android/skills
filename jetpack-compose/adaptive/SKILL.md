@@ -10,7 +10,7 @@ description: Instructions to make or update an app's UI so that it adapts to dif
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-08-20'
+  last-updated: '2026-08-27'
   keywords:
   - android
   - ui

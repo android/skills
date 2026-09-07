@@ -108,6 +108,9 @@ with the cached data.
 Call the `getCredential()` method to show the user the account selector. Use the
 following code snippet as a reference for how to launch the sign-in flow:
 
+> [!NOTE]
+> **Note:** To avoid a potential memory leak, pass in a `MutableContextWrapper` of your foreground `Activity` to the `getCredential()` call. Credential Manager handles updating the context during `Activity` reconstruction.
+
     // Use an activity-based context to avoid undefined system UI
     // launching behavior.
     val context = MutableContextWrapper(activityContext)

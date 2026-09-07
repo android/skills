@@ -7,7 +7,7 @@ description: Use this skill to migrate your Jetpack Compose app to add adaptive 
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-08-14'
+  last-updated: '2026-08-24'
   keywords:
   - android
   - compose
@@ -185,7 +185,7 @@ applied twice, once with innerPadding, which contains IME insets from the passed
 
 ```kotlin
 // WRONG
-Scaffold( contentWindowInsets = WindowInsets.safeDrawing ) { innerPadding ->
+Scaffold(contentWindowInsets = WindowInsets.safeDrawing) { innerPadding ->
     Column(
         modifier = Modifier
             .padding(innerPadding)

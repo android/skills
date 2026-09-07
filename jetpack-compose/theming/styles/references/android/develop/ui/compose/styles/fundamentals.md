@@ -42,8 +42,7 @@ BaseButton(
     onClick = { },
     style = { }
 ) {
-    BaseText("Click me")
-}
+    BaseText("Click mnippets.kt
 ```
 
 <br />
@@ -57,8 +56,7 @@ BaseButton(
     onClick = { },
     style = { background(Color.Blue) }
 ) {
-    BaseText("Click me")
-}
+    BaseText("Click mnippets.kt
 ```
 
 <br />
@@ -77,8 +75,7 @@ own custom components.
 Row(
     modifier = Modifier.styleable { }
 ) {
-    BaseText("Content")
-}
+    BaseText("Contennippets.kt
 ```
 
 <br />
@@ -93,8 +90,7 @@ Row(
         background(Color.Blue)
     }
 ) {
-    BaseText("Content")
-}
+    BaseText("Contennippets.kt
 ```
 
 <br />
@@ -145,8 +141,8 @@ val styleState = remember { MutableStyleState(null) }
 Column(
     Modifier.styleable(styleState, style)
 ) {
-    BaseText("Column content")
-}
+    BaseText("Col)
+}StylesSnippets.kt
 ```
 
 <br />
@@ -172,10 +168,8 @@ Column(
 }
 val rowStyleState = remember { MutableStyleState(null) }
 Row(
-    Modifier.styleable(rowStyleState, style)
-) {
-    BaseText("Row")
-}
+    Modifier.styleable(rowStyleState, stText("Row")
+}StylesSnippets.kt
 ```
 
 <br />
@@ -194,8 +188,7 @@ BaseButton(
         contentPaddingStart(16.dp)
     }
 ) {
-    BaseText("Button")
-}
+    BaseText("Buttonippets.kt
 ```
 
 <br />
@@ -225,8 +218,7 @@ BaseButton(
         //
     }
 ) {
-    BaseText("Click me!")
-}
+    BaseText("Click menippets.kt
 ```
 
 <br />
@@ -250,8 +242,7 @@ BaseButton(
 
     },
 ) {
-    BaseText("Click me!")
-}
+    BaseText("Click menippets.kt
 ```
 
 <br />
@@ -283,8 +274,7 @@ BaseButton(
 
     },
 ) {
-    BaseText("Click me!")
-}
+    BaseText("Click menippets.kt
 ```
 
 <br />
@@ -334,8 +324,8 @@ Column(
 ) {
     BaseText("Children inherit", style = { width(60.dp) })
     BaseText("certain properties")
-    BaseText("from their parents")
-}
+    BaseText(&quents")
+}StylesSnippets.kt
 ```
 
 <br />
@@ -365,8 +355,8 @@ Column(
         contentBrush(Brush.linearGradient(listOf(Color.Red, Color.Blue)))
     })
     BaseText("override properties")
-    BaseText("set by their parents")
-}
+    BaseText("ents")
+}StylesSnippets.kt
 ```
 
 <br />

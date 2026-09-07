@@ -13,7 +13,7 @@ description: Provides instructions and architectural patterns for migrating Andr
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-08-21'
+  last-updated: '2026-09-03'
   keywords:
   - Android TV
   - Jetpack Compose
