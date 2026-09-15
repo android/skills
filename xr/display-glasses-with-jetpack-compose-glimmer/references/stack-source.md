@@ -154,13 +154,12 @@ private fun StackItemLayout(
     ) { measurables, constraints ->
         var maxWidth = 0
         var maxHeight = 0
-        val placeables =
-            measurables.fastMap {
-                it.measure(constraints).also { placeable ->
-                    maxWidth = maxOf(maxWidth, placeable.width)
-                    maxHeight = maxOf(maxHeight, placeable.height)
-                }
+        val placeables = measurables.fastMap {
+            it.measure(constraints).also { placeable ->
+                maxWidth = maxOf(maxWidth, placeable.width)
+                maxHeight = maxOf(maxHeight, placeable.height)
             }
+        }
 
         if (!isLookingAhead) {
             state.layoutInfoInternal.updateMeasuredHeight(index = page, height = maxHeight)

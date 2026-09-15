@@ -109,7 +109,8 @@ fun StatefulSwipeToDismissBox() {
                         modifier =
                             Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+                        verticalArrangement =
+                            Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                     ) {
                         FilledTonalButton(
                             onClick = { showMainScreen = false },

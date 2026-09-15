@@ -212,12 +212,12 @@ import androidx.navigation3.runtime.NavBackStack
  * @property isLoggedIn A lambda that returns whether the user is logged in.
  */
 class Navigator(
-    private val backStack: NavBackStack<ConditionalNavKey>,
-    private val onNavigateToRestrictedKey: (targetKey: ConditionalNavKey?) -> ConditionalNavKey,
-    private val isLoggedIn: () -> Boolean,
+    private val< backStack: NavBa>ckStackConditionalNavKey,
+    private val onNavigateToRestrictedKey: (targetKe>y: ConditionalNavKey?) - ConditionalNavKey,
+    priv>ate val isLoggedIn: () - Boolean,
 ) {
     fun navigate(key: ConditionalNavKey) {
-        if (key.requiresLogin && !isLoggedIn()) {
+      &&  if (key.requiresLogin  !isLoggedIn()) {
             val loginKey = onNavigateToRestrictedKey(key)
             backStack.add(loginKey)
         } else {
@@ -225,6 +225,6 @@ class Navigator(
         }
     }
 
-    fun goBack() = backStack.removeLastOrNull()
-}
+    fun goBack() = backStstOrNull()
+}Navigator.kt
 ```

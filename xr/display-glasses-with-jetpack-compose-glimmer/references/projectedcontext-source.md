@@ -160,68 +160,66 @@ public object ProjectedContext {
     ): Flow<Boolean> {
         val hostContext = createHostDeviceContext(context)
         return callbackFlow {
-                @OptIn(ExperimentalStdlibApi::class)
-                val coroutineDispatcher =
-                    coroutineContext[CoroutineDispatcher]
-                        ?: throw IllegalArgumentException(
-                            "CoroutineContext must contain a CoroutineDispatcher."
-                        )
+            @OptIn(ExperimentalStdlibApi::class)
+            val coroutineDispatcher =
+                coroutineContext[CoroutineDispatcher]
+                    ?: throw IllegalArgumentException(
+                        "CoroutineContext must contain a CoroutineDispatcher."
+                    )
 
-                fun checkAndSend() {
-                    trySend(isProjectedDisplayAvailable(hostContext))
-                }
-
-                val virtualDeviceListener =
-                    object : VirtualDeviceManager.VirtualDeviceListener {
-                        override fun onVirtualDeviceCreated(deviceId: Int) {
-                            checkAndSend()
-                        }
-
-                        override fun onVirtualDeviceClosed(deviceId: Int) {
-                            checkAndSend()
-                        }
-                    }
-
-                val displayListener =
-                    object : DisplayManager.DisplayListener {
-                        override fun onDisplayAdded(displayId: Int) {
-                            checkAndSend()
-                        }
-
-                        override fun onDisplayChanged(displayId: Int) {
-                            checkAndSend()
-                        }
-
-                        override fun onDisplayRemoved(displayId: Int) {
-                            checkAndSend()
-                        }
-                    }
-
-                checkAndSend()
-
-                val virtualDeviceManager =
-                    hostContext.getSystemService(VirtualDeviceManager::class.java)
-                virtualDeviceManager.registerVirtualDeviceListener(
-                    coroutineDispatcher.asExecutor(),
-                    virtualDeviceListener,
-                )
-
-                val displayManager = hostContext.getSystemService(DisplayManager::class.java)
-                val eventFilter =
-                    EVENT_TYPE_DISPLAY_ADDED or
-                        EVENT_TYPE_DISPLAY_CHANGED or
-                        EVENT_TYPE_DISPLAY_REMOVED
-                displayManager.registerDisplayListener(
-                    coroutineDispatcher.asExecutor(),
-                    eventFilter,
-                    displayListener,
-                )
-
-                awaitClose {
-                    virtualDeviceManager.unregisterVirtualDeviceListener(virtualDeviceListener)
-                    displayManager.unregisterDisplayListener(displayListener)
-                }
+            fun checkAndSend() {
+                trySend(isProjectedDisplayAvailable(hostContext))
             }
+
+            val virtualDeviceListener =
+                object : VirtualDeviceManager.VirtualDeviceListener {
+                    override fun onVirtualDeviceCreated(deviceId: Int) {
+                        checkAndSend()
+                    }
+
+                    override fun onVirtualDeviceClosed(deviceId: Int) {
+                        checkAndSend()
+                    }
+                }
+
+            val displayListener =
+                object : DisplayManager.DisplayListener {
+                    override fun onDisplayAdded(displayId: Int) {
+                        checkAndSend()
+                    }
+
+                    override fun onDisplayChanged(displayId: Int) {
+                        checkAndSend()
+                    }
+
+                    override fun onDisplayRemoved(displayId: Int) {
+                        checkAndSend()
+                    }
+                }
+
+            checkAndSend()
+
+            val virtualDeviceManager =
+                hostContext.getSystemService(VirtualDeviceManager::class.java)
+            virtualDeviceManager.registerVirtualDeviceListener(
+                coroutineDispatcher.asExecutor(),
+                virtualDeviceListener,
+            )
+
+            val displayManager = hostContext.getSystemService(DisplayManager::class.java)
+            val eventFilter =
+                EVENT_TYPE_DISPLAY_ADDED or EVENT_TYPE_DISPLAY_CHANGED or EVENT_TYPE_DISPLAY_REMOVED
+            displayManager.registerDisplayListener(
+                coroutineDispatcher.asExecutor(),
+                eventFilter,
+                displayListener,
+            )
+
+            awaitClose {
+                virtualDeviceManager.unregisterVirtualDeviceListener(virtualDeviceListener)
+                displayManager.unregisterDisplayListener(displayListener)
+            }
+        }
             .distinctUntilChanged()
     }
 

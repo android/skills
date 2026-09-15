@@ -42,7 +42,8 @@ BaseButton(
     onClick = { },
     style = { }
 ) {
-    BaseText("Click mnippets.kt
+    BaseText("Click me")
+}
 ```
 
 <br />
@@ -56,7 +57,8 @@ BaseButton(
     onClick = { },
     style = { background(Color.Blue) }
 ) {
-    BaseText("Click mnippets.kt
+    BaseText("Click me")
+}
 ```
 
 <br />
@@ -75,7 +77,8 @@ own custom components.
 Row(
     modifier = Modifier.styleable { }
 ) {
-    BaseText("Contennippets.kt
+    BaseText("Content")
+}
 ```
 
 <br />
@@ -90,7 +93,8 @@ Row(
         background(Color.Blue)
     }
 ) {
-    BaseText("Contennippets.kt
+    BaseText("Content")
+}
 ```
 
 <br />
@@ -141,8 +145,8 @@ val styleState = remember { MutableStyleState(null) }
 Column(
     Modifier.styleable(styleState, style)
 ) {
-    BaseText("Col)
-}StylesSnippets.kt
+    BaseText("Column content")
+}
 ```
 
 <br />
@@ -168,8 +172,10 @@ Column(
 }
 val rowStyleState = remember { MutableStyleState(null) }
 Row(
-    Modifier.styleable(rowStyleState, stText("Row")
-}StylesSnippets.kt
+    Modifier.styleable(rowStyleState, style)
+) {
+    BaseText("Row")
+}
 ```
 
 <br />
@@ -188,7 +194,8 @@ BaseButton(
         contentPaddingStart(16.dp)
     }
 ) {
-    BaseText("Buttonippets.kt
+    BaseText("Button")
+}
 ```
 
 <br />
@@ -218,7 +225,8 @@ BaseButton(
         //
     }
 ) {
-    BaseText("Click menippets.kt
+    BaseText("Click me!")
+}
 ```
 
 <br />
@@ -242,7 +250,8 @@ BaseButton(
 
     },
 ) {
-    BaseText("Click menippets.kt
+    BaseText("Click me!")
+}
 ```
 
 <br />
@@ -274,7 +283,8 @@ BaseButton(
 
     },
 ) {
-    BaseText("Click menippets.kt
+    BaseText("Click me!")
+}
 ```
 
 <br />
@@ -324,8 +334,8 @@ Column(
 ) {
     BaseText("Children inherit", style = { width(60.dp) })
     BaseText("certain properties")
-    BaseText(&quents")
-}StylesSnippets.kt
+    BaseText("from their parents")
+}
 ```
 
 <br />
@@ -355,8 +365,8 @@ Column(
         contentBrush(Brush.linearGradient(listOf(Color.Red, Color.Blue)))
     })
     BaseText("override properties")
-    BaseText("ents")
-}StylesSnippets.kt
+    BaseText("set by their parents")
+}
 ```
 
 <br />
