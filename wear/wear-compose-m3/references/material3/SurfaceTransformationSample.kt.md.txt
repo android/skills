@@ -19,6 +19,7 @@ package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,13 +65,13 @@ fun SurfaceTransformationOnCustomComponent() {
             modifier =
                 modifier
                     .fillMaxWidth()
+                    .graphicsLayer { with(transformation) { applyContainerTransformation() } }
                     .paint(
                         transformation.createContainerPainter(
                             ColorPainter(color = Color.Gray),
                             shape = RoundedCornerShape(16.dp),
                         )
                     )
-                    .graphicsLayer { with(transformation) { applyContainerTransformation() } }
                     .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Text(title)
@@ -80,7 +81,7 @@ fun SurfaceTransformationOnCustomComponent() {
 
     val transformationSpec = rememberTransformationSpec()
 
-    TransformingLazyColumn {
+    TransformingLazyColumn(contentPadding = PaddingValues(horizontal = 10.dp)) {
         items(count = 100) {
             MyCardComponent(
                 "Message #$it",

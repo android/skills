@@ -59,9 +59,7 @@ fun SplitSwitchButtonSample() {
         checked = checked,
         onCheckedChange = { checked = it },
         toggleContentDescription = "Split Switch Button Sample",
-        onContainerClick = {
-            /* Do something */
-        },
+        onContainerClick = { /* Do something */ },
         enabled = true,
     )
 }
