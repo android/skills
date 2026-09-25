@@ -7,7 +7,7 @@ description: Best practices for Android Intent security. Use this skill when aud
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-08-14'
+  last-updated: '2026-09-25'
   keywords:
   - recipe
   - Android
@@ -96,6 +96,9 @@ NEVER launch the nested Intent directly without validation.
 } ELSE IF (the component handles broadcasts) {
 MUST rely on the system's Protected Broadcast mechanism for system events (which guarantees the sender is the system framework).
 MUST protect custom receivers with signature-level permissions or use `RECEIVER_NOT_EXPORTED` for dynamic receivers to restrict the sender.
+IF (using `ContextCompat.registerReceiver` with `RECEIVER_NOT_EXPORTED` AND `minSdk < 33`) {
+MUST verify `<permission android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="signature" />` and `<uses-permission android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />` are declared in `AndroidManifest.xml`.
+}
 }
 
 ### 4. PendingIntent security logic
@@ -538,7 +541,7 @@ Use the following markdown template when reporting changes to developers:
 - **MUST** protect all exported components with custom permissions utilizing `android:protectionLevel="signature"` when communicating between family apps.
 - **MUST** validate all incoming intent extras and handle missing parameters gracefully to prevent crashes.
 - **MUST** rely on the system's **Protected Broadcast** mechanism for system events (for example, boot completed, package changes), as the system prevents untrusted apps from spoofing these actions.
-- **MUST** protect custom broadcasts with signature-level permissions or use `RECEIVER_NOT_EXPORTED` for dynamic receivers to restrict the sender identity.
+- **MUST** protect custom broadcasts with signature-level permissions or use `RECEIVER_NOT_EXPORTED` for dynamic receivers to restrict the sender identity (and when `minSdk < 33`, **MUST** verify that `<permission android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="signature" />` and `<uses-permission android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />` are present in `AndroidManifest.xml` when using `ContextCompat.registerReceiver`).
 - **MUST** call `setIntent(newIntent)` inside `onNewIntent()` before processing payloads to keep active references updated.
 - **MUST** use `PendingIntent.FLAG_IMMUTABLE` by default when constructing `PendingIntent` instances.
 - **MUST** protect exported `ContentProviders` with `readPermission` and `writePermission`.

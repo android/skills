@@ -217,7 +217,7 @@ interact with your app and measure performance from an end-user perspective.
 Macrobenchmark uses UI Automator APIs to drive the UI and measure interactions.
 For example, in startup benchmarks, you can use `onElement` to detect when UI
 content is fully loaded, enabling you to measure [Time to Full Display
-(TTFD)](https://developer.android.com/topic/performance/vitals/launch-time#time-full). In jank benchmarks, UI Automator APIs are used to scroll lists or
+(TTFD)](https://developer.android.com/topic/performance/issues/launch-time#time-full). In jank benchmarks, UI Automator APIs are used to scroll lists or
 run animations to measure frame timings. Functions like `startActivity()` or
 `startIntent()` are useful for getting the app into the correct state before
 measurement begins.

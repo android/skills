@@ -10,16 +10,17 @@ Use an Android skill to help you build using Jetpack Navigation 3. To install th
 
 <br />
 
-Navigation 3 is a new navigation library designed to work with Compose. With
-Navigation 3, you have full control over your back stack, and you navigate to
-and from destinations by adding and removing items from a list. It creates a
+Navigation 3 is a navigation library designed to work with Compose. With
+Navigation 3, you have full control over your back stack, and you navigate
+between destinations by adding and removing items from a list. It creates a
 flexible app navigation system by providing:
 
 - Conventions for modeling a back stack, where each entry on the back stack represents content that the user has navigated to
-- A UI that automatically updates with back stack changes (including animations)
+- A UI that automatically updates with back stack changes (including [animations](https://developer.android.com/guide/navigation/navigation-3/animate-destinations))
 - A scope for items in the back stack, allowing state to be retained while an item is in the back stack
-- An adaptive layout system that allows multiple destinations to be displayed at the same time, and allowing seamless switching between those layouts
-- A mechanism for content to communicate with its parent layout (metadata)
+- An adaptive layout system that allows multiple destinations to be displayed at the same time, enabling seamless switching between those layouts
+- A mechanism for content to communicate with its parent layout ([metadata](https://developer.android.com/guide/navigation/navigation-3/metadata))
+- Inter-destination communication to [return results](https://developer.android.com/guide/navigation/navigation-3/return-results) between screens
 
 At a high level, you implement Navigation 3 in the following ways:
 

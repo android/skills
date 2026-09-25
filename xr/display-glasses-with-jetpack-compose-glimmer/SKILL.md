@@ -9,10 +9,9 @@ description: Provides guidelines for developing projected Android XR apps for di
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-08'
+  last-updated: '2026-09-25'
   keywords:
   - Jetpack Compose Glimmer
-  - audio glasses
   - display glasses
   - Projected Activity
   - GlimmerTheme
@@ -56,7 +55,7 @@ metadata:
 ## 1. Set up dependencies
 
 - **Setup Projected Activity:** First, you need to create a new projected activity for your app. If the project doesn't already have one, see [Create
-  your first activity for intelligent eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/first-activity). Use [references/projectedcontext-source.md](references/projectedcontext-source.md) to launch the Glasses Projected activity on the Projected Device. Ensure that you specify `xr_projected` for the `android:requiredDisplayCategory` attribute in app manifest to tell the system that this activity will use a projected context to access hardware from a connected device.
+  your first activity for intelligent eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/first-activity). Use [references/projectedcontext-source.md](references/projectedcontext-source.md) to launch the Glasses Projected activity on the Projected Device. Ensure that you specify `android.hardware.display.category.XR_PROJECTED` for the `android:requiredDisplayCategory` attribute in app manifest to tell the system that this is a projected activity.
 - **Mobile App Integration:** If the project contains an existing mobile app, you must create a new Glasses Activity dedicated to rendering Glimmer UI. For detailed configuration, heavily reference [Create your first activity
   for intelligent eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/first-activity). If there isn't already a method to launch the Glasses Activity, add a button to the existing mobile app UI labeled "Launch on Glasses" that uses `ProjectedContext` to launch the Glasses Activity on the glasses. Place the 'Launch on Glasses' button as a screen-level FloatingActionButton, in the TopAppBar, or in the top navigation bar to ensure users discover the projection capability. If the glasses aren't connected, disable the button. Don't launch the Glasses Activity on the phone, only on the display glasses. If it makes sense to automatically launch the Glasses Activity without an explicit launch button, then do so.
 - **UI Library:** Identify if the project has the `androidx.xr.glimmer:glimmer` library, if not it must be added to the project. See [Declaring Jetpack Compose Glimmer Dependencies](https://developer.android.com/jetpack/androidx/releases/xr-glimmer#declaring_dependencies) to fetch the latest dependency version.

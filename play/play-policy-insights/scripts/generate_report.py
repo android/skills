@@ -254,6 +254,9 @@ def aggregate_findings(temp_dir, taxonomy):
   play_store_info = (
       load_json(os.path.join(temp_dir, "play_store_info.json")) or {}
   )
+  manifest_details = (
+      load_json(os.path.join(temp_dir, "manifest_details.json")) or {}
+  )
 
   aggregated_findings_path = os.path.join(temp_dir, "aggregated_findings.json")
 
@@ -621,10 +624,17 @@ def aggregate_findings(temp_dir, taxonomy):
     )
 
   # 9. Final Report Construction
+  pkg_name = (
+      play_store_info.get("package_name")
+      or manifest_details.get("package_name")
+  )
+  if not pkg_name or pkg_name == "unknown":
+    pkg_name = "unknown"
+
   report = {
       "overall_compliance": overall_compliance,
       "summary": " ".join(summary_parts),
-      "package_name": play_store_info.get("package_name", "unknown"),
+      "package_name": pkg_name,
       "is_published": is_published,
       "identified_risks": identified_risks,
       "data_safety_comparison": {"matches": matches, "mismatches": mismatches},
@@ -723,7 +733,13 @@ def main():
   }
   compliance_ui = status_map.get(compliance_raw, "🟡 Needs Review")
 
-  app_id = report_data.get("package_name") or "Unknown App"
+  app_id = report_data.get("package_name")
+  if not app_id or app_id == "unknown":
+    app_id = (
+        play_store_info.get("package_name")
+        or manifest_details.get("package_name")
+        or "Unknown App"
+    )
 
   findings_content = ""
   if not violations:

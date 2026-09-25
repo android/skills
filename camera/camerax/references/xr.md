@@ -29,6 +29,7 @@ Unlike a 2D viewport, XR passthrough is often system-managed.
 **\[Key requirement\] Frame synchronization**: Synchronize your application's
 frame clock with the headset's head-mounted display (HMD) pose.
 
+
 ```kotlin
 // Example: Querying the spatial pose for the current camera frame
 val headPose = xrSession.getHeadPose(frameTime)

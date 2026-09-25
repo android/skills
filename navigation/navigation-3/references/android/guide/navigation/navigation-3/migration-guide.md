@@ -96,7 +96,7 @@ project. The core dependencies are provided for you to copy.
 **lib.versions.toml**
 
     [versions]
-    nav3Core = "1.1.7"
+    nav3Core = "1.2.0"
 
     # If your screens depend on ViewModels, add the Nav3 Lifecycle ViewModel add-on library
     lifecycleViewmodelNav3 = "2.11.0"
@@ -343,6 +343,7 @@ Replace `NavController` navigation event methods with `Navigator` equivalents.
 |---|---|
 | `navigate()` | `navigate()` |
 | `popBackStack()` | `goBack()` |
+| `previousBackStackEntry.savedStateHandle.set()` | `ResultEventBus.sendResult()` |
 
 Replace `NavController` fields with `NavigationState` fields.
 
@@ -350,6 +351,7 @@ Replace `NavController` fields with `NavigationState` fields.
 |---|---|
 | `currentBackStack` | `backStacks[topLevelRoute]` |
 | `currentBackStackEntry` `currentBackStackEntryAsState()` `currentBackStackEntryFlow` `currentDestination` | `backStacks[topLevelRoute].last()` |
+| `currentBackStackEntry.savedStateHandle.getLiveData()` `currentBackStackEntry.savedStateHandle.getStateFlow()` | `ResultEffect` (event-based) `ResultEventBus.conflateAsState()` (state-based) |
 | Get the top level route: Traverse up the hierarchy from the current back stack entry to find it. | `topLevelRoute` |
 
 Use `NavigationState.topLevelRoute` to determine the item that is currently
@@ -419,6 +421,75 @@ val state by flow.collectAsStateWithLifecycle()
 ```
 
 <br />
+
+### Step 4.2 Migrate result passing
+
+In Navigation 2, destinations passed results back to previous destinations using
+the `SavedStateHandle` on `NavBackStackEntry`. Because `SavedStateHandle` is
+backed by saved instance state, returned data survived process death
+automatically.
+
+Before:
+
+
+```kotlin
+// Sender destination:
+navController.previousBackStackEntry?.savedStateHandle?.set("contact_key", contact)
+navController.popBackStack()
+
+// Receiver destination:
+val lifecycleOwner = LocalLifecycleOwner.current
+navController.currentBackStackEntry?.savedStateHandle
+    ?.getLiveData<Contact>("contact_key")
+    ?.observe(lifecycleOwner) { contact ->
+        viewModel.onRecipientSelected(contact)
+    }
+```
+
+<br />
+
+In Navigation 3, add
+[`rememberResultEventBusNavEntryDecorator()`](https://developer.android.com/reference/kotlin/androidx/navigation3/runtime/result/rememberResultEventBusNavEntryDecorator.composable) to
+your `NavDisplay.entryDecorators`. In your sender destination's `entryProvider`
+mapping, retrieve [`LocalResultEventBus.current`](https://developer.android.com/reference/kotlin/androidx/navigation3/runtime/result/LocalResultEventBus)
+and call `sendResult()`. In the receiving destination, use
+[`ResultEffect`](https://developer.android.com/reference/kotlin/androidx/navigation3/runtime/result/ResultEffect.composable) to forward the event to a `ViewModel` or
+trigger a side effect.
+
+After:
+
+
+```kotlin
+// Sender destination (in entryProvider):
+entry<ContactPickerRoute> {
+    val resultBus = LocalResultEventBus.current
+
+    ContactPickerScreen(
+        onContactSelected = { contact ->
+            resultBus.sendResult<Contact>(result = contact)
+            navigator.goBack()
+        }
+    )
+}
+
+// Receiver destination:
+@Composable
+fun ComposeMessageScreen(viewModel: ComposeMessageViewModel = viewModel()) {
+    ResultEffect<Contact> { contact ->
+        viewModel.onRecipientSelected(contact)
+    }
+
+    ComposeMessageContent(recipient = viewModel.recipient)
+}
+```
+
+<br />
+
+> [!CAUTION]
+> **Caution:** `ResultEventBus` is an in-memory event bus; unlike Navigation 2's `SavedStateHandle`, results don't survive process death automatically. If a result must persist across process death, save it using `rememberSaveable`, pass it into a scoped `ViewModel` with `SavedStateHandle`, or embed the data into the destination's `NavKey`.
+
+For state-based observation, you can call `resultBus.conflateAsState()`. For
+more details, see [Return results](https://developer.android.com/guide/navigation/navigation-3/return-results).
 
 ## Step 5: Move your destinations from `NavHost`'s `NavGraph` into an `entryProvider`
 
