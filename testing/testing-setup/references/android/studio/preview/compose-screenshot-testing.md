@@ -1,4 +1,7 @@
 > [!WARNING]
+> **Deprecated:** Starting with Android Gradle Plugin (AGP) 9.5.0-alpha03 and Compose Preview Screenshot Testing 0.0.1-alpha16, we recommend configuring screenshot tests using [AGP test suites](https://developer.android.com/studio/preview/compose-screenshot-testing-with-testsuites). The standalone plugin method described on this page is deprecated.
+
+> [!WARNING]
 > **Experimental:** Compose Preview Screenshot Testing is still in development. Its features and APIs are subject to change substantially during the alpha phase. Report any feedback and issues through the [issue tracker](https://issuetracker.google.com/issues/new?component=192708&template=840533).
 
 Screenshot testing is an effective way to verify how your UI looks to users.
@@ -60,12 +63,15 @@ validation failures entirely within the IDE. Here are some of the key features:
 
 ## Requirements
 
+> [!NOTE]
+> **Note:** For requirements and setup instructions for AGP test suites, see [AGP test suites](https://developer.android.com/studio/preview/compose-screenshot-testing-with-testsuites).
+
 To use Compose Preview Screenshot Testing through the full IDE integration, your
 project must meet the following requirements:
 
 - Android Studio Panda 1 Canary 4 or higher.
 - Android Gradle Plugin (AGP) version 9.0 or higher.
-- Compose Preview Screenshot Testing plugin version [0.0.1-alpha15](https://developer.android.com/studio/preview/compose-screenshot-testing-release-notes#alpha15) or higher.
+- Compose Preview Screenshot Testing plugin version [0.0.1-alpha16](https://developer.android.com/studio/preview/compose-screenshot-testing-release-notes#alpha16) or higher.
 - Kotlin version 2.2.10 or higher.
 - JDK version 17 or higher.
 - Compose enabled for your project. We recommend enabling Compose using the [Compose Compiler Gradle plugin](https://developer.android.com/develop/ui/compose/compiler).
@@ -74,7 +80,7 @@ If you only want to use the underlying Gradle tasks without the IDE integration,
 the requirements are as follows:
 
 - Android Gradle Plugin (AGP) version 8.5.0 or higher.
-- Compose Preview Screenshot Testing plugin version [0.0.1-alpha15](https://developer.android.com/studio/preview/compose-screenshot-testing-release-notes#alpha15) or higher.
+- Compose Preview Screenshot Testing plugin version [0.0.1-alpha16](https://developer.android.com/studio/preview/compose-screenshot-testing-release-notes#alpha16) or higher.
 - Kotlin version 1.9.20 or higher. We recommend using Kotlin 2.0 or higher so you can use the Compose Compiler Gradle plugin.
 - JDK version 17 or higher.
 - Compose enabled for your project. We recommend enabling Compose using the [Compose Compiler Gradle plugin](https://developer.android.com/develop/ui/compose/compiler).
@@ -98,7 +104,7 @@ Preview Screenshot Testing plugin. To set up the plugin, follow these steps:
            experimentalProperties["android.experimental.enableScreenshotTest"] = true
        }
 
-3. Add the `com.android.compose.screenshot` plugin, version `0.0.1-alpha15` to
+3. Add the `com.android.compose.screenshot` plugin, version `0.0.1-alpha16` to
    your project.
 
    1. Add the plugin to your version catalogs file:
@@ -106,7 +112,7 @@ Preview Screenshot Testing plugin. To set up the plugin, follow these steps:
           [versions]
           agp = "9.0.0-rc03"
           kotlin = "2.2.10"
-          screenshot = "0.0.1-alpha15"
+          screenshot = "0.0.1-alpha16"
 
           [plugins]
           screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
@@ -207,7 +213,7 @@ After the task completes, find the reference images in
 
 ## Generate a test report
 
-Once the reference images exist, generate a test report by following the
+After reference images exist, generate a test report by following the
 instructions in this section for the IDE integration or for the Gradle tasks.
 
 ### In the IDE

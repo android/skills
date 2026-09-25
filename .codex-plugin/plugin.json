@@ -112,6 +112,11 @@
     },
     {
       "source": {
+        "path": "./security/android-permissions-security"
+      }
+    },
+    {
+      "source": {
         "path": "./system/edge-to-edge"
       }
     },

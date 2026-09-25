@@ -1,12 +1,12 @@
 ---
 name: testing-setup
-description: Analyze and create a testing strategy for native Android apps - install
-  testing libraries, set up test infrastructure, create harnesses for unit tests,
-  UI tests, screenshot tests, and end-to-end tests.
+description: Analyze and create a testing strategy for Android apps - install testing
+  libraries, set up test infrastructure, create harnesses for unit tests, UI tests,
+  screenshot tests, and end-to-end tests.
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-03'
+  last-updated: '2026-09-23'
   keywords:
   - android
   - testing
@@ -20,18 +20,18 @@ metadata:
 To understand the testing setup of an existing project, look for these
 dependencies in the libs.versions.toml file, or build files:
 
-1. Dependency Injection framework used. Examples: Hilt, Koin, Anvil, vanilla Dagger...
-2. Unit (local) testing framework this project uses, Example JUnit4, JUnit5...
-3. Mocking framework (if any) used for unit tests, and for Instrumented and UI tests. Examples: Mockito, Mockk...
-4. Robolectric. It can be used in 3 ways:
+1. Dependency Injection framework used. For example, Hilt, Koin, Anvil, or vanilla Dagger.
+2. Unit (local) testing framework this project uses. For example, JUnit4 or JUnit5.
+3. Mocking framework (if any) used for unit tests, and for instrumented and UI tests. For example, Mockito or Mockk.
+4. Robolectric. Identify which of these three uses apply:
    1. Used in unit tests to have fakes for platform entities
    2. To run behavior UI tests without a device or emulator. For example, used to run Espresso or Compose tests.
    3. To do screenshot testing with Roborazzi
 5. Is the app 100% Compose, Views or hybrid?
 6. Behavior UI tests:
    1. Compose Tests (`androidx.compose.ui:ui-test-*`)
-   2. Espresso Tests for Views. Might use wrappers like Kaspresso. Dependencies: `androidx.test.espresso:espresso-core`, `androidx.test:runner`, `androidx.test:rules`.
-7. Screenshot tests can be:
+   2. Espresso Tests for Views. Check for wrappers such as Kaspresso. Dependencies: `androidx.test.espresso:espresso-core`, `androidx.test:runner`, `androidx.test:rules`.
+7. Screenshot tests. Identify which of these types the project uses:
    1. Instrumented (device-based). For example, using Dropshots.
    2. Based on Robolectric, so they run locally. For example, using Roborazzi.
    3. Based on LayoutLib, so they run locally. For example, Paparazzi, or the Compose Preview Screenshot Testing tool.
@@ -67,10 +67,21 @@ install the following:
 - Jacoco for test coverage
 - For UI tests: if the project has views, Espresso. If it's fully Compose, use the Compose Testing APIs.
 - Robolectric to run UI Tests
-- Compose Preview Screenshot Testing tool for screenshot tests - check [setup
-  documentation](references/android/studio/preview/compose-screenshot-testing.md) and follow it strictly.
+- Compose Preview Screenshot Testing tool for screenshot tests. Check the
+  project's AGP version first, then pick the matching setup and follow it
+  strictly:
+
+  - **AGP 9.5.0-alpha03 or higher (recommended):** configure an AGP test suite using `testOptions { screenshotTests.create(...) }`, as described in [Screenshot testing with test suites](references/android/studio/preview/compose-screenshot-testing-with-testsuites.md).
+  - **Lower AGP versions:** use the [legacy standalone plugin setup](references/android/studio/preview/compose-screenshot-testing.md) with `com.android.compose.screenshot`, and tell the user it's deprecated. Don't upgrade AGP as part of setting up screenshot tests. Mention that test suites are available on 9.5.0-alpha03 or higher, and leave the upgrade as a separate decision.
+
+  Don't combine both setups in the same module. If the project already uses
+  the standalone plugin and its AGP version supports test suites, offer to
+  migrate it using the tasks and paths mapping table in
+  [Screenshot testing with test suites](references/android/studio/preview/compose-screenshot-testing-with-testsuites.md).
 - Dropshots for device screenshot tests
-- If a mocking framework is necessary, install Mockk (`io.mockk:mockk`). Do not install it unless it is clearly necessary.
+
+- If a mocking framework is necessary, install Mockk (`io.mockk:mockk`). Do
+  not install it unless it is clearly necessary.
 
 If instrumented screenshot tests are requested, install Dropshots.
 
@@ -96,13 +107,13 @@ If you need to fake components to make testing easier and faster and more
 reliable, replace slow and problematic dependencies with fakes. Use runtime
 fakes using the Dependency Injection framework installed to:
 
-- **Simulate** different scenarios with the user (wrong credentials, reset password flow...), with a server (no connection, server down, bad JSON from server...) or with a platform component (insufficient permissions, no disk space, no front camera available)
+- **Simulate** different scenarios with the user (wrong credentials or a password reset flow), with a server (no connection, server down, or bad JSON from the server) or with a platform component (insufficient permissions, no disk space, no front camera available)
 - **Improve** speed and reliability (replacing a database with an in-memory database, replacing a repository with an in-memory fake to avoid hitting the network)
 
 ## Step 5: Unit testing
 
 Create a task to add or review unit tests in every file that contains business
-logic (ViewModels, Repositories, database-related classes such as DAOs, etc.).
+logic (ViewModels, Repositories, and database-related classes such as DAOs).
 Don't create unit tests for Activities, Compose layouts, or dependency injection
 configuration files.
 
@@ -114,15 +125,15 @@ put them in the `androidTest` sourceset.
 
 ## Step 7: Test databases
 
-If the database is using SQLite (using Room, SQLDelight, etc.), create
-instrumented tests using an in-memory database to make sure that they work with
-the SQLite engine on device.
+If the database is using SQLite (through a library such as Room or SQLDelight),
+create instrumented tests using an in-memory database to make sure that they
+work with the SQLite engine on device.
 
 ## Step 8: Screenshot tests
 
-Irrespective of the framework used, screenshot tests focus on 2 types of tests:
+Regardless of the framework used, screenshot tests focus on two types of tests:
 
-- Screen-level screenshot tests, where each screen is tested in 9 different sizes, combining compact, medium and expanded widths (400, 610, 900 dp) and heights (400, 500 and 1000 dp).
+- Screen-level screenshot tests, where each screen is tested in nine different sizes, combining compact, medium and expanded widths (400, 610, 900 dp) and heights (400, 500 and 1000 dp).
 - Screen-level variations. Add a mobile (400x500) screenshot of:
   - All the alternative themes, if used.
   - Font scale set to 1.5.
@@ -140,8 +151,8 @@ expected when different states are passed, and when user actions are performed.
 ### **Compose UI behavior tests**
 
 - Use the ComposeTestRule with a `ComponentActivity` to access resources such as strings.
-- Always try to match with semantic matchers first. If the matcher is too complicated to write (using more than 3 matchers to find a single element), use `testTag`.
-- Always verify state restoration
+- Always match with semantic matchers first. If the matcher is too complicated to write (using more than three matchers to find a single element), use `testTag`.
+- Always verify state restoration.
 
 ### **Views (XML) UI behavior tests**
 
@@ -164,7 +175,7 @@ common patterns](references/android/develop/ui/compose/testing/common-patterns.m
 
 Create a low number (about 5% of all tests) of end-to-end tests that cover big
 user journeys. Use Compose Test APIs or Espresso for that. If you have to access
-platform features (notifications, system UI...), use UI Automator.
+platform features such as notifications or system UI, use UI Automator.
 
 If you need to take screenshots of the app running in a device, use
 [Dropshots](https://raw.githubusercontent.com/dropbox/dropshots/refs/heads/main/README.md). You need a device for screenshot tests when verifying
@@ -193,6 +204,6 @@ Install jacoco for local testing code coverage.
 
   - If there is no AGENTS.md file, create a new file (docs/testing.md) with
     a description of the testing strategy, including the commands needed to
-    run every type of test, where the screenshot reference files live, etc.
+    run every type of test and where the screenshot reference files live.
     Also create a new AGENTS.md file in the root and create a link to
     docs/testing.md.

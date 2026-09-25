@@ -152,6 +152,39 @@ fun FragmentInComposeExample() {
 
 <br />
 
+### Cap Fragment lifecycle state
+
+In Fragment [1.9.0](https://developer.android.com/jetpack/androidx/releases/fragment#1.9.0) and higher, you can use the `maxLifecycle`
+parameter to cap the lifecycle state of the embedded `Fragment`.
+
+For example, in a [`HorizontalPager`](https://developer.android.com/reference/kotlin/androidx/compose/foundation/pager/HorizontalPager.composable), you can dynamically set `maxLifecycle`
+to [`RESUMED`](https://developer.android.com/reference/kotlin/androidx/lifecycle/Lifecycle.State#RESUMED) only when the corresponding page is active, keeping offscreen
+pages capped at [`STARTED`](https://developer.android.com/reference/kotlin/androidx/lifecycle/Lifecycle.State#STARTED). When the user navigates to another page, the
+previous page's fragment cap becomes `STARTED`. This pauses or cancels workloads
+scoped to `RESUMED` (such as coroutines running in
+[`repeatOnLifecycle(RESUMED)`](https://developer.android.com/reference/kotlin/androidx/lifecycle/package-summary#(androidx.lifecycle.LifecycleOwner).repeatOnLifecycle(androidx.lifecycle.Lifecycle.State,kotlin.coroutines.SuspendFunction1))), preventing offscreen pages from performing
+foreground-only work while keeping their UI initialized at `STARTED`:
+
+
+```kotlin
+HorizontalPager(state = pagerState) { page ->
+    // Dynamically cap the lifecycle state based on whether the page is selected
+    val maxLifecycle = if (pagerState.settledPage == page) {
+        Lifecycle.State.RESUMED
+    } else {
+        Lifecycle.State.STARTED
+    }
+
+    when (page) {
+        0 -> AndroidFragment<HomeFragment>(maxLifecycle = maxLifecycle)
+        1 -> AndroidFragment<LibraryFragment>(maxLifecycle = maxLifecycle)
+        /* Other pages and corresponding fragments */
+    }
+}
+```
+
+<br />
+
 ## Calling the Android framework from Compose
 
 Compose operates within the Android framework classes. For example, it's hosted

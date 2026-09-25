@@ -126,7 +126,7 @@ import org.intellij.lang.annotations.Language
  * @param shape the [Shape] used to clip this surface, and also used to draw the background and
  *   border
  * @param color the background [Color] for this surface. When providing a custom color, ensure it is
- *   suitable for a surface background or use [SurfaceDefaults.color] to adapt it.
+ *   suitable for a surface background.
  * @param focusedColor the background [Color] for this surface when focused. When providing a custom
  *   color, ensure it is suitable for a focused surface background or use
  *   [SurfaceDefaults.focusedColor] to adapt it.
@@ -166,18 +166,6 @@ public fun Modifier.surface(
 
 /** Contains default values used by [surface]. */
 public object SurfaceDefaults {
-
-    /**
-     * Returns the background [Color] for a surface derived from the provided [baseColor].
-     *
-     * Adjusts the provided [baseColor] so that it is suitable for use as a surface background.
-     *
-     * @param baseColor the base [Color] of the surface
-     * @return the surface background [Color], adjusted to improve content contrast
-     */
-    @Composable
-    public fun color(baseColor: Color = GlimmerTheme.colors.surface): Color =
-        baseColor.withTone(newTone = SurfaceColorTone)
 
     /**
      * Returns the focused background [Color] for a surface derived from the provided [baseColor].

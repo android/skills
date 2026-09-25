@@ -33,6 +33,7 @@
         "./play/play-policy-insights",
         "./profilers/android-profiler",
         "./security/android-intent-security",
+        "./security/android-permissions-security",
         "./system/edge-to-edge",
         "./testing/testing-setup",
         "./tv/leanback-to-compose-tv-migration",
