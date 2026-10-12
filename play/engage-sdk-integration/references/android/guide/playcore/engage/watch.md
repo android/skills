@@ -17,6 +17,30 @@ existing Google surfaces.
 > [!NOTE]
 > **Note:** Check the [TV integration guide](https://developer.android.com/guide/playcore/engage/tv) to learn more about the Continue Watching experience on Google TV.
 
+## Category support and surfaces
+
+Engage SDK surface eligibility is based on your app's content category. Use the
+following table to determine your eligibility for specific surfaces:
+
+| Status | Content category or use case | Supported surfaces |
+|---|---|---|
+| **Supported** (Eligible on all surfaces) | - Movies \& TV streaming - Live TV / Sports - On demand video clips - Sports videos - Drama Shorts - Video podcasts | - Collections - Entertainment Space - Play Store Apps tab - Play Store You tab - Play Store store listing page |
+| **Partially supported** (Eligible on some surfaces) | - Video clips from news apps | - Collections - Entertainment Space |
+| **Not supported** | - Remote controls - Video downloaders, players, and editors - Movie \& TV reviews - Movie tickets - TV guides - Video calls \& chatrooms |   |
+
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/play/engage-sdk-integration)
+
+### Integrate Engage SDK
+
+Use the Engage SDK [Android skill](https://developer.android.com/tools/agents/android-skills) to integrate, debug, and resolve implementation issues. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add engage-sdk-integration
+
+<br />
+
 ## Integration detail
 
 ### Terminology

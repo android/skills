@@ -10,6 +10,30 @@ site](http://play.google.com/console/about/programs/EngageSDK)**.
 This guide contains instructions for developer partners to deliver audio content
 (music, podcasts, audiobooks, live radio) to Engage content surfaces.
 
+## Category support and surfaces
+
+Engage SDK surface eligibility is based on your app's content category. Use the
+following table to determine your eligibility for specific surfaces:
+
+| Status | Content category or use case | Supported surfaces |
+|---|---|---|
+| **Supported** (Eligible on all surfaces) | - Music streaming - Audiobooks - Podcasts - Live radio | - Collections - Entertainment Space - Play Store Apps tab - Play Store You tab - Play Store store listing page |
+| **Partially supported** (Eligible on some surfaces) | - Live audio streams | - Collections - Entertainment Space |
+| **Not supported** | - MP3 player / library - Music maker - Audio recorder / converter / tool - Music recognition - Music education (supported in education) |   |
+
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/play/engage-sdk-integration)
+
+### Integrate Engage SDK
+
+Use the Engage SDK [Android skill](https://developer.android.com/tools/agents/android-skills) to integrate, debug, and resolve implementation issues. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add engage-sdk-integration
+
+<br />
+
 ## Integration detail
 
 ### Terminology

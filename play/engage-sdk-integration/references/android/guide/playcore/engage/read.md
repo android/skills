@@ -11,7 +11,51 @@ week of developer time. Learn more at our **[business
 site](http://play.google.com/console/about/programs/EngageSDK)**.
 
 This guide contains instructions for developer partners to deliver reading
-content (eBooks, Audiobooks, Comics/Manga) to Engage content surfaces.
+content (eBooks, Audiobooks, Comics/Manga, Blogs, News and Magazines) to Engage
+content surfaces.
+
+## Category support and surfaces
+
+Engage SDK surface eligibility is based on your app's content category. Use the
+following table to determine your eligibility for specific surfaces:
+
+| Status | Content category or use case | Supported surfaces |
+|---|---|---|
+| **Supported** (Eligible on all surfaces) | - eBooks - Comics \& Manga - Audiobooks - UGC long-form reading services - Blogs | - Collections - Entertainment Space - Play Store Apps tab - Play Store You tab (Personalized recommendations \& continuation only) - Play Store store listing page |
+| **Partially supported** (Eligible on some surfaces) | - News \& Magazines\* | - Collections - Entertainment Space |
+| **Not supported** | - eBook or PDF reader - Book reviews - Encyclopedia / Dictionary - Translator - Religious text |   |
+
+### News apps
+
+News apps provide diverse content, each subject to unique eligibility rules.
+Because Engage SDK content on the Play Store aligns with Play Premium Growth
+Tools, news articles and video clips from news apps are ineligible for the Play
+Store, though they are eligible for Collections and Entertainment Space.
+Conversely, non-traditional news content, like podcasts and recipes, may be
+eligible for the Play Store:
+
+| Entity type | Eligible for Collections | Eligible for Entertainment Space | Eligible for Play Store |
+|---|---|---|---|
+| News article | *Yes (Read tab)* | *Yes (Read tab)* | No |
+| Video clip | *Yes (Watch tab)* | *Yes (Watch tab)* | No |
+| Podcast | *Yes (Listen tab)* | *Yes (Listen tab)* | *Yes* |
+| Recipe | *Yes (Food tab)* | No | *Yes* |
+
+> [!NOTE]
+> **Note:** Play Store eligibility aligns with the supported categories for [Play Premium Growth Tools](https://play.google.com/console/about/guides/premium-growth-tools/). If your news app has additional forms of content not listed in the preceding table, contact [`engage-developers@google.com`](mailto:engage-developers@google.com) to clarify its eligibility for the Play Store.
+
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/play/engage-sdk-integration)
+
+### Integrate Engage SDK
+
+Use the Engage SDK [Android skill](https://developer.android.com/tools/agents/android-skills) to integrate, debug, and resolve implementation issues. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add engage-sdk-integration
+
+<br />
 
 ## Integration detail
 

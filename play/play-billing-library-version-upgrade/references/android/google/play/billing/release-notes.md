@@ -28,7 +28,7 @@ Version 9.1.0 of the Google Play Billing Library and Kotlin extensions are now a
   - Added [`BillingChoiceInfo`](https://developer.android.com/reference/com/android/billingclient/api/BillingChoiceInfo) class which contains the response details, including image URLs and loyalty information.
   - Added [`GetBillingChoiceInfoParams`](https://developer.android.com/reference/com/android/billingclient/api/GetBillingChoiceInfoParams) to configure the request.
   - Added [`BillingChoiceInfoResponseListener`](https://developer.android.com/reference/com/android/billingclient/api/BillingChoiceInfoResponseListener) to receive the callback.
-  - Added Kotlin extension [`BillingClient.getBillingChoiceInfo()`](https://developer.android.com/reference/kotlin/com/android/billingclient/api/package-summary#(com.android.billingclient.api.BillingClient).getBillingChoiceInfo(com.android.billingclient.api.GetBillingChoiceInfoParams)) suspend function.
+  - Added Kotlin extension `BillingClient.getBillingChoiceInfo()` suspend function.
   - Added [`BillingClient.showBillingProgramInformationDialog()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient#showBillingProgramInformationDialog(android.app.Activity,com.android.billingclient.api.BillingProgramInformationDialogParams,com.android.billingclient.api.BillingProgramInformationDialogListener)) to show an information dialog for a billing program.
   - Added [`BillingProgramInformationDialogParams`](https://developer.android.com/reference/com/android/billingclient/api/BillingProgramInformationDialogParams) to configure the dialog.
   - Added [`BillingProgramInformationDialogListener`](https://developer.android.com/reference/com/android/billingclient/api/BillingProgramInformationDialogListener) to receive the callback.
@@ -52,7 +52,7 @@ the previous versions of PBL.
   debug message.
 
   > [!NOTE]
-  > **Note:** For this feature to work, you need [AndroidX.core library](https://developer.android.com/jetpack/androidx/releases/core#core_and_core-ktx_version_190_2) version 1.9 or later.
+  > **Note:** For this feature to work, you need [AndroidX.core library](https://developer.android.com/jetpack/androidx/releases/core#1.9.0) version 1.9 or later.
 
 - **Nullability update for developer-provided billing** : The
   [`DeveloperProvidedBillingDetails.getLinkUri()`](https://developer.android.com/reference/com/android/billingclient/api/DeveloperProvidedBillingDetails#getLinkUri()) method has
@@ -78,13 +78,16 @@ Version 8.3.0 of the Google Play Billing Library and Kotlin extensions are now a
 - New APIs for [external payments](https://developer.android.com/google/play/billing/externalpaymentlinks):
 
   - Added classes to support external payments flow:
-    - [`BillingProgram.EXTERNAL_PAYMENTS`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingProgram#EXTERNAL_PAYMENTS)
+    - [`BillingProgram.EXTERNAL_PAYMENTS`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingProgram#EXTERNAL_PAYMENTS())
     - [`EnableBillingProgramParams`](https://developer.android.com/reference/com/android/billingclient/api/EnableBillingProgramParams)
     - [`DeveloperBillingOptionParams`](https://developer.android.com/reference/com/android/billingclient/api/DeveloperBillingOptionParams)
     - [`DeveloperProvidedBillingDetails`](https://developer.android.com/reference/com/android/billingclient/api/DeveloperProvidedBillingDetails)
     - [`DeveloperProvidedBillingListener`](https://developer.android.com/reference/com/android/billingclient/api/DeveloperProvidedBillingListener)
   - Added [`enableBillingProgram(EnableBillingProgramParams)`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.Builder#enableBillingProgram(com.android.billingclient.api.EnableBillingProgramParams)) to enable external payments.
   - Added [`BillingFlowParams.Builder.enableDeveloperBillingOption`](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#enableDeveloperBillingOption(com.android.billingclient.api.DeveloperBillingOptionParams)) to launch the external payments flow.
+- Improved error categorization for external payment flow drop-offs:
+
+  - If a user navigates away from the purchase flow to complete payment on an external app (such as an e-wallet) and abandons the transaction without returning, the response code returned to the client is now `BillingResponseCode.USER_CANCELED` (1) with debug message `BILLING_ACTIVITY_PAUSED` (previously defaulted to `BillingResponseCode.ERROR` (6)).
 
 ## Google Play Billing Library 8.2.1 Release (2025-12-15)
 
@@ -181,7 +184,7 @@ available.
   8.0.0, unfetched products are returned with a new product-level status code
   that provides information about unfetched products. Note that there is a
   change in the signature of the
-  [`ProductDetailsResponseListener.onProductDetailsResponse()`](https://developer.android.com/google/play/billing/integrate#automatic-service-reconnection) which
+  [`ProductDetailsResponseListener.onProductDetailsResponse()`](https://developer.android.com/reference/com/android/billingclient/api/ProductDetailsResponseListener#onProductDetailsResponse(com.android.billingclient.api.BillingResult,com.android.billingclient.api.QueryProductDetailsResult)) which
   requires changes in your app. For more information, see [process the
   result](https://developer.android.com/google/play/billing/integrate#process-the-result).
 - Automatic service reconnection.
@@ -257,7 +260,7 @@ available.
 
   - Added [`ProductDetails.InstallmentPlanDetails`](https://developer.android.com/reference/com/android/billingclient/api/ProductDetails.InstallmentPlanDetails) for installment base plans that users are eligible to purchase. This API helps your app identify the installment plan and its commitment setup to provide related information to the user. To learn more, see our [subscription installments guide](https://developer.android.com/google/play/billing/subscriptions#installments).
 - Added [`PendingPurchasesParams`](https://developer.android.com/reference/com/android/billingclient/api/PendingPurchasesParams) and
-  [`BillingClient.Builder.enablePendingPurchases(PendingPurchaseParams)`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.Builder#enablePendingPurchases(PendingPurchaseParams))
+  [`BillingClient.Builder.enablePendingPurchases(PendingPurchaseParams)`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.Builder#enablePendingPurchases(com.android.billingclient.api.PendingPurchasesParams))
   to replace
   [`BillingClient.Builder.enablePendingPurchases()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.Builder#enablePendingPurchases()),
   which has been deprecated in this release.
@@ -265,9 +268,9 @@ available.
   - The deprecated `enablePendingPurchases()` is functionally equivalent to `enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())`.
 - Added APIs to support pending transactions for subscription prepaid plans:
 
-  - Use [`PendingPurchasesParams.Builder.enablePrepaidPlans()`](https://developer.android.com/reference/com/android/billingclient/api/PendingPurchasesParams.Builder#enablePrepaidPlans()) along with [`BillingClient.Builder.enablePendingPurchases(PendingPurchaseParams)`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.Builder#enablePendingPurchases(PendingPurchaseParams)) to enable pending transactions for subscription prepaid plans. When adding support, be sure that your app also correctly manages subscription lifecycles. To learn more see our [pending purchases
+  - Use [`PendingPurchasesParams.Builder.enablePrepaidPlans()`](https://developer.android.com/reference/com/android/billingclient/api/PendingPurchasesParams.Builder#enablePrepaidPlans()) along with [`BillingClient.Builder.enablePendingPurchases(PendingPurchaseParams)`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.Builder#enablePendingPurchases(com.android.billingclient.api.PendingPurchasesParams)) to enable pending transactions for subscription prepaid plans. When adding support, be sure that your app also correctly manages subscription lifecycles. To learn more see our [pending purchases
     guide](https://developer.android.com/google/play/billing/subscriptions#pending).
-  - Added [`Purchase.PendingPurchaseUpdate`](https://developer.android.com/reference/com/android/billingclient/api/Purchase.PendingPurchaseUpdate) and [`Purchase.getPendingPurchaseUpdate()`](https://developer.android.com/reference/com/android/billingclient/api/Purchase.getPendingPurchaseUpdate()) for retrieving the pending top-up or upgrade or downgrade to an existing subscription.
+  - Added [`Purchase.PendingPurchaseUpdate`](https://developer.android.com/reference/com/android/billingclient/api/Purchase.PendingPurchaseUpdate) and [`Purchase.getPendingPurchaseUpdate()`](https://developer.android.com/reference/com/android/billingclient/api/Purchase#getPendingPurchaseUpdate()) for retrieving the pending top-up or upgrade or downgrade to an existing subscription.
 - Removed
   [`BillingClient.Builder.enableAlternativeBilling()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.Builder#enableAlternativeBilling(com.android.billingclient.api.AlternativeBillingListener)),
   [`AlternativeBillingListener`](https://developer.android.com/reference/com/android/billingclient/api/AlternativeBillingListener), and
@@ -359,14 +362,14 @@ available.
 
   Note that `ProrationMode` is still available for backward compatibility
   reasons.
-- Removed order ID for [`PENDING`](https://developer.android.com/reference/com/android/billingclient/api/Purchase.PurchaseState#PENDING)
+- Removed order ID for [`PENDING`](https://developer.android.com/reference/com/android/billingclient/api/Purchase.PurchaseState#PENDING())
   purchases.
 
   Previously, the order ID would always be created even if the purchase was
   pending. Starting with version 6.0.0, an order ID will not be created for
   pending purchases, and for these purchases, the order ID will be populated
   after the purchase is moved to the
-  [`PURCHASED`](https://developer.android.com/reference/com/android/billingclient/api/Purchase.PurchaseState#PURCHASED)
+  [`PURCHASED`](https://developer.android.com/reference/com/android/billingclient/api/Purchase.PurchaseState#PURCHASED())
   state.
 - Removed `queryPurchases` and `launchPriceConfirmationFlow` methods.
 
@@ -379,20 +382,20 @@ available.
 - Added new network error response code.
 
   A new network error response code,
-  [`NETWORK_ERROR`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#NETWORK_ERROR),
+  [`NETWORK_ERROR`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#NETWORK_ERROR()),
   has been added starting with PBL version 6.0.0. This code is returned when
   an error occurs due to a network connection issue. These network connection
   errors were previously reported as `SERVICE_UNAVAILABLE`.
-- Updated [`SERVICE_UNAVAILABLE`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#SERVICE_UNAVAILABLE)
+- Updated [`SERVICE_UNAVAILABLE`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#SERVICE_UNAVAILABLE())
   and
-  [`SERVICE_TIMEOUT`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#SERVICE_TIMEOUT).
+  [`SERVICE_TIMEOUT`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#SERVICE_TIMEOUT()).
 
   Starting with PBL version 6.0.0, errors due to timeout in processing will be
   returned as `SERVICE_UNAVAILABLE` instead of the current `SERVICE_TIMEOUT`.
 
   The behavior does not change in earlier versions of PBL.
 - Removed
-  [`SERVICE_TIMEOUT`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#SERVICE_TIMEOUT).
+  [`SERVICE_TIMEOUT`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#SERVICE_TIMEOUT()).
 
   Starting with PBL version 6.0.0, `SERVICE_TIMEOUT` will no longer be
   returned. Previous versions of PBL will still return this code.
@@ -454,7 +457,7 @@ This version contains the following changes.
   price](https://developer.android.com/google/play/billing/integrate#personalized-price).
 - Removed `queryPurchases()`, which was previously deprecated and replaced by queryPurchasesAsync introduced in Google Play Billing Library 4.0.0.
 - `launchPriceChangeFlow` has been deprecated and will be removed in a future release. To learn more about alternatives, see [Launch a price change
-  confirmation flow](https://developer.android.com/google/play/billing/subscriptions#price-change-launch).
+  confirmation flow](https://developer.android.com/google/play/billing/price-changes).
 - Removed [`setVrPurchaseFlow()`](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setVrPurchaseFlow(boolean)), which was previously used when instantiating a purchase flow. In previous versions, this method redirected the user to complete the purchase on their Android-powered device. Once you remove this method, users will complete the purchase through the standard purchase flow.
 
 ## Google Play Billing Library 4.1 release (2022-02-23)
@@ -483,7 +486,7 @@ available.
   which will be removed in a future release.
 
 - Added new subscription replacement mode
-  [`IMMEDIATE_AND_CHARGE_FULL_PRICE`](https://developer.android.com/google/play/billing/subscriptions#change).
+  [`IMMEDIATE_AND_CHARGE_FULL_PRICE`](https://developer.android.com/google/play/billing/subscriptions#replacement-modes).
 
 - Added
   [`BillingClient.getConnectionState()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient#getConnectionState())
@@ -604,9 +607,7 @@ Unity](https://developer.android.com/google/play/billing/unity).
   - In `BillingFlowParams`, added [`setObfuscatedProfileId()`](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setobfuscatedprofileid) which works similarly to [`setObfuscatedAccountId()`](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId(java.lang.String)). For more information, see [Developer payload updates and
     alternatives](https://developer.android.com/google/play/billing/developer-payload).
   - In [`Purchase`](https://developer.android.com/reference/com/android/billingclient/api/Purchase), added the [`getAccountIdentifiers()`](https://developer.android.com/reference/com/android/billingclient/api/Purchase#getAccountIdentifiers()) method to return the obfuscated account identifiers set in `BillingFlowParams`.
-  - In [`BillingClient`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient), the [`loadRewardedSku()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient#loadRewardedSku(com.android.billingclient.api.RewardLoadParams,%20com.android.billingclient.api.RewardResponseListener)) method has been marked deprecated as part of deprecating rewarded SKUs. You can find more information about the deprecation in the [Play Console
-    Help
-    Center](https://support.google.com/googleplay/android-developer/answer/9155268).
+  - In [`BillingClient`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient), the [`loadRewardedSku()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient#loadRewardedSku(com.android.billingclient.api.RewardLoadParams,%20com.android.billingclient.api.RewardResponseListener)) method has been marked deprecated as part of deprecating rewarded SKUs.
 
 ## Google Play Billing Library 2.1.0 Release and Kotlin Extension 2.1.0 Release (2019-12-10)
 
@@ -917,14 +918,14 @@ billingClient.launchPriceChangeConfirmationFlow(activity,
 The price change confirmation flow displays a dialog containing the new pricing
 information, asking users to accept the new price. This flow returns a response
 code of type
-[`BillingClient.BillingResponse`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponse).
+[`BillingClient.BillingResponse`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode).
 
 #### New proration mode
 
 When upgrading or downgrading a user's subscription, you can use a new proration
 mode, `DEFERRED`. This mode updates the user's subscription when it next renews.
 To learn more about how to set this proration mode, see [Set proration
-mode](https://developer.android.com/google/play/billing/billing_subscriptions#set-proration-mode).
+mode](https://developer.android.com/google/play/billing/subscriptions#replacement-modes).
 
 #### New method for setting SKU details
 
@@ -1005,7 +1006,7 @@ contains the following changes.
 
 - Added support to specify a proration mode in [`BillingFlowParams`](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams) when upgrading/downgrading an existing subscription.
 - The `replaceSkusProration` boolean flag in [`BillingFlowParams`](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams) is no longer supported. Use `replaceSkusProrationMode` instead.
-- [`launchBillingFlow()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.html#launchBillingFlow(android.app.Activity,%0Acom.android.billingclient.api.BillingFlowParams)) now triggers a callback for failed responses.
+- [`launchBillingFlow()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient#launchBillingFlow(android.app.Activity,com.android.billingclient.api.BillingFlowParams)) now triggers a callback for failed responses.
 
 ### Behavior changes
 
@@ -1064,16 +1065,16 @@ longer supported.
 The Billing Library will always trigger the
 [`PurhcasesUpdatedListener`](https://developer.android.com/reference/com/android/billingclient/api/PurchasesUpdatedListener)
 callback and return a
-[`BillingResponse`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponse)
+[`BillingResponse`](https://developer.android.com/reference/com/android/billingclient/api/BillingResult)
 asynchronously. The synchronous return value of
-[`BillingResponse`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponse)
+[`BillingResponse`](https://developer.android.com/reference/com/android/billingclient/api/BillingResult)
 is kept as well.
 
 ### Bug fixes
 
 - Properly exits early in async methods when service is disconnected.
 - [`Builder`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.Builder) param objects no longer mutates built objects.
-- Issue [68087141](https://issuetracker.google.com/issues/68087141): [`launchBillingFlow()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.html#launchBillingFlow(android.app.Activity,%0Acom.android.billingclient.api.BillingFlowParams)) now trigger callback for failed responses.
+- Issue [68087141](https://issuetracker.google.com/issues/68087141): [`launchBillingFlow()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient#launchBillingFlow(android.app.Activity,com.android.billingclient.api.BillingFlowParams)) now trigger callback for failed responses.
 
 ## Google Play Billing Library 1.0 Release (2017-09-19, [Announcement](https://android-developers.googleblog.com/2017/09/google-play-billing-library-10-released.html))
 
@@ -1112,7 +1113,7 @@ billingClient = BillingClient.newBuilder(context).setListener(this).build();
 #### launchBillingFlow method is now called using a BillingFlowParams class
 
 To initiate the billing flow for a purchase or subscription, the
-[`launchBillingFlow()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.html#launchBillingFlow(android.app.Activity,%0Acom.android.billingclient.api.BillingFlowParams)) method receives a
+[`launchBillingFlow()`](https://developer.android.com/reference/com/android/billingclient/api/BillingClient#launchBillingFlow(android.app.Activity,com.android.billingclient.api.BillingFlowParams)) method receives a
 [`BillingFlowParams`](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.html)
 instance initialized with parameters specific to the request:
 
@@ -1187,7 +1188,7 @@ public void onSkuDetailsResponse(@BillingResponse int responseCode, List<SkuDeta
 #### Parameters order changed on `onConsumeResponse()` method
 
 The order of arguments for
-[`onConsumeResponse`](https://developer.android.com/reference/com/android/billingclient/api/ConsumeResponseListener.html#onConsumeResponse(int,%0Ajava.lang.String)) from the
+[`onConsumeResponse`](https://developer.android.com/reference/com/android/billingclient/api/ConsumeResponseListener#onConsumeResponse(com.android.billingclient.api.BillingResult,java.lang.String)) from the
 [`ConsumeResponseListener`](https://developer.android.com/reference/com/android/billingclient/api/ConsumeResponseListener.html)
 interface has changed to be consistent across our API:
 

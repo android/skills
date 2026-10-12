@@ -10,7 +10,7 @@ description: Instructions to make or update an app's UI so that it adapts to dif
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-22'
+  last-updated: '2026-09-30'
   keywords:
   - android
   - ui
@@ -43,7 +43,7 @@ task.
 
 Ensure that screenshot tests exist to verify the current UI on different form
 factors. If they don't exist, add the [Compose Preview Screenshot Testing
-tool](references/android/develop/ui/compose/tooling/debug.md). Use the following annotation to create previews for all the major form
+tool](references/android/studio/preview/compose-screenshot-testing-with-testsuites.md). Use the following annotation to create previews for all the major form
 factors. For example:
 
 

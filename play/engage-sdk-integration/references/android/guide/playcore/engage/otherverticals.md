@@ -11,6 +11,19 @@ This document contains instructions for developer partners to integrate new
 content like reservations, events, lodging, places of interest, people and other
 content that might not belong to any of these categories.
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/play/engage-sdk-integration)
+
+### Integrate Engage SDK
+
+Use the Engage SDK [Android skill](https://developer.android.com/tools/agents/android-skills) to integrate, debug, and resolve implementation issues. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add engage-sdk-integration
+
+<br />
+
 ## Integration detail
 
 ### Terminology

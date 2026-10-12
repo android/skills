@@ -23,7 +23,11 @@ package androidx.xr.glimmer.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -35,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.xr.glimmer.ActionCard
 import androidx.xr.glimmer.Button
+import androidx.xr.glimmer.ButtonGroup
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
@@ -58,6 +63,7 @@ fun CardSampleUsage() {
         item { ImageCardWithTitleAndSubtitleAndLeadingIconSample() }
         item { LeadingImageCardSample() }
         item { TrailingImageCardSample() }
+        item { NonFocusableCardWithButtonGroupSample() }
     }
 }
 
@@ -156,6 +162,19 @@ fun CardWithTitleAndSubtitleAndLeadingIconAndTrailingIconLongText() {
     }
 }
 
+@Sampled
+@Composable
+fun NonFocusableCardWithButtonGroupSample() {
+    Column(verticalArrangement = Arrangement.spacedBy(GlimmerTheme.componentSpacingValues.large)) {
+        Card(focusable = false) { Text("This is a non-focusable card with a button group") }
+        ButtonGroup(modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = {}) { Text("Button 1") }
+            Button(onClick = {}) { Text("Button 2") }
+            Button(onClick = {}) { Text("Button 3") }
+        }
+    }
+}
+
 // ---
 // ActionCard samples
 // ---
@@ -239,6 +258,7 @@ fun ClickableImageCardWithTitleAndSubtitleAndLeadingIconSample() {
 // Leading/Trailing ImageCard samples
 // ---
 
+@Sampled
 @Composable
 fun LeadingImageCardSample() {
     LeadingImageCard(
@@ -250,6 +270,7 @@ fun LeadingImageCardSample() {
     }
 }
 
+@Sampled
 @Composable
 fun TrailingImageCardSample() {
     TrailingImageCard(
@@ -299,6 +320,12 @@ private fun CardWithTitleAndSubtitleAndLeadingIconLongTextPreview() {
 @Composable
 private fun CardWithTitleAndSubtitleAndLeadingIconAndTrailingIconLongTextPreview() {
     GlimmerTheme { CardWithTitleAndSubtitleAndLeadingIconAndTrailingIconLongText() }
+}
+
+@Preview
+@Composable
+private fun NonFocusableCardWithButtonGroupPreview() {
+    GlimmerTheme { NonFocusableCardWithButtonGroupSample() }
 }
 
 @Preview

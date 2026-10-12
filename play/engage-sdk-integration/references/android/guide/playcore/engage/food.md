@@ -11,6 +11,29 @@ This guide contains instructions for developer partners to deliver food content
 (food ordering, food or restaurant reviews \& discovery, meal subscriptions,
 recipes) to Engage content surfaces.
 
+## Category support and surfaces
+
+Engage SDK surface eligibility is based on your app's content category. Use the
+following table to determine your eligibility for specific surfaces:
+
+| Status | Content category or use case | Supported surfaces |
+|---|---|---|
+| **Supported** (Eligible on all surfaces) | - Food / coffee / drink ordering or delivery - Restaurant / Food discovery, reviews, \& reservations - Meal subscriptions - Recipes \& Cooking | - Collections - Play Store Apps tab - Play Store You tab - Play Store store listing page |
+| **Not supported** | - Driver / deliverer app - Cooking tools / controls |   |
+
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/play/engage-sdk-integration)
+
+### Integrate Engage SDK
+
+Use the Engage SDK [Android skill](https://developer.android.com/tools/agents/android-skills) to integrate, debug, and resolve implementation issues. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add engage-sdk-integration
+
+<br />
+
 ## Integration detail
 
 ### Terminology
