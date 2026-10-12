@@ -62,8 +62,8 @@ android skills update wear-compose-m3
 **Codex:**
 
 ```
-/plugin marketplace add android/skills
-/plugin install android-skills
+codex plugin marketplace add android/skills
+codex plugin add android-skills@android-skills
 ```
 
 ### Activate skills
