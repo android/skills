@@ -1,0 +1,46 @@
+{
+  "name": "android-skills",
+  "version": "1.0.13",
+  "displayName": "Android Skills",
+  "description": "Android skills are Google's official dedicated repository of AI-optimized, modular instructions and resources, to help LLMs better understand and execute specific patterns that follow the best practices and guidance on Android development. Android skills follow the open-standard agent skills - markdown files (SKILL.md) that provide a technical specification of a task, and ground LLMs with information on specialized domains and workflows.",
+  "author": {
+    "name": "Google / Android",
+    "url": "https://github.com/android"
+  },
+  "homepage": "https://github.com/android/skills",
+  "repository": "https://github.com/android/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "android",
+    "kotlin",
+    "jetpack-compose",
+    "skills"
+  ],
+  "skills": [
+    "./build-system/agp/agp-9-upgrade",
+    "./camera/camerax",
+    "./device-ai/appfunctions",
+    "./device-ai/ml-kit-genai-prompt-api",
+    "./devtools/android-cli",
+    "./identity/restore-credentials",
+    "./identity/verified-email",
+    "./jetpack-compose/adaptive",
+    "./jetpack-compose/migration/migrate-xml-views-to-jetpack-compose",
+    "./jetpack-compose/theming/styles",
+    "./media/media3-cast-integration",
+    "./navigation/navigation-3",
+    "./navigation/navigation-event",
+    "./performance/r8-analyzer",
+    "./play/engage-sdk-integration",
+    "./play/play-billing-library-version-upgrade",
+    "./play/play-policy-insights",
+    "./profilers/android-profiler",
+    "./security/android-intent-security",
+    "./security/android-permissions-security",
+    "./system/edge-to-edge",
+    "./testing/testing-setup",
+    "./tv/leanback-to-compose-tv-migration",
+    "./wear/wear-compose-m3",
+    "./xr/display-glasses-with-jetpack-compose-glimmer"
+  ]
+}

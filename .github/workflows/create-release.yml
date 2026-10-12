@@ -21,25 +21,34 @@ jobs:
           ref: main
           token: ${{ secrets.ADR_GITHUB_BOT_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Update Codex Plugin Version
+      - name: Update Plugin Versions
         env:
           TAG_NAME: ${{ inputs.tag_name }}
         run: |
           VERSION="${TAG_NAME#v}"
-          echo "Updating .codex-plugin/plugin.json version to $VERSION"
+          echo "Updating plugin manifest versions to $VERSION"
 
           VERSION="$VERSION" python3 -c "
           import json
           import os
+          import pathlib
 
           version = os.environ['VERSION']
-          path = '.codex-plugin/plugin.json'
-          with open(path, 'r') as f:
-              data = json.load(f)
-          data['version'] = version
-          with open(path, 'w') as f:
-              json.dump(data, f, indent=2)
-              f.write('\n')
+
+          # Both manifests carry the version. Claude Code pins installs to the
+          # version in .claude-plugin/plugin.json, so leaving it stale means
+          # users never receive the new release.
+          for path in ('.claude-plugin/plugin.json', '.codex-plugin/plugin.json'):
+              p = pathlib.Path(path)
+              if not p.exists():
+                  raise FileNotFoundError(f'Required file {p} does not exist.')
+              with open(p, 'r') as f:
+                  data = json.load(f)
+              data['version'] = version
+              with open(p, 'w') as f:
+                  json.dump(data, f, indent=2)
+                  f.write('\n')
+              print(f'Set {p} version to {version}')
           "
 
       - name: Commit and push updated version
@@ -48,7 +57,7 @@ jobs:
         run: |
           git config user.name "android-devrel-github-bot"
           git config user.email "android-devrel-github-bot@users.noreply.github.com"
-          git add .codex-plugin/plugin.json
+          git add .claude-plugin/plugin.json .codex-plugin/plugin.json
           git commit -m "Bump plugin version to $TAG_NAME" || echo "No version change to commit"
           git push origin main
 

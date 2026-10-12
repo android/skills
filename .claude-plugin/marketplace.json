@@ -1,5 +1,6 @@
 {
   "name": "android-skills",
+  "description": "Google's official Android skills for agentic Android development.",
   "owner": {
     "name": "Google / Android"
   },
@@ -12,34 +13,6 @@
       },
       "category": "development",
       "source": "./",
-      "strict": false,
-      "skills": [
-        "./build-system/agp/agp-9-upgrade",
-        "./camera/camerax",
-        "./device-ai/appfunctions",
-        "./device-ai/ml-kit-genai-prompt-api",
-        "./devtools/android-cli",
-        "./identity/restore-credentials",
-        "./identity/verified-email",
-        "./jetpack-compose/adaptive",
-        "./jetpack-compose/migration/migrate-xml-views-to-jetpack-compose",
-        "./jetpack-compose/theming/styles",
-        "./media/media3-cast-integration",
-        "./navigation/navigation-3",
-        "./navigation/navigation-event",
-        "./performance/r8-analyzer",
-        "./play/engage-sdk-integration",
-        "./play/play-billing-library-version-upgrade",
-        "./play/play-policy-insights",
-        "./profilers/android-profiler",
-        "./security/android-intent-security",
-        "./security/android-permissions-security",
-        "./system/edge-to-edge",
-        "./testing/testing-setup",
-        "./tv/leanback-to-compose-tv-migration",
-        "./wear/wear-compose-m3",
-        "./xr/display-glasses-with-jetpack-compose-glimmer"
-      ],
       "homepage": "https://github.com/android/skills",
       "license": "Apache-2.0"
     }

@@ -75,20 +75,39 @@ jobs:
 
           skill_paths = sorted(list(set(skill_paths)))
 
-          # 1. Update .claude-plugin/marketplace.json in-place
-          claude_file = pathlib.Path('.claude-plugin/marketplace.json')
-          if not claude_file.exists():
-              raise FileNotFoundError(f'Required file {claude_file} does not exist. Ensure you are running on the correct branch.')
+          # 1. Update .claude-plugin/plugin.json in-place.
+          #    The skill list belongs in the plugin MANIFEST, never in the
+          #    marketplace entry. Component fields such as 'skills' on the entry
+          #    are rejected by Anthropic's plugin directory with
+          #    MARKETPLACE_ENTRY_INLINE_MANIFEST.
+          claude_manifest = pathlib.Path('.claude-plugin/plugin.json')
+          if not claude_manifest.exists():
+              raise FileNotFoundError(f'Required file {claude_manifest} does not exist. Ensure you are running on the correct branch.')
 
-          with open(claude_file, 'r') as f:
+          with open(claude_manifest, 'r') as f:
               data = json.load(f)
-          if 'plugins' in data and len(data['plugins']) > 0:
-              data['plugins'][0]['skills'] = skill_paths
-          with open(claude_file, 'w') as f:
+          data['skills'] = skill_paths
+          with open(claude_manifest, 'w') as f:
               json.dump(data, f, indent=2)
               f.write('\n')
 
-          # 2. Update .codex-plugin/plugin.json in-place
+          # 2. Keep .claude-plugin/marketplace.json a pure catalogue.
+          #    With a plugin.json present, strict:false plus any component field
+          #    makes the plugin fail to load with 'conflicting manifests'.
+          claude_marketplace = pathlib.Path('.claude-plugin/marketplace.json')
+          if not claude_marketplace.exists():
+              raise FileNotFoundError(f'Required file {claude_marketplace} does not exist. Ensure you are running on the correct branch.')
+
+          with open(claude_marketplace, 'r') as f:
+              data = json.load(f)
+          if 'plugins' in data and len(data['plugins']) > 0:
+              for stale in ('skills', 'strict', 'commands', 'agents', 'hooks', 'outputStyles', 'themes'):
+                  data['plugins'][0].pop(stale, None)
+          with open(claude_marketplace, 'w') as f:
+              json.dump(data, f, indent=2)
+              f.write('\n')
+
+          # 3. Update .codex-plugin/plugin.json in-place
           codex_file = pathlib.Path('.codex-plugin/plugin.json')
           if not codex_file.exists():
               raise FileNotFoundError(f'Required file {codex_file} does not exist. Ensure you are running on the correct branch.')

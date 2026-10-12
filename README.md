@@ -51,6 +51,21 @@ android skills update --all
 android skills update wear-compose-m3
 ```
 
+### Install as an agent plugin
+
+**Claude Code**:
+
+```
+/plugin install android-skills --marketplace android/skills
+```
+
+**Codex:**
+
+```
+/plugin marketplace add android/skills
+/plugin install android-skills
+```
+
 ### Activate skills
 
 Your agent automatically activates skills that are relevant to your task. To use a skill, prompt your agent to complete a task that is related to the skill, for example "Make my app UI edge-to-edge." The agent should automatically find and use the skill if it has been installed.
