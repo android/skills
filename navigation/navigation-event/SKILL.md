@@ -7,7 +7,7 @@ description: Intercept back gestures and run Predictive Back animations using th
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-01'
+  last-updated: '2026-10-07'
   keywords:
   - Android
   - Navigation Event

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <dimen name="widget_margin">0dp</dimen>
+    <dimen name="widget_element_min_length">48dp</dimen>
+    <!-- Common dimens -->
+
+    <!-- Following are sizes for handheld devices such as phones and foldables.
+     See the dimens override for large screen devices -->
+
+    <!-- Reference:
+    https://developer.android.com/design/ui/mobile/guides/widgets/sizing#handheld
+    -->
+
+    <!-- shaped tool bar: sizes to have approximately 2x2 as default drop size,
+    resizable down to about 1x1 or 2x1 size and height at most ~2-cell high.
+    -->
+    <integer name="sample_expressive_toolbar_target_cell_width">2</integer>
+    <integer name="sample_expressive_toolbar_target_cell_height">2</integer>
+    <dimen name="sample_expressive_toolbar_widget_min_width">120dp</dimen>
+    <dimen name="sample_expressive_toolbar_widget_min_height">115dp</dimen>
+    <dimen name="sample_expressive_toolbar_widget_min_resize_width">56dp</dimen>
+    <dimen name="sample_expressive_toolbar_widget_min_resize_height">56dp</dimen>
+    <dimen name="sample_expressive_toolbar_widget_max_resize_width">624dp</dimen>
+    <dimen name="sample_expressive_toolbar_widget_max_resize_height">200dp</dimen>
+
+    <!-- tool bar (sizes to have approximately 4x1 as default drop size and 1x1 as minimum resize
+     and 4x4 as maximum resize size). -->
+    <integer name="sample_toolbar_target_cell_width">4</integer>
+    <integer name="sample_toolbar_target_cell_height">1</integer>
+    <dimen name="sample_toolbar_widget_min_width">256dp</dimen>
+    <dimen name="sample_toolbar_widget_min_height">48dp</dimen>
+    <dimen name="sample_toolbar_widget_min_resize_width">48dp</dimen>
+    <dimen name="sample_toolbar_widget_min_resize_height">48dp</dimen>
+    <dimen name="sample_toolbar_widget_max_resize_width">624dp</dimen>
+    <dimen name="sample_toolbar_widget_max_resize_height">422dp</dimen>
+
+    <!-- search tool bar (sizes to have approximately 2x2 as default drop size
+     and 1x1 as minimum resize and 4x4 as maximum resize size). -->
+    <integer name="sample_search_toolbar_target_cell_width">2</integer>
+    <integer name="sample_search_toolbar_target_cell_height">2</integer>
+    <dimen name="sample_search_toolbar_widget_min_width">120dp</dimen>
+    <dimen name="sample_search_toolbar_widget_min_height">115dp</dimen>
+    <dimen name="sample_search_toolbar_widget_min_resize_width">48dp</dimen>
+    <dimen name="sample_search_toolbar_widget_min_resize_height">48dp</dimen>
+    <dimen name="sample_search_toolbar_widget_max_resize_width">624dp</dimen>
+    <dimen name="sample_search_toolbar_widget_max_resize_height">422dp</dimen>
+
+    <!-- long text (sizes to have approximately 2x2 drop size, 2x2 min resize size
+     and 4x2 maximum resize size -->
+    <integer name="sample_long_text_target_cell_width">2</integer>
+    <integer name="sample_long_text_target_cell_height">2</integer>
+    <dimen name="sample_long_text_widget_min_width">120dp</dimen>
+    <dimen name="sample_long_text_widget_min_height">115dp</dimen>
+    <dimen name="sample_long_text_min_resize_width">120dp</dimen>
+    <dimen name="sample_long_text_min_resize_height">115dp</dimen>
+    <dimen name="sample_long_text_max_resize_width">624dp</dimen>
+    <dimen name="sample_long_text_max_resize_height">276dp</dimen>
+
+    <!--
+    text & image (sizes to have approximately 4x2 as default drop size and
+    2x2 as minimum resize and 4x4 as maximum resize size).
+    -->
+    <integer name="sample_text_with_image_target_cell_width">4</integer>
+    <integer name="sample_text_with_image_target_cell_height">2</integer>
+    <dimen name="sample_text_with_image_widget_min_width">256dp</dimen>
+    <dimen name="sample_text_with_image_widget_min_height">115dp</dimen>
+    <dimen name="sample_text_with_image_widget_min_resize_width">120dp</dimen>
+    <dimen name="sample_text_with_image_widget_min_resize_height">115dp</dimen>
+    <dimen name="sample_text_with_image_widget_max_resize_width">624dp</dimen>
+    <dimen name="sample_text_with_image_widget_max_resize_height">422dp</dimen>
+
+    <!-- list of image & texts (sizes to have approximately 4x2 default drop size,
+    2x2 as minimum resize size and 4x4 as maximum resize size). For image heavy
+    widgets like this, a 4x2 drop size allows the default view that user will see
+    to include the images. And if user wishes to use it as a utility compact
+    widget, a 2x2 resize would be possible where only list text is displayed.
+    -->
+    <integer name="sample_text_with_image_list_target_cell_width">4</integer>
+    <integer name="sample_text_with_image_list_target_cell_height">2</integer>
+    <dimen name="sample_text_with_image_list_widget_min_width">256dp</dimen>
+    <dimen name="sample_text_with_image_list_widget_min_height">115dp</dimen>
+    <dimen name="sample_text_with_image_widget_list_min_resize_width">120dp</dimen>
+    <dimen name="sample_text_with_image_list_widget_min_resize_height">115dp</dimen>
+    <dimen name="sample_text_with_image_list_widget_max_resize_width">624dp</dimen>
+    <dimen name="sample_text_with_image_list_widget_max_resize_height">422dp</dimen>
+
+    <!-- check list (sizes to have approximately 2x2 default drop size, 2x2 as
+    minimum resize size and 4x4 as maximum resize size). For utility widgets like
+    these a 2x2 default drop size is great. -->
+    <integer name="sample_check_list_target_cell_width">2</integer>
+    <integer name="sample_check_list_target_cell_height">2</integer>
+    <dimen name="sample_check_list_widget_min_width">120dp</dimen>
+    <dimen name="sample_check_list_widget_min_height">115dp</dimen>
+    <dimen name="sample_check_list_widget_min_resize_width">120dp</dimen>
+    <dimen name="sample_check_list_widget_min_resize_height">115dp</dimen>
+    <dimen name="sample_check_list_widget_max_resize_width">624dp</dimen>
+    <dimen name="sample_check_list_widget_max_resize_height">422dp</dimen>
+
+    <!-- action list (sizes to have approximately 4x2 default drop size,
+    2x2 as minimum resize size and 4x4 as maximum resize size). If 2x2 drop size
+    works for your use case, recommend preferring it. -->
+    <integer name="sample_action_list_target_cell_width">4</integer>
+    <integer name="sample_action_list_target_cell_height">2</integer>
+    <dimen name="sample_action_list_widget_min_width">256dp</dimen>
+    <dimen name="sample_action_list_widget_min_height">115dp</dimen>
+    <dimen name="sample_action_list_widget_min_resize_width">120dp</dimen>
+    <dimen name="sample_action_list_widget_min_resize_height">115dp</dimen>
+    <dimen name="sample_action_list_widget_max_resize_width">624dp</dimen>
+    <dimen name="sample_action_list_widget_max_resize_height">422dp</dimen>
+
+    <!-- image grid (sizes to have approximately 4x3 default drop size,
+    2x2 as minimum resize size and 4x4 as maximum resize size) -->
+    <integer name="sample_image_grid_target_cell_width">4</integer>
+    <integer name="sample_image_grid_target_cell_height">3</integer>
+    <dimen name="sample_image_grid_widget_min_width">256dp</dimen>
+    <dimen name="sample_image_grid_widget_min_height">185dp</dimen>
+    <dimen name="sample_image_grid_widget_min_resize_width">120dp</dimen>
+    <dimen name="sample_image_grid_widget_min_resize_height">115dp</dimen>
+    <dimen name="sample_image_grid_widget_max_resize_width">624dp</dimen>
+    <dimen name="sample_image_grid_widget_max_resize_height">422dp</dimen>
+
+    <!-- Full bleed image widget -->
+    <integer name="sample_full_bleed_image_target_cell_width">2</integer>
+    <integer name="sample_full_bleed_image_target_cell_height">2</integer>
+    <dimen name="sample_full_bleed_image_widget_min_width">120dp</dimen>
+    <dimen name="sample_full_bleed_image_widget_min_height">48dp</dimen>
+    <dimen name="sample_full_bleed_image_widget_min_resize_width">120dp</dimen>
+    <dimen name="sample_full_bleed_image_widget_min_resize_height">48dp</dimen>
+
+    <!-- other sizes go here -->
+</resources>

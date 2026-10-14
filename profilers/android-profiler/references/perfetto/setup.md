@@ -1,5 +1,3 @@
-# Getting `trace_processor` working
-
 > **Prerequisite:** Ensure `$SKILL_ROOT` is initialized per
 > `$SKILL_ROOT/references/env_setup.md`.
 
@@ -9,12 +7,10 @@ The skill ships a `trace_processor` wrapper at
 `$SKILL_ROOT/references/perfetto/bin/trace_processor`. Make it invokable for
 this session:
 
-```sh
-# some installs lose the exec bit
-chmod +x "$SKILL_ROOT/references/perfetto/bin/trace_processor"
-export PATH="$SKILL_ROOT/references/perfetto/bin:$PATH"
-trace_processor --version                   # smoke test
-```
+    # some installs lose the exec bit
+    chmod +x "$SKILL_ROOT/references/perfetto/bin/trace_processor"
+    export PATH="$SKILL_ROOT/references/perfetto/bin:$PATH"
+    trace_processor --version                   # smoke test
 
 After this, every bare `trace_processor ...` command in this skill works
 verbatim. If each command runs in a fresh shell, repeat the `export` line in
@@ -23,6 +19,6 @@ that command. On Windows, skip the `PATH` setup and invoke it as
 
 Notes:
 
-- The first invocation downloads the prebuilt native binary (picking the
-  right one for the host platform) into `~/.local/share/perfetto/prebuilts/`
-  and caches it; only the first call pays the download cost.
+- The first invocation downloads the prebuilt native binary (picking the right one for the host platform) into `~/.local/share/perfetto/prebuilts/` and caches it; only the first call pays the download cost.
+- Do **not** download, symlink, or `find` another `trace_processor` or `trace_processor_shell` - the wrapper is pinned to the skill's release.
+- If the user's environment has its own mandatory `trace_processor` (Google-internal, OEM build environments, CI images), prefer that team-specific setup instead.

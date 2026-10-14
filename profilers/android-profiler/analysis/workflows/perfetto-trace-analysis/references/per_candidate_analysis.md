@@ -1,172 +1,137 @@
-# Candidate Investigation Protocol
-
-This is the execution protocol for a deep-dive subagent during trace analysis.
-
-## Context
-
 Execute the protocol below using the candidate details (Trace Paths, Symptom
-Window, UTID, UPID, System Vitals) provided in your initial prompt.
+Window, UTID, System Vitals) provided in your initial prompt.
 
-## Investigation Protocol
+## Guiding Principles for Trace Analysis
 
-**High-Level Algorithm:**
+Follow these principles to identify root causes, ensure data-driven analysis,
+and avoid pitfalls while discovering the real bottleneck.
 
-1. Prerequisites (Step 1)
-2. Calculate time distribution and identify state buckets (Step 2)
-3. Domain and System hints discovery and selection (Step 3)
-4. Run exhaustive investigation for each significant state bucket sequentially
-   (Steps 4 and 5), starting with the largest bucket. Output total time
-   explained so far after investigating each.
-5. Output the result (Step 6)
+1. **Schema Validation via Intrinsic Discovery:** Read
+   `$SKILL_ROOT/references/perfetto/sql.md` and query table schemas using
+   `LIMIT 0` before drafting queries.
 
-### Step 1: Prerequisites
+   - **Why:** Trace processor schemas evolve across versions; discovering schema directly prevents invalid assumptions and syntax failures.
+2. **Empirical Data Grounding:** Support every claim with queried timestamps,
+   slice durations or counter values (`[SQL]`).
 
-- Follow `$SKILL_ROOT/references/perfetto/sql.md` for session-based query execution.
-- Read
-  `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/guiding_principles.md`
-  to identify best practices, ensure data-driven analysis, and avoid pitfalls.
+   - **Why:** General Android heuristics cannot substitute for ground-truth trace metrics. When queries return empty results, broaden search constraints using fuzzy matching or wider time windows.
+3. **Causation vs. Correlation:** Verify that the blocker's active execution
+   overlaps with the victim's wait interval.
 
-### Step 2: Calculate the time distribution
+   - **Why:** Concurrent anomalies are only causally linked if their execution lifetimes intersect. For example, just because thread A was busy while thread B was waiting does not necessarily mean thread A caused the wait.
+4. **Follow Evidence:** Follow dependency chains across thread, process and
+   kernel boundaries as long as **each hop meaningfully explains the symptom**.
 
-1. **Establish a baseline if possible:** For example, if investigating a jank
-   candidate, find a _non-janky_ instance of the **same** operation first to
-   establish expected behavior and rule out red herrings. _If no healthy
-   instance exists in the trace, note this as a `[GAP]` and proceed with the
-   next steps_.
-2. **Calculate time spent in each state:** Sum the time spent in `Running`,
-   `R`, `S` and `D` states. Investigate all substantial buckets. Also look for
-   composite bottlenecks (for example, "40% CPU-starved + 35% IO-blocked").
-3. **Run checks to rule out red herrings:** For example:
-   - A thread in `S` state could be normal behavior -> investigate only if
-     the sleep actually overlaps with a pending obligation (for example, a
-     pending binder reply).
-   - A thread in `Running/Runnable`: When a thread spends high duration in
-     `Running/Runnable`, inspect CPU frequency, throttling counters, and core
-     migrations before attributing latency to code inefficiency, because
-     hardware throttling inflates wall time without increasing instruction
-     overhead:
-     - Verify first that an identified code path is actually doing
-       disproportionate work.
-     - Query the trace to find what the thread was doing during this window.
-       Query the `slice` table for the longest duration slices during this
-       window.
-     - Beyond blocking slices, query and identify repetitive micro-operations
-       or gaps that collectively exhaust the budget to prevent tunnel vision.
-     - Perform a system-wide check to identify if there was CPU throttling or
-       core migrations around the symptom window (see Principle 7).
-4. **Drill down:** For every significant bucket revealed from the time
-   distribution analysis during the symptom window, identify what the thread
-   was doing at the transition point. Investigate every significant bucket (for
-   example, >= 20% of the time window) to avoid missing real bottlenecks or
-   composite issues.
-> **Action:** Tag missing data as `[GAP]`. Do not guess.
+   - **Why:** Halting blocker traversal prematurely reports intermediate symptoms rather than the true origin.
+5. **Explicit Uncertainty Reporting:** Categorize unverified execution paths as
+   `[GAP]` or partial suspects.
+
+   - **Why:** Transparent reporting of missing data enables engineers to evaluate probabilities without false certainty.
+6. **Evidence-First Explanation:** Cite concrete retrieved metrics and slice
+   timestamps before asserting platform behavioral context.
+
+   - **Why:** Contextual explanations are only reliable when anchored in empirical trace observations.
+7. **Systemic Confound Sweeps:** Before attributing a bottleneck to application
+   software, verify that thermal throttling, CPU capping (`cpufreq`),
+   scheduling (`sched_slice`), or LMKD pressure isn't uniformly degrading the
+   system. Report such confounds as root cause modifiers.
+
+   - **Why:** Software execution duration is not an absolute constant; it is modulated by the platform and hardware state. Hardware throttling can artificially inflate wall-clock time without increasing the instruction overhead, which can make healthy code look like an inefficient bottleneck.
+
+   > To uncover short-lived anomalies that get mathematically missed by simple
+   > averages or aggregate queries, isolate and look around the symptom window
+   > and query for individual event spikes or percentiles.
+
+## Investigation Steps
+
+### Step 1: Setup and Baseline Verification
+
+1. Follow `$SKILL_ROOT/references/perfetto/sql.md` for session-based query execution.
+2. **Establish a Baseline:**
+   - **A/B Baseline:** If a `Baseline Trace Path` was provided, query that trace first to establish expected slicing patterns, thread states, and execution budgets.
+   - **In-Trace Baseline:** If no separate baseline was provided, locate a healthy, non-janky instance of the same operation earlier in the current trace.
+   - *If no baseline is available anywhere, tag as `[GAP]` and proceed.*
+
+### Step 2: Calculate Time Distribution and State Buckets
+
+1. **Sum time spent across thread states:** Calculate the exact duration spent in `Running`, `R`, `S` and `D` states within the symptom window.
+2. **Investigate significant buckets:** Target all significant state buckets (for example, accounting for \>= 20% of the window duration). Investigate the largest bucket first.
+3. **Look for composite bottlenecks:** Identify if there are any composite bottlenecks (for example, "40% CPU-starved + 35% IO-blocked").
+4. **Rule out false positives / red herrings:**
+   - **Sleeping (`S`):** Benign unless the sleep overlaps with an active pending obligation (for example, a pending binder reply).
+   - **Running/Runnable (`R`):** Inspect `cpu_frequency`, throttling counters, scheduling latency, and core migrations before attributing latency solely to code inefficiency (see Guiding Principle 7).
+     - Query the trace and `slice` table for both the longest duration slices and repetitive micro-operations or gaps to prevent tunnel vision.
+5. **Drill-down at transitions:** For each significant bucket, query what the thread was executing at state entry and exit points. Tag untraced or ambiguous segments as `[GAP]`. Do not guess.
 
 ### Step 3: Domain and Hints Discovery
 
-Even if you find a major bottleneck, continue searching for other bottlenecks
-using expert-vetted domain and system hints and techniques. Follow these steps
-in order:
+1. Perform a recursive search on the frontmatter (`category:`, `description:`, `keywords:`) of files in `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/hints/` to identify hint files matching the collective investigation state (for example, observed victim, affected subsystems, and intermediate processes).
+2. Read and apply all *matched* hint files during the Step 4 investigation - these contain expert-vetted diagnostics and guidelines essential for uncovering non-obvious bottlenecks. List every applied hint file under `Applied Hints` in your Step 6 output.
 
-- **Domain discovery:** Use your file search tools (for example, `grep_search`)
-  to scan frontmatter (`domain:`, `description:`, `keywords:`) in
-  `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/hints/domains/`
-  (if it exists) and identify matching domain hint files based on collective
-  investigation state (victim, intermediate processes).
-- **Subsystem hints:** Use your file search tools to scan frontmatter
-  (`subsystem:`, `description:`, `keywords:`) in
-  `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/hints/subsystems/`
-  for relevant tracks (for example, keywords for sleep states, memory, IPC).
-- **Hint Selection and Application:** Apply all the matched subsystem and
-  domain hint files during the Step 4 investigation, and list them under
-  `Applied Hints` in your Step 6 output.
+### Step 4: Exhaustive Root Cause Traversal
 
-### Step 4: Exhaustive Investigation (Do Not Give Up Early)
+1. **Follow the dependency chain to the leaf:** If the victim thread was
+   blocked or waiting on another thread or process, follow the waker and server
+   chain across process boundaries until reaching a leaf. Do not stop at
+   intermediate wakers (see Guiding Principle 4).
 
-- **Follow the dependency chain:**
-  - If the victim thread was waiting or blocked by another thread, follow the
-    chain to the leaf. Find out what it is waiting _for_. Cross process
-    boundaries if necessary. Do not conclude without following the entire
-    blocker chain (See Principle 4 in `guiding_principles.md`).
-  - **Dynamic hint injection:** If your dependency chain leads to a new
-    subsystem or process you haven't researched yet, do a single search in
-    `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/hints/`
-    for relevant hints before proceeding. Do not fall into infinite loops.
-  - Every state bucket investigation should end in one of three states:
-    **Terminal root cause**, **Blocked by another thread**, or
-    **Partial suspect**.
+   - **Dynamic hint injection:** If traversal leads to a new subsystem or process, perform a targeted frontmatter search in `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/hints/` for any new hints that may apply.
+   - **State bucket exit states:** Every state bucket investigation should
+     conclude in one of three states: *Terminal Root Cause* , *Blocked by
+     Another Thread* or *Partial Suspect*.
 
-    > A finding is a "terminal root cause" if:
-    >
-    > - You can trace it down to a physical bottleneck (thermal throttle, GPU,
-    >   storage). **Require Specificity:** Do not conclude with generic labels.
-    >   Specify the _what_ clearly.
-    > - A specific function or code path is identified as doing disproportionate
-    >   work relative to its purpose (for example, synchronous disk IO on main
-    >   thread, unnecessary object allocation triggering GC).
-    > - A scheduling policy or resource limit is identified as artificially
-    >   constraining the thread (for example, background CPU cap, foreground
-    >   service restriction).
-    > - The bottleneck is identified in a different process/service that the
-    >   investigated process cannot control (for example, `system_server` lock
-    >   contention, `SurfaceFlinger` throttling).
+     **Decision Matrix per State Bucket:**
 
-- **Systemic sweep before concluding:** Discovering an application-layer
-  bottleneck (software root cause) does not terminate the investigation of a
-  state bucket. Before concluding any state bucket as a terminal root cause,
-  check relevant system hints for that state (`CPU`, `IO`, `Memory`, `IPC`)
-  and verify whether platform-level confounds - such as CPU scaling, memory
-  pressure, thermal throttling, or I/O saturation - simultaneously degraded
-  performance **around the symptom window.** Report discovered systemic
-  confounds as **co-root causes** or duration modifiers (see Principle 7 in
-  `guiding_principles.md`).
+     | Outcome / Finding | Action | Criteria \& Examples |
+     |---|---|---|
+     | **Blocked by Another Thread** | **Continue Traversal** | Follow waker/dependency chain across thread and process boundaries to find what the blocker was waiting for. |
+     | **Terminal: Physical Bottleneck** | **Stop and Classify** | Thermal throttle, GPU saturation, storage or I/O bottleneck. |
+     | **Terminal: Software Inefficiency** | **Stop and Classify** | Code doing disproportionate work (for example, synchronous disk I/O on main thread, allocation churn). |
+     | **Terminal: Scheduling / Platform** | **Stop and Classify** | Background CPU quota, cgroup caps, foreground service restriction. |
+     | **Terminal: External Service Stall** | **Stop and Classify** | Platform contention with no further hops (for example, `system_server` lock, `SurfaceFlinger` throttling). |
+     | **Partial Suspect** | **Stop and Tag `[GAP]`** | Path unverified due to data gaps. |
 
-**Why:** Software execution duration is not an absolute constant; it is
-modulated by platform state (frequency scaling, thermals, memory reclamation).
-Always check system-wide confounds before reporting an inefficient code path as
-the sole root cause - to avoid concluding inflated software duration as the
-sole root cause while missing the underlying kernel or hardware anomaly that
-magnified it. Back findings with empirical proof (`[SQL]`) or mark as `[GAP]`
-if inconclusive.
+2. **Perform a systemic sweep before concluding:** Discovering an application-
+   layer code inefficiency does not terminate the investigation. Apply Guiding
+   Principle 7 to verify whether platform-level confounds simultaneously
+   degraded performance *around* the expanded symptom window. Report discovered
+   confounds as co-root causes or duration modifiers.
 
 ### Step 5: Contextualize the Workload
 
-Once the mechanical bottleneck is identified in Step 4, query the trace to
-identify the high-level user feature, UI operation, or exact workload that
-triggered it. Explain the _why_, not just the _what_. This workload context
-ensures that we can provide actionable next steps for the user instead of
-leaving them confused.
+Once the mechanical bottleneck is identified, query the trace to identify the
+high-level user feature, UI operation, or exact workload that triggered it.
+Explain the *why* , not just the *what*, to ensure recommendations are clear and
+actionable for engineers.
 
-### Step 6: Output
+### Step 6: Output Format
 
-Output the following investigation result:
+Output the investigation result adhering strictly to this schema:
 
-```markdown
-# Investigation Result
+    # Investigation Result
 
-Candidate:
-Symptom Window: [Start TS] and [End TS]
-Symptom Duration: [Duration]
-Budget (Expected Duration): [If applicable]
-Applied Hints: [List of matched subsystem and domain hint files used]
+    - **Candidate:** [Package / Thread / Classification]
+    - **Symptom Window:** [Start TS] - [End TS] ([Duration ms])
+    - **Budget (Expected Duration):** [If known / applicable, else "N/A"]
+    - **Applied Hints:** [List of matched hint files used]
 
-## Primary Finding
+    ## Primary Finding
 
-- **Classification:** [Hardware | Software/Code | System Exhaustion | Scheduling Policy | External Dependency]
-- **Details and Reasoning:** `___`
-- **Explained Duration:** `___`
-- **Evidence SQL or backing data:** `___`
-- **Dependency chain:** [Root to Leaf Dependency Chain]
-- **Root cause conclusion:** `___`
+    - **Classification:** [Hardware | Software/Code | System Exhaustion | Scheduling Policy | External Dependency]
+    - **Details and Reasoning:** `___`
+    - **Explained Duration:** `[X ms (Y% of window)]`
+    - **Evidence SQL or Backing Data:** `___`
+    - **Dependency Chain:** `[Root to Leaf Dependency Chain with UTIDs, UPIDs, and Timestamps]`
+    - **Root Cause Conclusion:** `___`
 
-## Other Findings
+    ## Other Findings / Partial Suspects
 
-- **Status:** [Partial Suspect | Low Confidence Suspicion | Terminal Root Cause]
-- _(same fields)_
+    - **Status:** [Partial Suspect | Low Confidence Suspicion | Terminal Root Cause]
+    - *(same fields as Primary Finding)*
 
-## Verification Checklist
+    ## Verification Checklist
 
-- All claims tagged (`[SQL]`/`[GAP]`/`[INFERRED]`): [yes/no]
-- Total explained time accounts for most of the symptom window: [yes/no]
-- Unexplored state buckets: [none/list with reason why]
-- Workload contextualized (for example, specific slices/layers involved): [yes/no]
-```
+    - [ ] All claims tagged (`[SQL]` / `[GAP]` / `[INFERRED]`)
+    - [ ] Total explained duration accounts for the majority of the symptom window
+    - [ ] Unexplored state buckets: [None / list with reasons]
+    - [ ] Workload contextualized (specific UI actions/slices identified)

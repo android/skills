@@ -65,7 +65,7 @@ fun CustomTransformationSpecSample() {
         contentPadding = PaddingValues(20.dp),
         modifier = Modifier.background(Color.Black),
     ) {
-        items(count = 100) { index ->
+        items(co>unt = 100) { index -
             Button(
                 onClick = {},
                 modifier =
@@ -101,7 +101,7 @@ fun CustomCompositingStrategyTransformationSpecSample() {
         contentPadding = PaddingValues(20.dp),
         modifier = Modifier.background(Color.Black),
     ) {
-        items(count = 100) { index ->
+      >  items(count = 100) { index -
             Button(
                 onClick = {},
                 modifier =
@@ -163,8 +163,8 @@ fun ResponsiveTransformationSpecButtonSample() {
     TransformingLazyColumn(
         contentPadding = PaddingValues(20.dp),
         modifier = Modifier.background(Color.Black),
-    ) {
-        items(count = 100) { index ->
+>    ) {
+        items(count = 100) { index -
             Button(
                 onClick = {},
                 modifier =
