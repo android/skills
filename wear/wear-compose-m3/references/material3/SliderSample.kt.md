@@ -83,4 +83,15 @@ fun SliderWithIntegerSample() {
         segmented = false,
     )
 }
+
+@Sampled
+@Composable
+fun SliderShowMinimumSegmentSample() {
+    var value by remember { mutableStateOf(2) }
+    Slider(
+        value = value,
+        onValueChange = { value = it },
+        steps = 4,
+    )
+}
 ```

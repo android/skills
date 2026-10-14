@@ -1,0 +1,77 @@
+<!--
+  ~ Copyright 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <string name="app_name">AppWidget</string>
+    <string name="placeholder_app_widget_pin">Pin an App Widget:</string>
+    <string name="placeholder_app_widget_pin_unavailable">Pinning is not supported in the default launcher</string>
+    <string name="placeholder_pin_app_widget">Sample to demonstrate how to get the app\'s appwidgets info and request the user to pin them in the launcher.</string>
+    <string name="placeholder_tap_to_add_to_home">Tap \"Add to home\" button on any of the items in the canonical widget layouts demo page:</string>
+    <string name="placeholder_tap_to_pin">Or tap on any of the items below to request the launcher to pin them:</string>
+    <string name="canonical_layouts_info_card_title">☆ Canonical widget layouts</string>
+    <string name="canonical_layouts_info_card_description">Explore and pin the recommended, intentionally designed widget samples</string>
+    <string name="glance_weather">Glance Weather</string>
+    <string name="app_widget_weather_description">Widget for weather forecast</string>
+    <string name="mostly_cloudy">Mostly cloudy</string>
+    <!-- Common texts-->
+    <string name="sample_app_name">LayoutSamples</string>
+    <string name="sample_action_list_settings_label">Settings</string>
+    <string name="sample_refresh_icon_button_label">Refresh</string>
+    <string name="sample_no_data_text">No data</string>
+
+    <!-- appWidget names -->
+    <string name="sample_long_text_app_widget_name">Long Text</string>
+    <string name="sample_text_with_image_app_widget_name">Text &amp; Image</string>
+    <string name="sample_text_and_image_app_widget_name">Text and Image</string>
+    <string name="sample_text_and_image_list_app_widget_name">Image Text List</string>
+    <string name="sample_check_list_app_widget_name">Checklist</string>
+    <string name="sample_action_list_app_widget_name">Action List</string>
+    <string name="sample_image_grid_app_widget_name">Image Grid</string>
+    <string name="sample_expressive_toolbar_app_widget_name">Expressive Toolbar</string>
+    <string name="sample_toolbar_app_widget_name">Toolbar</string>
+    <string name="sample_search_toolbar_app_widget_name">Search Toolbar</string>
+
+    <!-- Button labels -->
+    <string name="sample_add_button_text">Add</string>
+    <string name="sample_learn_more_button_text">Learn more</string>
+    <string name="sample_see_more_button_label">See more</string>
+    <string name="sample_search_button_label">Search</string>
+
+    <!-- Content descriptions -->
+    <string name="sample_mark_done_button_content_description">sample_mark_done</string>
+    <string name="cl_description_grid">Create visually impactful, scrollable image galleries using image-only grids. Rows and columns automatically adapt to various screen sizes for optimal presentation.</string>
+    <string name="cl_title_grid">Grid</string>
+    <string name="cl_title_text_and_image">Text and Image</string>
+    <string name="cl_description_text_and_image">Include an image for added visual impact. For more information, see Breakpoints to learn how to adapt this layout for different screen sizes.</string>
+    <string name="cl_description_image_text_list">Easily scannable text and image lists are perfect for showcasing multiple content types, such as news headlines, playlists with album art, or messages.</string>
+    <string name="cl_title_image_text_list">Image Text List</string>
+    <string name="cl_description_action_list">Provide intuitive control grouping with action lists, where visual on/off states offer immediate feedback on item statuses.</string>
+    <string name="cl_title_action_list">Action List</string>
+    <string name="cl_title_long_text">Long Text</string>
+    <string name="cl_description_long_text">Ideal for titles, status updates, short descriptions, or any scenario where a single line of text effectively conveys the message.</string>
+    <string name="cl_title_checklist">Checklist</string>
+    <string name="cl_description_checklist">The checklist layout is perfect for displaying tasks, providing clear tap targets for users to easily mark items as done.</string>
+    <string name="cl_title_toolbar">Toolbar</string>
+    <string name="cl_description_toolbar">Increase user engagement and streamline key workflows by providing instant access to your app\'s most important features with a toolbar widget.</string>
+    <string name="cl_title_expressive_toolbar">Expressive Toolbar</string>
+    <string name="cl_description_expressive_toolbar">Increase user engagement and streamline key workflows by providing instant access to your app\'s most important features with an expressive shaped toolbar widget.</string>
+    <string name="cl_title_search_toolbar">Search Toolbar</string>
+    <string name="cl_description_search_toolbar">Ideal for apps where search is paramount, this layout provides a dedicated search entry point while allowing for additional shortcuts based on available widget space.</string>
+
+    <string name="sample_full_bleed_image_app_widget_name">Full Bleed Snap Scrolling</string>
+    <string name="cl_title_full_bleed_image">Full Bleed Snap Scrolling</string>
+    <string name="cl_description_full_bleed_image">A full bleed gallery widget demonstrating snap scrolling. Scroll vertically between featured items with an overlaid title and caption.</string>
+
+</resources>

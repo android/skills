@@ -66,8 +66,8 @@ fun HierarchicalFocusSample() {
                         }
                     )
             ) {
-                // This is used a Gray background to the currently focused item, as seen by the
-                // focus system.
+                // This is used to add a Gray background to the currently focused item, as seen by
+                // the focus system.
                 var focused by remember { mutableStateOf(false) }
 
                 BasicText(

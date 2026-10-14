@@ -27,7 +27,17 @@
     },
     {
       "source": {
+        "path": "./cars/android-for-cars-parked-apps"
+      }
+    },
+    {
+      "source": {
         "path": "./device-ai/appfunctions"
+      }
+    },
+    {
+      "source": {
+        "path": "./device-ai/litert/litert-runtime"
       }
     },
     {
@@ -53,6 +63,11 @@
     {
       "source": {
         "path": "./jetpack-compose/adaptive"
+      }
+    },
+    {
+      "source": {
+        "path": "./jetpack-compose/jetpack-compose-performance"
       }
     },
     {
@@ -122,6 +137,11 @@
     },
     {
       "source": {
+        "path": "./system/glance-canonical-layouts"
+      }
+    },
+    {
+      "source": {
         "path": "./testing/testing-setup"
       }
     },
@@ -133,6 +153,11 @@
     {
       "source": {
         "path": "./wear/wear-compose-m3"
+      }
+    },
+    {
+      "source": {
+        "path": "./wear/wear-widgets"
       }
     },
     {

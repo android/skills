@@ -1,3 +1,6 @@
+<br />
+
+
 Applicable XR devices This guidance helps you build experiences for these types of XR devices. [Learn about XR device types →](https://developer.android.com/develop/xr/devices) ![](https://developer.android.com/static/images/develop/xr/ai-glasses-icon.svg) Audio \&  
 Display Glasses [](https://developer.android.com/develop/xr/devices#audio-display) [Learn about XR device types →](https://developer.android.com/develop/xr/devices)
 
@@ -44,52 +47,37 @@ runtime permissions](https://developer.android.com/guide/topics/permissions/requ
 
 See the following sections in this guide for details about each scenario.
 
-### Request and handle runtime permissions from a projected activity
+### Request runtime permissions from a projected activity
 
-To request permissions for audio glasses and display glasses, first use the
-[`ActivityResultLauncher`](https://developer.android.com/reference/kotlin/androidx/activity/result/ActivityResultLauncher) with the
-[`ProjectedPermissionsResultContract`](https://developer.android.com/reference/kotlin/androidx/xr/projected/permissions/ProjectedPermissionsResultContract#ProjectedPermissionsResultContract()) method to register the permissions
-launcher. When the user has acted on the permission request, the callback
-receives a map of permission names to their granted status.
+To request runtime permissions for audio or display glasses from a projected
+activity, use the [`ProjectedActivityCompat.requestPermissions`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedActivityCompat#requestPermissions(android.app.Activity,kotlin.Array,kotlin.Int)) method.
+
+Calling this method triggers a coordinated user flow across both the glasses and
+the host phone.
+
+1. **On the glasses**: The system opens a projected companion activity on the glasses, instructing the user to check their phone to respond to the permission request.
+2. **On the phone**: An Android system permission dialog appears on the phone screen. The dialog explicitly indicates that the user is granting the permission for the glasses rather than the phone itself. The user can then grant or deny the request.
+
+The following example shows how to request glasses permissions from a projected
+activity:
 
 
 ```kotlin
-// Register the permissions launcher using the ProjectedPermissionsResultContract.
-private val requestPermissionLauncher: ActivityResultLauncher<List<ProjectedPermissionsRequestParams>> =
-    registerForActivityResult(ProjectedPermissionsResultContract()) { results ->
-        if (results[Manifest.permission.CAMERA] == true) {
-            isPermissionDenied = false
-            initializeGlassesFeatures()
-        } else {
-            // Handle permission denial.
-            isPermissionDenied = true
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+private fun requestCameraPermission() {
+    lifecycleScope.launch {
+        try {
+            ProjectedActivityCompat.requestPermissions(
+                this@PermissionsFromProjectedActivity,
+                arrayOf(Manifest.permission.CAMERA),
+                // CAMERA_PERMISSION_REQUEST_CODE is a developer defined constant
+                CAMERA_PERMISSION_REQUEST_CODE,
+            )
+        } catch (e: IllegalStateException) {
+            // Thrown when the projected system service can't be bound.
+            Log.e(TAG, "Camera permission request failed: projected service unavailable.", e)
         }
     }
-```
-
-<br />
-
-#### Key points about the code
-
-- You need to specify which permissions your app requires, such as [`Manifest.permission.CAMERA`](https://developer.android.com/reference/kotlin/android/Manifest.permission#camera) or [`Manifest.permission.RECORD_AUDIO`](https://developer.android.com/reference/kotlin/android/Manifest.permission#record_audio).
-- Your app should handle both granted and denied results gracefully in the launcher's callback.
-
-To trigger the permission request flow, pass a list of
-[`ProjectedPermissionsRequestParams`](https://developer.android.com/reference/kotlin/androidx/xr/projected/permissions/ProjectedPermissionsRequestParams) to your registered permission
-launcher's `launch` method. The `ProjectedPermissionsRequestParams` object
-bundles the requested manifest permissions together with a custom `rationale`
-string. The `rationale` string must clearly and concisely explain why the app
-requires access to the glasses' hardware features (such as the camera or
-microphone).
-
-
-```kotlin
-private fun requestHardwarePermissions() {
-    val params = ProjectedPermissionsRequestParams(
-        permissions = listOf(Manifest.permission.CAMERA),
-        rationale = "Camera access is required to overlay digital content on your physical environment."
-    )
-    requestPermissionLauncher.launch(listOf(params))
 }
 ```
 
@@ -97,50 +85,54 @@ private fun requestHardwarePermissions() {
 
 #### Key points about the code
 
-- Calling `launch` on the launcher triggers the [permission request user
-  flow](https://developer.android.com/develop/xr/jetpack-xr-sdk/request-hardware-permissions#permissions-user-flow).
+- Use `ProjectedActivityCompat.requestPermissions` instead of the standard [`ActivityCompat`](https://developer.android.com/reference/kotlin/androidx/core/app/ActivityCompat) method. This method explicitly targets the runtime permissions for audio and display glasses rather than the host phone.
 
-#### Understand the permission request user flow
+#### Handle the permission results
 
-When you launch a permission request using the
-[`ProjectedPermissionsResultContract`](https://developer.android.com/reference/kotlin/androidx/xr/projected/permissions/ProjectedPermissionsResultContract#ProjectedPermissionsResultContract()) method, the system initiates a
-coordinated user flow across both the glasses and the phone.
+Once the user responds to the permission dialog on the phone, their decision is
+delivered to your app by invoking the [`onRequestPermissionsResult`](https://developer.android.com/reference/kotlin/androidx/core/app/ActivityCompat.OnRequestPermissionsResultCallback#onRequestPermissionsResult(int,java.lang.String%5B%5D,int%5B%5D))
+callback.
 
-During the permissions user flow, here is what your app and the user can expect:
+The system closes the projected companion activity automatically. On audio
+glasses, this occurs after the audio alert finishes playing. On display glasses,
+it happens after the user responds to all the permission dialogs.
 
-1. **On the glasses** : An activity appears on the **projected device
-   (glasses)**, instructing the user to look at their phone to continue.
+To handle the response, override `onRequestPermissionsResult()` within the
+`Activity` instance that initiated the permission request.
 
-   <br />
+The following code snippet shows how to handle the callback and verify whether
+the user granted the requested permissions:
 
-   > [!WARNING]
-   > **Preview:** Currently, the instructions and rationale provided by the system are not audible to the user. To provide an audible rationale to the user, we recommend using [Text to Speech
-   > (TTS)](https://developer.android.com/develop/xr/jetpack-xr-sdk/tts). For example:
-   >
-   > <br />
-   >
-   >     tts?.speak("Please review the permission request on your host device",
-   >     TextToSpeech.QUEUE_ADD,
-   >     null,
-   >     "permission_request")
-   >
-   > <br />
-   >
-   <br />
 
-2. **On the phone** : Concurrently, an activity launches on the **host device
-   (phone)**. This screen displays the rationale string you provided and gives
-   the user the option to proceed or cancel.
+```kotlin
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<String>,
+    grantResults: IntArray,
+    deviceId: Int,
+) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+    if (requestCode != CAMERA_PERMISSION_REQUEST_CODE) return
 
-3. **On the phone** : If the user accepts the rationale, a modified Android
-   system permission dialog appears on the phone telling the user that they are
-   granting the permission **for the glasses** (not the phone), and the user
-   can formally grant or deny the permission.
+    val isCameraGranted =
+        grantResults.getOrNull(permissions.indexOf(Manifest.permission.CAMERA)) ==
+            PackageManager.PERMISSION_GRANTED
 
-4. **Receiving the result** : After the user makes their final choice, the
-   activities on both the phone and glasses are dismissed. Your
-   [`ActivityResultLauncher`](https://developer.android.com/reference/kotlin/androidx/activity/result/ActivityResultLauncher) callback is then invoked with a map
-   containing the granted status for each requested permission.
+    if (isCameraGranted) {
+        initializeCameraFeatures()
+    } else {
+        onCameraPermissionDenied()
+    }
+}
+```
+
+<br />
+
+##### Key points about the code
+
+- Use the `deviceId` overload with the [`onRequestPermissionsResult`](https://developer.android.com/reference/kotlin/androidx/core/app/ActivityCompat.OnRequestPermissionsResultCallback#onRequestPermissionsResult(int,java.lang.String%5B%5D,int%5B%5D)) callback to ensure the permission status is correctly mapped to the specific context, such as the audio or display glasses rather than the host phone.
+- Your app should handle both granted and denied results gracefully.
 
 ### Request runtime permissions in a phone activity
 
@@ -148,11 +140,7 @@ If your app is running in a phone activity but requires permissions for audio or
 display glasses---for example, to let a user switch a video stream to the glasses'
 camera for a first-person point of view---request the permissions using the
 device-specific [`Activity#requestPermissions(permissions, requestCode,
-deviceId)`](https://developer.android.com/reference/kotlin/android/app/Activity#requestpermissions_1) method.
-
-To target audio and display glasses, obtain the appropriate device ID by calling
-[`getDeviceId`](https://developer.android.com/reference/kotlin/android/content/Context#getdeviceid) on a projected device context. Pass this ID when requesting
-permissions from your phone activity, as shown in the following example:
+deviceId)`](https://developer.android.com/reference/kotlin/android/app/Activity#requestpermissions_1) method:
 
 
 ```kotlin
@@ -167,12 +155,17 @@ requestPermissions(
 
 <br />
 
+#### Key points about the code
+
+- To target audio and display glasses, obtain the appropriate device ID from a projected context that you've created using [`createProjectedDeviceContext`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#createProjectedDeviceContext(android.content.Context)). Pass this ID with your call to the `requestPermissions` method.
+
 #### Handle the permission results
 
 Once the user responds to the permission dialog on the phone, their decision is
-delivered to your app by invoking the onRequestPermissionsResult callback.
+delivered to your app by invoking the [`onRequestPermissionsResult`](https://developer.android.com/reference/kotlin/androidx/core/app/ActivityCompat.OnRequestPermissionsResultCallback#onRequestPermissionsResult(int,java.lang.String%5B%5D,int%5B%5D))
+callback.
 
-To handle the response, override [`onRequestPermissionsResult`](https://developer.android.com/reference/kotlin/androidx/core/app/ActivityCompat.OnRequestPermissionsResultCallback#onRequestPermissionsResult(int,java.lang.String%5B%5D,int%5B%5D)) within the
+To handle the response, override `onRequestPermissionsResult` within the
 `Activity` instance that initiated the permission request.
 
 The following code snippet shows how to handle the callback and verify whether
@@ -180,27 +173,24 @@ the user granted the requested permissions:
 
 
 ```kotlin
-private companion object {
-    // REQUEST_CODE_GLASSES_CAMERA is a developer-defined constant.
-    const val REQUEST_CODE_GLASSES_CAMERA = 1001
-}
-
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 override fun onRequestPermissionsResult(
     requestCode: Int,
-    permissions: Array<out String>,
+    permissions: Array<String>,
     grantResults: IntArray,
-    deviceId: Int
+    deviceId: Int,
 ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+    if (requestCode != CAMERA_PERMISSION_REQUEST_CODE) return
 
-    // Handle the result of the permission request
-    if (requestCode == REQUEST_CODE_GLASSES_CAMERA && deviceId == projectedDeviceId) {
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // Proceed with glasses camera features
-        } else {
-            // Handle glasses permission denied
-        }
+    val isCameraGranted =
+        grantResults.getOrNull(permissions.indexOf(Manifest.permission.CAMERA)) ==
+            PackageManager.PERMISSION_GRANTED
+
+    if (isCameraGranted) {
+        initializeCameraFeatures()
+    } else {
+        onCameraPermissionDenied()
     }
 }
 ```

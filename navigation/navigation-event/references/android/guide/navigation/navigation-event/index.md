@@ -13,7 +13,7 @@ such as those found in Jetpack Compose.
 
 The [`NavigationEventDispatcher`](https://developer.android.com/reference/kotlin/androidx/navigationevent/NavigationEventDispatcher) is the central class responsible for
 managing all registered navigation event consumers
-([`NavigationEventHandler`](https://developer.android.com/reference/kotlin/androidx/navigationevent/NavigationEventHandler))) and orchestrating the flow of events.
+([`NavigationEventHandler`](https://developer.android.com/reference/kotlin/androidx/navigationevent/NavigationEventHandler)) and orchestrating the flow of events.
 
 In a hierarchical setup, all dispatchers within the same chain share a single
 `NavigationEventProcessor`, which manages the global state and ensures a single,
