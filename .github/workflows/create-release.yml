@@ -19,6 +19,8 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: main
+          # Full history and tags, so the release notes can diff against the previous release.
+          fetch-depth: 0
           token: ${{ secrets.ADR_GITHUB_BOT_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Update Plugin Versions
@@ -61,6 +63,105 @@ jobs:
           git commit -m "Bump plugin version to $TAG_NAME" || echo "No version change to commit"
           git push origin main
 
+      - name: Build Release Notes
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Previous release = highest existing v* tag other than the one being created.
+          PREV_TAG=$(git tag --list 'v*' --sort=-v:refname | grep -vxF "$TAG_NAME" | head -n1 || true)
+          echo "Diffing skills against: ${PREV_TAG:-<none, first release>}"
+          # Lists skills added, updated, moved and removed since PREV_TAG. Skills are found
+          # the same way as in update-skills.yml: every SKILL.md outside dot-prefixed folders.
+          PREV_TAG="$PREV_TAG" python3 - > release_notes.md <<'PY'
+          import os, re, subprocess
+
+          def git(*args):
+              return subprocess.run(["git", *args], check=True, capture_output=True, text=True).stdout
+
+          def skills_at(ref):
+              out = set()
+              for path in git("ls-tree", "-r", "--name-only", ref).splitlines():
+                  parts = path.split("/")
+                  if parts[-1] != "SKILL.md" or len(parts) < 2:
+                      continue
+                  if any(p.startswith(".") for p in parts[:-1]):
+                      continue
+                  out.add("/".join(parts[:-1]))
+              return out
+
+          def frontmatter(ref, skill_dir):
+              try:
+                  text = git("show", f"{ref}:{skill_dir}/SKILL.md")
+              except subprocess.CalledProcessError:
+                  return {}
+              m = re.match(r"^---\s*\n(.*?)\n---", text, re.S)
+              if not m:
+                  return {}
+              fields, key, buf = {}, None, []
+              for line in m.group(1).splitlines():
+                  top = re.match(r"^([A-Za-z_-]+):\s*(.*)$", line)
+                  if top:
+                      if key:
+                          fields[key] = " ".join(buf).strip()
+                      key, val = top.group(1), top.group(2).strip()
+                      buf = [] if val in (">", "|", ">-", "|-") else [val.strip("'\"")]
+                  elif key and line.startswith((" ", "\t")):
+                      buf.append(line.strip())
+              if key:
+                  fields[key] = " ".join(buf).strip()
+              return fields
+
+          def summary(desc, limit=200):
+              first = re.split(r"(?<=[.!?])\s+", desc.strip(), maxsplit=1)[0] if desc else ""
+              return first if len(first) <= limit else first[: limit - 1].rstrip() + "…"
+
+          tag = os.environ["TAG_NAME"]
+          prev = os.environ.get("PREV_TAG", "").strip()
+          repo = os.environ.get("REPO", "android/skills")
+          head = os.environ.get("HEAD_REF", "HEAD")
+
+          now = skills_at(head)
+          before = skills_at(prev) if prev else set()
+          added, removed = sorted(now - before), sorted(before - now)
+
+          # A skill whose folder moved keeps its frontmatter name: report it as moved, not new + removed.
+          name_of = lambda ref, d: frontmatter(ref, d).get("name") or d.split("/")[-1]
+          removed_names = {name_of(prev, d): d for d in removed} if prev else {}
+          moved = [(removed_names[name_of(head, d)], d) for d in added if name_of(head, d) in removed_names]
+          added = [d for d in added if d not in {new for _, new in moved}]
+          removed = [d for d in removed if d not in {old for old, _ in moved}]
+
+          updated = []
+          if prev:
+              for d in sorted(now & before):
+                  if git("diff", "--name-only", prev, head, "--", d).strip():
+                      updated.append(d)
+
+          link = lambda d: f"[`{d}`](https://github.com/{repo}/tree/{tag}/{d})"
+          lines = [f"Release {tag} of Android Skills.", ""]
+          if added:
+              lines += [f"## New skills ({len(added)})", ""]
+              for d in added:
+                  fm = frontmatter(head, d)
+                  desc = summary(fm.get("description", ""))
+                  lines.append(f"- **{fm.get('name') or d.split('/')[-1]}** ({link(d)})" + (f" — {desc}" if desc else ""))
+              lines.append("")
+          if updated:
+              lines += [f"## Updated skills ({len(updated)})", ""] + [f"- {name_of(head, d)} ({link(d)})" for d in updated] + [""]
+          if moved:
+              lines += [f"## Moved skills ({len(moved)})", ""] + [f"- `{o}` → {link(n)}" for o, n in moved] + [""]
+          if removed:
+              lines += [f"## Removed skills ({len(removed)})", ""] + [f"- `{d}`" for d in removed] + [""]
+          if prev and not (added or updated or moved or removed):
+              lines += [f"No skill changes since {prev}.", ""]
+          lines.append(f"This release contains {len(now)} skills.")
+          if prev:
+              lines.append(f"\n**Full changelog**: https://github.com/{repo}/compare/{prev}...{tag}")
+          print("\n".join(lines))
+          PY
+          cat release_notes.md >> "$GITHUB_STEP_SUMMARY"
+
       - name: Create Zip Archive
         run: |
           git archive --format=zip --output=android-skills.zip HEAD
@@ -73,4 +174,4 @@ jobs:
           gh release create "$TAG_NAME" android-skills.zip \
             --target main \
             --title "Release $TAG_NAME" \
-            --notes "Release $TAG_NAME of Android Skills."
+            --notes-file release_notes.md
