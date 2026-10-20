@@ -15,156 +15,36 @@
     "skills"
   ],
   "skills": [
-    {
-      "source": {
-        "path": "./build-system/agp/agp-9-upgrade"
-      }
-    },
-    {
-      "source": {
-        "path": "./camera/camerax"
-      }
-    },
-    {
-      "source": {
-        "path": "./cars/android-for-cars-parked-apps"
-      }
-    },
-    {
-      "source": {
-        "path": "./device-ai/appfunctions"
-      }
-    },
-    {
-      "source": {
-        "path": "./device-ai/litert/litert-runtime"
-      }
-    },
-    {
-      "source": {
-        "path": "./device-ai/ml-kit-genai-prompt-api"
-      }
-    },
-    {
-      "source": {
-        "path": "./devtools/android-cli"
-      }
-    },
-    {
-      "source": {
-        "path": "./identity/restore-credentials"
-      }
-    },
-    {
-      "source": {
-        "path": "./identity/verified-email"
-      }
-    },
-    {
-      "source": {
-        "path": "./jetpack-compose/adaptive"
-      }
-    },
-    {
-      "source": {
-        "path": "./jetpack-compose/jetpack-compose-performance"
-      }
-    },
-    {
-      "source": {
-        "path": "./jetpack-compose/migration/migrate-xml-views-to-jetpack-compose"
-      }
-    },
-    {
-      "source": {
-        "path": "./jetpack-compose/theming/styles"
-      }
-    },
-    {
-      "source": {
-        "path": "./media/media3-cast-integration"
-      }
-    },
-    {
-      "source": {
-        "path": "./navigation/navigation-3"
-      }
-    },
-    {
-      "source": {
-        "path": "./navigation/navigation-event"
-      }
-    },
-    {
-      "source": {
-        "path": "./performance/r8-analyzer"
-      }
-    },
-    {
-      "source": {
-        "path": "./play/engage-sdk-integration"
-      }
-    },
-    {
-      "source": {
-        "path": "./play/play-billing-library-version-upgrade"
-      }
-    },
-    {
-      "source": {
-        "path": "./play/play-policy-insights"
-      }
-    },
-    {
-      "source": {
-        "path": "./profilers/android-profiler"
-      }
-    },
-    {
-      "source": {
-        "path": "./security/android-intent-security"
-      }
-    },
-    {
-      "source": {
-        "path": "./security/android-permissions-security"
-      }
-    },
-    {
-      "source": {
-        "path": "./system/edge-to-edge"
-      }
-    },
-    {
-      "source": {
-        "path": "./system/glance-canonical-layouts"
-      }
-    },
-    {
-      "source": {
-        "path": "./testing/testing-setup"
-      }
-    },
-    {
-      "source": {
-        "path": "./tv/leanback-to-compose-tv-migration"
-      }
-    },
-    {
-      "source": {
-        "path": "./wear/wear-compose-m3"
-      }
-    },
-    {
-      "source": {
-        "path": "./wear/wear-widgets"
-      }
-    },
-    {
-      "source": {
-        "path": "./xr/display-glasses-with-jetpack-compose-glimmer"
-      }
-    }
+    "./build-system/agp/agp-9-upgrade",
+    "./camera/camerax",
+    "./cars/android-for-cars-parked-apps",
+    "./device-ai/appfunctions",
+    "./device-ai/litert/litert-runtime",
+    "./device-ai/ml-kit-genai-prompt-api",
+    "./devtools/android-cli",
+    "./identity/restore-credentials",
+    "./identity/verified-email",
+    "./jetpack-compose/adaptive",
+    "./jetpack-compose/jetpack-compose-performance",
+    "./jetpack-compose/migration/migrate-xml-views-to-jetpack-compose",
+    "./jetpack-compose/theming/styles",
+    "./media/media3-cast-integration",
+    "./navigation/navigation-3",
+    "./navigation/navigation-event",
+    "./performance/r8-analyzer",
+    "./play/engage-sdk-integration",
+    "./play/play-billing-library-version-upgrade",
+    "./play/play-policy-insights",
+    "./profilers/android-profiler",
+    "./security/android-intent-security",
+    "./security/android-permissions-security",
+    "./system/edge-to-edge",
+    "./system/glance-canonical-layouts",
+    "./testing/testing-setup",
+    "./tv/leanback-to-compose-tv-migration",
+    "./wear/wear-compose-m3",
+    "./wear/wear-widgets",
+    "./xr/display-glasses-with-jetpack-compose-glimmer"
   ],
   "interface": {
     "displayName": "Android Skills",

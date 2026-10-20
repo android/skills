@@ -114,7 +114,7 @@ jobs:
 
           with open(codex_file, 'r') as f:
               data = json.load(f)
-          data['skills'] = [{'source': {'path': p}} for p in skill_paths]
+          data['skills'] = skill_paths
           with open(codex_file, 'w') as f:
               json.dump(data, f, indent=2)
               f.write('\n')
