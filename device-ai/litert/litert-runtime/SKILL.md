@@ -10,7 +10,7 @@ description: Configures and implements LiteRT (.tflite) on-device inference on A
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-13'
+  last-updated: '2026-10-20'
   keywords:
   - LiteRT
   - CompiledModel
@@ -40,6 +40,7 @@ skill.
 - **Buffer lifecycle** : Allocate `TensorBuffer` instances once using `createInputBuffers` and `createOutputBuffers`, reuse them across inferences, and close all input and output buffers before closing the `CompiledModel`.
 - **Synchronous timing** : `model.run` enqueues work on the GPU and returns before GPU execution completes. Always measure `model.run` and output buffer readback (`outputs[0].readFloat`) together.
 - **Warm-up and exception safety** : Execute one warm-up inference inside the helper constructor's `init` block so first-run GPU shader compilation doesn't block the first user interaction, and call `close` in `catch` before rethrowing so neither `CompiledModel` nor `TensorBuffer` handles leak if buffer allocation or warm-up throws.
+- **Migration** : When the app already uses `org.tensorflow.lite` code, you must read the "Migrating from legacy TFLite Interpreter" section in full before you edit any file. Migrated code must not import any `org.tensorflow.lite` class (including `DataType`), `GpuDelegate` becomes `CompiledModel.Options(Accelerator.GPU, Accelerator.CPU)`, and an NNAPI choice maps to that same GPU option.
 
 ## Detailed steps
 
@@ -74,12 +75,12 @@ Step 2. Obtain the pack's directory from the AI Delivery library
 `AiPackManagerFactory.getInstance(context).getPackLocation(name)?.assetsPath()`,
 which returns `null` until the pack has finished downloading.
 
-With 2.3.0 nothing is added to `gradle.properties`: `litert` 2.3.0 declares the
-namespace `com.google.ai.edge.litert.impl` and its dependency `litert-api` 2.3.0
-declares `com.google.ai.edge.litert`, so AGP 9.x builds the project. With 2.2.0
-or 2.1.6 both libraries declare `com.google.ai.edge.litert`, and AGP 9.x stops
-at `processDebugMainManifest` (AGP 8.x reports it as a warning and builds); for
-those two versions add `android.uniquePackageNames=false` to
+With 2.3.0, nothing is added to `gradle.properties`: `litert` 2.3.0 declares
+the namespace `com.google.ai.edge.litert.impl` and its dependency `litert-api`
+2.3.0 declares `com.google.ai.edge.litert`, so AGP 9.x builds the project. With
+2.2.0 or 2.1.6, both libraries declare `com.google.ai.edge.litert`, and AGP
+9.x stops at `processDebugMainManifest` (AGP 8.x reports it as a warning and
+builds); for those two versions, add `android.uniquePackageNames=false` to
 `gradle.properties`, and remove it when moving to 2.3.0 because it also hides
 the same clash between any other two libraries. Excluding `litert-api` instead
 doesn't work: `CompiledModel` and `Accelerator` are in `litert-api`, and the
@@ -236,7 +237,7 @@ state to the Compose UI:
 
 One single-thread executor owns the model: creation, inference, and closing
 execute only on it, never on the main thread. The `ViewModel` keeps its own
-scope because `viewModelScope` is cancelled before `onCleared` runs, so a close
+scope because `viewModelScope` is canceled before `onCleared` runs, so a close
 launched there wouldn't run; `onCleared` cancels `scope` once `close` completes.
 `load` is a no-op when a model is already loaded across configuration changes; a
 failed `load` leaves `classifier` `null`. `classify` reports any
@@ -331,14 +332,24 @@ outputs on a physical device, you must follow [device verification](references/v
 
 ## Migrating from legacy TFLite Interpreter
 
-When upgrading an existing project from `org.tensorflow.lite.Interpreter`,
-replace legacy constructs with their `CompiledModel` equivalents:
+An existing app on `org.tensorflow.lite.Interpreter` (from
+`org.tensorflow:tensorflow-lite*` or from `com.google.ai.edge.litert:litert`
+1.x) moves to the `CompiledModel` code of Steps 1 to 5 in seven steps, in this
+order. Before you change any file of an
+existing app, you must read [migration](references/migration.md), which gives the commands and code
+for each step:
 
-- **Gradle dependencies** : Remove all `org.tensorflow:tensorflow-lite*` artifacts (`org.tensorflow:tensorflow-lite`, `org.tensorflow:tensorflow-lite-gpu`, `org.tensorflow:tensorflow-lite-support`, and `org.tensorflow:tensorflow-lite-metadata`). Replace them with `com.google.ai.edge.litert:litert:2.3.0` and `com.google.ai.edge.litert:litert-gpu:2.3.0`. If you still need Support or Metadata utilities (such as `ImageProcessor`, `TensorImage`, or `MetadataExtractor`), use `com.google.ai.edge.litert:litert-support:2.3.0` (or `litert-support-api:2.3.0` alongside `litert:2.3.0`) and `com.google.ai.edge.litert:litert-metadata:2.3.0`, and rename package imports from `org.tensorflow.lite.support.*` to `com.google.ai.edge.litert.support.*` per the [LiteRT Support migration guide](https://github.com/google-ai-edge/LiteRT/blob/main/litert/support_lib/MIGRATION_GUIDE.md).
-- **Model loading** : Replace `FileUtil.loadMappedFile` and `Interpreter` with `CompiledModel.create(context.assets, name, options, environment)`.
-- **GPU delegation** : Replace `GpuDelegate` on `Interpreter.Options` with `CompiledModel.Options(Accelerator.GPU)` and the `com.google.ai.edge.litert:litert-gpu:2.3.0` dependency.
-- **Execution** : Replace `interpreter.run` on `ByteBuffer` inputs with `inputs[0].writeFloat(input)`, `model.run(inputs, outputs)`, and `outputs[0].readFloat`.
-- **Label loading** : Replace `FileUtil.loadLabels` with `bufferedReader` and `readLines` on `context.assets.open(name)` (or `com.google.ai.edge.litert.support.common.FileUtil.loadLabels` if using `litert-support:2.3.0`).
+1. **Find the runtime**: Read the build files and the resolved dependencies, and note the delegate, the thread count, and the Support library classes that the app uses.
+2. **Capture a golden output first**: While the legacy runtime is still in the project, record the app's output for one fixed input on the CPU. This step needs a device or an emulator.
+3. **Swap the dependencies** : Remove every legacy artifact and add the dependencies of Step 1. An app on the Support library keeps it as `com.google.ai.edge.litert:litert-support:2.3.0`, with the package `org.tensorflow.lite.support` renamed to `com.google.ai.edge.litert.support` ([LiteRT Support migration guide](https://github.com/google-ai-edge/LiteRT/blob/main/litert/support_lib/MIGRATION_GUIDE.md)).
+4. **Replace the delegates** : `GpuDelegate` becomes `CompiledModel.Options(Accelerator.GPU, Accelerator.CPU)`, so the CPU runs the operators that the GPU doesn't support. An NNAPI choice in the app maps to the same GPU option, not to `Accelerator.CPU` alone or to an NPU accelerator. `setNumThreads(n)` becomes new CPU options with `cpuOptions = CompiledModel.CpuOptions(numThreads = n)`.
+5. **Rewrite the inference code** : Replace `Interpreter` and `FileUtil.loadMappedFile` with the `Classifier` helper of Step 2, created and run only on the single-thread executor of Step 3, never in a constructor that the main thread calls.
+6. **Verify in two stages**: The build passes and the searches for legacy references print nothing; then the migrated output matches the golden output on a device.
+7. **Report what changed and what didn't migrate** : When the app used NNAPI, tell the user that it now runs on the GPU with the CPU as a second accelerator, which changes the speed and the numerical results of a quantized model that ran on a DSP or an NPU before; point them to [NPU acceleration with LiteRT](https://ai.google.dev/edge/litert/next/npu) for the NPU. Tell the user about LiteRT in Google Play services, the TensorFlow Lite Task Library, C++ modules, and Select TensorFlow operators, which this skill doesn't migrate.
+
+Migration mandates that apply to every migrated app:
+
+- **No `org.tensorflow.lite` imports** : Migrated code must not import any `org.tensorflow.lite` class, including `org.tensorflow.lite.DataType`; the LiteRT artifacts keep these classes only for backward compatibility. Replace Support calls that need `DataType` (`TensorImage(DataType.FLOAT32)`, `TensorBuffer.createFixedSize`, and `TensorLabel`) with `preprocess` of Step 4, the `CompiledModel` buffers, and labels paired with the output scores. Remove every existing `org.tensorflow.lite` import line, not only the ones that you add.
 
 ## Antipatterns
 

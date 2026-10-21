@@ -19,6 +19,7 @@
     "./camera/camerax",
     "./cars/android-for-cars-parked-apps",
     "./device-ai/appfunctions",
+    "./device-ai/litert/litert-lm",
     "./device-ai/litert/litert-runtime",
     "./device-ai/ml-kit-genai-prompt-api",
     "./devtools/android-cli",
@@ -31,6 +32,7 @@
     "./media/media3-cast-integration",
     "./navigation/navigation-3",
     "./navigation/navigation-event",
+    "./performance/anr-audit-and-fix",
     "./performance/r8-analyzer",
     "./play/engage-sdk-integration",
     "./play/play-billing-library-version-upgrade",
@@ -44,7 +46,8 @@
     "./tv/leanback-to-compose-tv-migration",
     "./wear/wear-compose-m3",
     "./wear/wear-widgets",
-    "./xr/display-glasses-with-jetpack-compose-glimmer"
+    "./xr/display-glasses-with-jetpack-compose-glimmer",
+    "./xr/projected-hardware"
   ],
   "interface": {
     "displayName": "Android Skills",

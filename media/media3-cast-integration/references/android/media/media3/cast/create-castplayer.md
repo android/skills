@@ -236,7 +236,7 @@ override fun onCreateOptionsMenu(menu: Menu): Boolean {
   Futures.addCallback(
     menuItemFuture,
     object : FutureCallback<MenuItem> {
-      override fun onSuccess(menuItem: MenuItem?) {
+      override fun onSuccess(menuItem: MenuItem) {
         // Do something with the menu item.
       }
 

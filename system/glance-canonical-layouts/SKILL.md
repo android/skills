@@ -7,7 +7,7 @@ description: Use this skill to create home screen widgets using Jetpack Glance C
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-14'
+  last-updated: '2026-10-13'
   keywords:
   - android
   - glance

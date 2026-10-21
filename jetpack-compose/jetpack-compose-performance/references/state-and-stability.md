@@ -121,7 +121,9 @@ unoptimized recomposition loop.
       Text("Count: $count") // 1. State read in Composition
       Button(onClick = {}) {
           // 2. State write in Composition AFTER read (Backwards write!)
-          countability.kt
+          count++
+      }
+  }
   ```
 
   <br />
@@ -300,9 +302,9 @@ top of the block.
   ```kotlin
   val label = when (transition.currentState) {
       State.Idle -> "Idle"
-      State>.Running - "Running: ${transition.currentState}"
-  >    State.Finished - "Finished: ${tre}"
-  }StateAndStability.kt
+      State.Running -> "Running: ${transition.currentState}"
+      State.Finished -> "Finished: ${transition.currentState}"
+  }
   ```
 
   <br />
@@ -314,9 +316,9 @@ top of the block.
   val currentState = transition.currentState
   val label = when (currentState) {
       State.Idle -> "Idle"
-      State>.Running - "Running: $currentState"
-  >    State.Finished - "Fte"
-  }StateAndStability.kt
+      State.Running -> "Running: $currentState"
+      State.Finished -> "Finished: $currentState"
+  }
   ```
 
   <br />
@@ -358,7 +360,9 @@ In Compose 1.13+, **`computedStateOf`** is introduced alongside
        if (showButton) {
            FloatingActionButton(onClick = { /* ... */ }) {
                Icon(Icons.Default.ArrowUpward, "Scroll to Top")
-          ability.kt
+           }
+       }
+   }
    ```
 
    <br />
@@ -645,7 +649,8 @@ variable or parameter referenced inside the `remember` block as a key.
       val formattedDate = remember {
           SimpleDateFormat("yyyy-MM-dd", locale).format(Date(timestamp))
       }
-      Text(text = formatability.kt
+      Text(text = formattedDate)
+  }
   ```
 
   <br />
@@ -659,7 +664,8 @@ variable or parameter referenced inside the `remember` block as a key.
       val formattedDate = remember(timestamp, locale) {
           SimpleDateFormat("yyyy-MM-dd", locale).format(Date(timestamp))
       }
-      Text(text = formatability.kt
+      Text(text = formattedDate)
+  }
   ```
 
   <br />

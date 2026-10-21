@@ -72,7 +72,7 @@ Example for the sample media provider feed.
 The following example creates a `SubscriptionEntity` for a user:
 
     val subscription = SubscriptionEntity.Builder()
-      setSubscriptionType(
+      .setSubscriptionType(
         SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
       )
       .setProviderPackageName("com.google.android.example")
@@ -179,7 +179,7 @@ In addition, if the user has another subscription to a subsidiary service, add
 another subscription and set the linked service package name accordingly.
 
     // Subscription for linked service package
-    val linkedSubscription = Subscription.Builder()
+    val linkedSubscription = SubscriptionEntity.Builder()
       .setSubscriptionType(
         SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
       )
@@ -203,7 +203,7 @@ another subscription and set the linked service package name accordingly.
           )
           .build()
       )
-        .build()
+      .build()
 
 Optionally, add entitlements to a linked service subscription too.
 
@@ -222,7 +222,7 @@ described in the [Getting Started guide](https://developer.android.com/guide/pla
         .setAccountProfile(accountProfile)
         .setSubscription(subscription)
         .build()
-      )
+    )
 
 Use `setSubscription()` to verify that user should have only one subscription to
 the service.
@@ -260,11 +260,11 @@ maintained.
        // to remove subscription and other Engage data from the current
        // google TV device.
        client.deleteClusters(
-         new DeleteClustersRequest.Builder()
+         DeleteClustersRequest.Builder()
            .setAccountProfile(accountProfile)
-         .setReason(DeleteReason.DELETE_REASON_USER_LOG_OUT)
-         .build()
-         )
+           .setDeleteReason(DeleteReason.DELETE_REASON_USER_LOG_OUT)
+           .build()
+       )
 
    The following code snippet demonstrates removal of user subscription
    when user revokes the consent:
@@ -273,9 +273,9 @@ maintained.
        // to remove subscription and other Engage data from all google
        // TV devices.
        client.deleteClusters(
-         new DeleteClustersRequest.Builder()
+         DeleteClustersRequest.Builder()
            .setAccountProfile(accountProfile)
-           .setReason(DeleteReason.DELETE_REASON_LOSS_OF_CONSENT)
+           .setDeleteReason(DeleteReason.DELETE_REASON_LOSS_OF_CONSENT)
            .build()
        )
 
@@ -285,10 +285,10 @@ maintained.
        // If the user delete a specific profile, you must make the following call
        // to remove subscription data and other Engage data.
        client.deleteClusters(
-         new DeleteClustersRequest.Builder()
-         .setAccountProfile(accountProfile)
-         .setReason(DeleteReason.DELETE_REASON_ACCOUNT_PROFILE_DELETION)
-         .build()
+         DeleteClustersRequest.Builder()
+           .setAccountProfile(accountProfile)
+           .setDeleteReason(DeleteReason.DELETE_REASON_ACCOUNT_PROFILE_DELETION)
+           .build()
        )
 
 ### Testing

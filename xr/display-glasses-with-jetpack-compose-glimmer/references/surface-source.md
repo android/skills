@@ -41,7 +41,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
@@ -60,7 +62,6 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
@@ -294,7 +295,7 @@ private class SurfaceNode(
     private var focusedContentColor: Color,
     private var shape: Shape,
     private var interactionSource: InteractionSource?,
-) : DrawModifierNode, DelegatingNode() {
+) : Modifier.Node(), DrawModifierNode, ContentColorProviderNode {
 
     override val shouldAutoInvalidate = false
 
@@ -303,10 +304,10 @@ private class SurfaceNode(
             if (field != value) {
                 field = value
                 if (value) {
-                    contentColorNode.update(focusedContentColor)
+                    currentContentColor = focusedContentColor
                     startFocusAnimation()
                 } else {
-                    contentColorNode.update(contentColor)
+                    currentContentColor = contentColor
                     stopFocusAnimation()
                 }
                 // No need to invalidate the border cache - we build it ahead of time to account for
@@ -316,7 +317,8 @@ private class SurfaceNode(
             }
         }
 
-    private val contentColorNode = delegate(ContentColorProviderNode(contentColor))
+    override var currentContentColor: Color by mutableStateOf(contentColor)
+        private set
 
     // Cache borders and highlight for unfocused and focused states. This means we
     // can avoid recreating these for a given surface, if the border and shape never
@@ -397,11 +399,11 @@ private class SurfaceNode(
         }
         if (this.contentColor != contentColor) {
             this.contentColor = contentColor
-            if (!isFocused) contentColorNode.update(contentColor)
+            if (!isFocused) currentContentColor = contentColor
         }
         if (this.focusedContentColor != focusedContentColor) {
             this.focusedContentColor = focusedContentColor
-            if (isFocused) contentColorNode.update(focusedContentColor)
+            if (isFocused) currentContentColor = focusedContentColor
         }
         if (this.shape != shape) {
             this.shape = shape

@@ -8,7 +8,7 @@ description: Implements Google Cast support in Android apps using Jetpack Media3
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-16'
+  last-updated: '2026-10-14'
   keywords:
   - Android
   - Media3

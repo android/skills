@@ -72,7 +72,11 @@ public object ProjectedContext {
         val deviceId =
             getProjectedDeviceId(context)
                 ?: throw IllegalStateException("Projected device not found.")
-        return context.createDeviceContext(deviceId)
+        return try {
+            context.createDeviceContext(deviceId)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalStateException("Projected device not found.", e)
+        }
     }
 
     /**

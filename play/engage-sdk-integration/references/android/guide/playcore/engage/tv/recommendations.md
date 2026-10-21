@@ -111,9 +111,9 @@ The following code removes recommendations on logout.
     // the recommendations data persists on the current Google TV device until 60
     // days later.
     client.deleteClusters(
-      new DeleteClustersRequest.Builder()
-        .setAccountProfile(AccountProfile())
-        .setReason(DeleteReason.DELETE_REASON_USER_LOG_OUT)
+      DeleteClustersRequest.Builder()
+        .setAccountProfile(accountProfile)
+        .setDeleteReason(DeleteReason.DELETE_REASON_USER_LOG_OUT)
         .build()
     )
 
@@ -121,9 +121,9 @@ The following code removes recommendations on logout.
     // the following call to remove recommendations data from all current Google TV
     // devices. Otherwise, the recommendations data persists until 60 days later.
     client.deleteClusters(
-      new DeleteClustersRequest.Builder()
-        .setAccountProfile(AccountProfile())
-        .setReason(DeleteReason.DELETE_REASON_LOSS_OF_CONSENT)
+      DeleteClustersRequest.Builder()
+        .setAccountProfile(accountProfile)
+        .setDeleteReason(DeleteReason.DELETE_REASON_LOSS_OF_CONSENT)
         .build()
     )
 
@@ -190,7 +190,7 @@ repeat it for every platform.
       Arrays.asList(playbackUriTv, playbackUriAndroid, playbackUriIos)
 
     // Provide appropriate rating for the system.
-    val contentRating = new RatingSystem
+    val contentRating = RatingSystem
       .Builder()
       .setAgencyName("MPAA")
       .setRating("PG-13")
@@ -205,14 +205,14 @@ correct display of the "Recommendations" entity, especially within Google's
 [Entertainment Space](https://support.google.com/entertainmentspace/answer/10346911). Images with a height less than 200
 pixels may not be shown.
 
-    Image image1 = new Image.Builder()
-      .setImageUri(Uri.parse("http://www.example.com/entity_image1.png");)
+    val image1 = Image.Builder()
+      .setImageUri(Uri.parse("http://www.example.com/entity_image1.png"))
       .setImageHeightInPixel(300)
       .setImageWidthInPixel(169)
       .build()
 
-    Image image2 = new Image.Builder()
-      .setImageUri(Uri.parse("http://www.example.com/entity_image2.png");)
+    val image2 = Image.Builder()
+      .setImageUri(Uri.parse("http://www.example.com/entity_image2.png"))
       .setImageHeightInPixel(640)
       .setImageWidthInPixel(360)
       .build()
@@ -244,9 +244,9 @@ the user.
 
     //Allows us to construct reason: "Because you watched Star Wars"
     val watchedSimilarTitles = RecommendationReasonWatchedSimilarTitles
-      .addSimilarWatchedTitleName("Movie or TV Show Title")
-      .addSimilarWatchedTitleName("Movie or TV Show Title")
       .Builder()
+      .addSimilarWatchedTitleName("Movie or TV Show Title")
+      .addSimilarWatchedTitleName("Movie or TV Show Title")
       .build()
 
     //Allows us to construct reason: "Recommended for you by ChannelName"
@@ -262,9 +262,9 @@ the user.
       .Builder()
       .build()
 
-    val userLikedOnPartner = RecommendationReasonUserLikedOnPartner
+    val userLikedTitle = RecommendationReasonUserLikedTitle
       .Builder()
-      .setTitleName("Movie or TV Show Title")
+      .setLikedTitleName("Movie or TV Show Title")
       .build()
 
     val generic = RecommendationReasonGeneric.Builder().build()
@@ -279,14 +279,16 @@ availability windows.
 
     val window1 = DisplayTimeWindow
       .Builder()
-      .setStartTimeStampMillis(now()+ 1.days.toMillis())
-      .setEndTimeStampMillis(now()+ 30.days.toMillis())
+      .setStartTimestampMillis(now() + 1.days.toMillis())
+      .setEndTimestampMillis(now() + 30.days.toMillis())
+      .build()
 
     val window2 = DisplayTimeWindow
       .Builder()
-      .setEndTimeStampMillis(now()+ 30.days.toMillis())
+      .setEndTimestampMillis(now() + 30.days.toMillis())
+      .build()
 
-    val availabilityTimeWindows: List<DisplayTimeWindow> = listof(window1,window2)
+    val availabilityTimeWindows: List<DisplayTimeWindow> = listOf(window1, window2)
 
 ### DataFeedElementId
 
@@ -306,10 +308,10 @@ Here's an example of creating a `MovieEntity` with all the required fields:
     val movieEntity = MovieEntity.Builder()
       .setName("Movie name")
       .setDescription("A sentence describing movie.")
-      .addPlatformSpecificPlaybackUri(platformSpecificPlaybackUris)
+      .addPlatformSpecificPlaybackUris(platformSpecificPlaybackUris)
       .addPosterImages(images)
       // Suppose the duration is 2 hours, it is 72000000 in milliseconds
-      .setDurationMills(72000000)
+      .setDurationMillis(72000000)
       .setCallToActionText("Watch Now")
       .addTag("Action")
       .build()
@@ -318,9 +320,9 @@ You can provide additional data such as genres, content ratings, release date,
 recommendation reason and availability time windows, which may be used by Google
 TV for enhanced displays or filtering purposes.
 
-    val genres = Arrays.asList("Action", "Science fiction");
-    val rating1 = RatingSystem.Builder().setAgencyName("MPAA").setRating("pg-13").build();
-    val contentRatings = Arrays.asList(rating1);
+    val genres = Arrays.asList("Action", "Science fiction")
+    val rating1 = RatingSystem.Builder().setAgencyName("MPAA").setRating("pg-13").build()
+    val contentRatings = Arrays.asList(rating1)
     //Suppose release date is 11-02-2025
     val releaseDate  = 1739233800000L
     val movieEntity = MovieEntity.Builder()
@@ -339,27 +341,27 @@ Here's an example of creating a `TvShowEntity` with all the required fields:
     val tvShowEntity = TvShowEntity.Builder()
       .setName("Show title")
       .setDescription("A sentence describing TV Show.")
-      .addPlatformSpecificPlaybackUri(platformSpecificPlaybackUris)
+      .addPlatformSpecificPlaybackUris(platformSpecificPlaybackUris)
       .addPosterImages(images)
       .setCallToActionText("Watch Now")
       .addTag("Drama")
-      .build();
+      .build()
 
 Optionally provide additional data such as genres, content ratings,
 recommendation reason, offer price, season count or availability time window,
 which may be used by Google TV for enhanced displays or filtering purposes.
 
-    val genres = Arrays.asList("Action", "Science fiction");
+    val genres = Arrays.asList("Action", "Science fiction")
     val rating1 = RatingSystem.Builder()
       .setAgencyName("MPAA")
       .setRating("pg-13")
-      .build();
+      .build()
     val price = Price.Builder()
       .setCurrentPrice("$14.99")
       .setStrikethroughPrice("$16.99")
-      .build();
-    val contentRatings = Arrays.asList(rating1);
-    val seasonCount = 5;
+      .build()
+    val contentRatings = Arrays.asList(rating1)
+    val seasonCount = 5
     val tvShowEntity = TvShowEntity.Builder()
       ...
       .addGenres(genres)
@@ -403,8 +405,8 @@ This represents a live TV channel. Here's an example of creating a
       .setEntityId("https://www.example.com/channel/12345")
       .setDescription("A sentence describing this live TV channel.")
       // channel playback uri must contain at least PlatformType.TYPE_ANDROID_TV
-      .addPlatformSpecificPlaybackUri(channelPlaybackUris)
-      .addLogoImage(logoImage)
+      .addPlatformSpecificPlaybackUris(channelPlaybackUris)
+      .setLogoImage(logoImage)
       .setCallToActionText("Watch Now")
       .addTag("News")
       .build()
@@ -435,7 +437,7 @@ with all the required fields:
       .setChannelName("Channel Name")
       .setChannelId("https://www.example.com/channel/12345")
       // channel playback uri must contain at least PlatformType.TYPE_ANDROID_TV
-      .addPlatformSpecificPlaybackUri(channelPlaybackUris)
+      .addPlatformSpecificPlaybackUris(channelPlaybackUris)
       .setChannelLogoImage(channelLogoImage)
       // Then set the program or card specific information.
       .setName("Program Name")
@@ -443,8 +445,10 @@ with all the required fields:
       .setDescription("Program Description")
       .addAvailabilityTimeWindow(
           DisplayTimeWindow.Builder()
-            .setStartTimestampMillis(1756713600000L)// 2025-09-01T07:30:00+0000
-            .setEndTimestampMillis(1756715400000L))// 2025-09-01T08:00:00+0000
+            .setStartTimestampMillis(1756713600000L) // 2025-09-01T07:30:00+0000
+            .setEndTimestampMillis(1756715400000L) // 2025-09-01T08:00:00+0000
+            .build()
+      )
       .addPosterImage(programImage)
       .setCallToActionText("Watch Now")
       .addTag("Sports")

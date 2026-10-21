@@ -5,39 +5,40 @@ Every Wear OS widget requires two classes:
 1. A `GlanceWearWidget` subclass overriding `provideWidgetData(context, params)` and returning a `WearWidgetDocument`.
 2. A `GlanceWearWidgetService` subclass annotated with `@AssociateWithGlanceWearWidget` so build tools, linters, and `GlanceWearWidgetManager` resolve the widget provider statically without reflective instantiation.
 
-<br />
+```kotlin
+import android.content.Context
+import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.ui.graphics.Color
+import androidx.glance.wear.AssociateWithGlanceWearWidget
+import androidx.glance.wear.GlanceWearWidget
+import androidx.glance.wear.GlanceWearWidgetService
+import androidx.glance.wear.WearWidgetBrush
+import androidx.glance.wear.WearWidgetData
+import androidx.glance.wear.WearWidgetDocument
+import androidx.glance.wear.color
+import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.WearWidgetParams
 
-    import android.content.Context
-    import androidx.compose.remote.creation.compose.state.rc
-    import androidx.compose.ui.graphics.Color
-    import androidx.glance.wear.AssociateWithGlanceWearWidget
-    import androidx.glance.wear.GlanceWearWidget
-    import androidx.glance.wear.GlanceWearWidgetService
-    import androidx.glance.wear.WearWidgetBrush
-    import androidx.glance.wear.WearWidgetData
-    import androidx.glance.wear.WearWidgetDocument
-    import androidx.glance.wear.color
-    import androidx.glance.wear.core.ContainerInfo
-    import androidx.glance.wear.core.WearWidgetParams
 
-    @AssociateWithGlanceWearWidget(MyWidget::class)
-    class MyWidgetService : GlanceWearWidgetService() {
-        override val widget: GlanceWearWidget = MyWidget()
-    }
+@AssociateWithGlanceWearWidget(MyWidget::class)
+class MyWidgetService : GlanceWearWidgetService() {
+    override val widget: GlanceWearWidget = MyWidget()
+}
 
-    class MyWidget : GlanceWearWidget() {
-        override suspend fun provideWidgetData(
-            context: Context,
-            params: WearWidgetParams,
-        ): WearWidgetData {
-            val isLarge = params.containerType == ContainerInfo.CONTAINER_TYPE_LARGE
-            return WearWidgetDocument(
-                background = WearWidgetBrush.color(Color(0xFF1C1B1F).rc)
-            ) {
-                MyWidgetContent(isLarge = isLarge)
-            }
+class MyWidget : GlanceWearWidget() {
+    override suspend fun provideWidgetData(
+        context: Context,
+        params: WearWidgetParams,
+    ): WearWidgetData {
+        val isLarge = params.containerType == ContainerInfo.CONTAINER_TYPE_LARGE
+        return WearWidgetDocument(
+            background = WearWidgetBrush.color(Color(0xFF1C1B1F).rc)
+        ) {
+            MyWidgetContent(isLarge = isLarge)
         }
     }
+}
+```
 
 ## 2. AndroidManifest.xml registration
 
@@ -48,20 +49,19 @@ Register the `GlanceWearWidgetService` subclass in
 `androidx.glance.wear.widget.provider` `<meta-data>` pointing to the `@xml/`
 provider configuration file:
 
-<br />
-
-    <service
-      android:name=".MyWidgetService"
-      android:exported="true"
-      android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
-      >
-      <intent-filter>
+```xml
+<service
+    android:name=".snippets.widget.skill.MyWidgetService"
+    android:exported="true"
+    android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+    <intent-filter>
         <action android:name="androidx.glance.wear.action.BIND_WIDGET_PROVIDER" />
-      </intent-filter>
-      <meta-data
+    </intent-filter>
+    <meta-data
         android:name="androidx.glance.wear.widget.provider"
         android:resource="@xml/my_widget_info" />
-    </service>
+</service>
+```
 
 ## 3. Provider XML (`res/xml/<widget_name>_info.xml`)
 
@@ -69,21 +69,20 @@ Create the `<wearwidget-provider>` XML resource in `app/src/main/res/xml/`
 declaring `SMALL` and `LARGE` `<container>` elements with `@drawable/` picker
 preview images:
 
-<br />
-
-    <?xml version="1.0" encoding="utf-8"?>
-    <wearwidget-provider
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        label="@string/app_name"
-        description="@string/app_name"
-        preferredType="LARGE">
-        <container
-            type="SMALL"
-            previewImage="@drawable/my_widget_preview_small" />
-        <container
-            type="LARGE"
-            previewImage="@drawable/my_widget_preview_large" />
-    </wearwidget-provider>
+```xml
+<wearwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    label="@string/app_name"
+    description="@string/app_name"
+    preferredType="LARGE">
+    <container
+        type="SMALL"
+        previewImage="@drawable/my_widget_preview_small" />
+    <container
+        type="LARGE"
+        previewImage="@drawable/my_widget_preview_large" />
+</wearwidget-provider>
+```
 
 ## 4. Migrating a legacy ProtoLayout TileService
 

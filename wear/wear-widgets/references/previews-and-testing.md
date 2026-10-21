@@ -8,52 +8,52 @@ Annotate preview functions with `@Preview` and pass one of the predefined
 - **`RoundAllWidgetPreviewParams`**: Pill-shaped containers.
 - **`RectangularAllWidgetPreviewParams`** : Uncropped rectangular containers with display-safe padding at `320 dpi` for generating widget picker preview assets.
 
-<br />
+```kotlin
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.tooling.preview.RectangularAllWidgetPreviewParams
+import androidx.glance.wear.tooling.preview.RoundAllWidgetPreviewParams
+import androidx.glance.wear.tooling.preview.SquircleAllWidgetPreviewParams
+import androidx.glance.wear.tooling.preview.WearWidgetPreview
 
-    import androidx.compose.runtime.Composable
-    import androidx.compose.ui.tooling.preview.Preview
-    import androidx.compose.ui.tooling.preview.PreviewParameter
-    import androidx.glance.wear.core.WearWidgetParams
-    import androidx.glance.wear.tooling.preview.RectangularAllWidgetPreviewParams
-    import androidx.glance.wear.tooling.preview.RoundAllWidgetPreviewParams
-    import androidx.glance.wear.tooling.preview.SquircleAllWidgetPreviewParams
-    import androidx.glance.wear.tooling.preview.WearWidgetPreview
+@Preview(
+    name = "Squircle",
+    device = "spec:width=1000dp,height=1000dp,dpi=320",
+)
+@Composable
+fun MyWidgetSquirclePreview(
+    @PreviewParameter(SquircleAllWidgetPreviewParams::class)
+    params: WearWidgetParams,
+) {
+    WearWidgetPreview(MyWidget(), params)
+}
 
-    @Preview(
-        name = "Squircle",
-        device = "spec:width=1000dp,height=1000dp,dpi=320",
-    )
-    @Composable
-    fun MyWidgetSquirclePreview(
-        @PreviewParameter(SquircleAllWidgetPreviewParams::class)
-        params: WearWidgetParams,
-    ) {
-        WearWidgetPreview(MyWidget(), params)
-    }
+@Preview(
+    name = "Round",
+    device = "spec:width=1000dp,height=1000dp,dpi=320",
+)
+@Composable
+fun MyWidgetRoundPreview(
+    @PreviewParameter(RoundAllWidgetPreviewParams::class)
+    params: WearWidgetParams,
+) {
+    WearWidgetPreview(MyWidget(), params)
+}
 
-    @Preview(
-        name = "Round",
-        device = "spec:width=1000dp,height=1000dp,dpi=320",
-    )
-    @Composable
-    fun MyWidgetRoundPreview(
-        @PreviewParameter(RoundAllWidgetPreviewParams::class)
-        params: WearWidgetParams,
-    ) {
-        WearWidgetPreview(MyWidget(), params)
-    }
-
-    @Preview(
-        name = "Widget Preview Asset",
-        device = "spec:width=1000dp,height=1000dp,dpi=320",
-    )
-    @Composable
-    fun MyWidgetCatalogPreview(
-        @PreviewParameter(RectangularAllWidgetPreviewParams::class)
-        params: WearWidgetParams,
-    ) {
-        WearWidgetPreview(MyWidget(), params)
-    }
+@Preview(
+    name = "Widget Preview Asset",
+    device = "spec:width=1000dp,height=1000dp,dpi=320",
+)
+@Composable
+fun MyWidgetCatalogPreview(
+    @PreviewParameter(RectangularAllWidgetPreviewParams::class)
+    params: WearWidgetParams,
+) {
+    WearWidgetPreview(MyWidget(), params)
+}
+```
 
 ## 2. Widget picker preview PNGs (`res/drawable-nodpi/`)
 
@@ -82,50 +82,49 @@ When unit-testing a widget with JUnit 4 and Robolectric, call
 `WearWidgetDocument` composable lambda and verifies that the Remote Compose
 `rcDocument` payload serializes without errors. Because `WearWidgetParams` and
 `captureRawContent` carry `@RestrictTo(LIBRARY_GROUP)` in alpha releases, add
-`@file:SuppressLint("RestrictedApi")` to the test file:
+`@SuppressLint("RestrictedApi")` to the test class:
 
-<br />
+```kotlin
+import android.annotation.SuppressLint
+import android.content.Context
+import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WidgetInstanceId
+import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-    @file:SuppressLint("RestrictedApi")
-
-    import android.annotation.SuppressLint
-    import android.content.Context
-    import androidx.glance.wear.core.ContainerInfo
-    import androidx.glance.wear.core.WearWidgetParams
-    import androidx.glance.wear.core.WidgetInstanceId
-    import androidx.test.core.app.ApplicationProvider
-    import kotlinx.coroutines.runBlocking
-    import org.junit.Assert.assertNotNull
-    import org.junit.Assert.assertTrue
-    import org.junit.Test
-    import org.junit.runner.RunWith
-    import org.robolectric.RobolectricTestRunner
-    import org.robolectric.annotation.Config
-
-    @RunWith(RobolectricTestRunner::class)
-    @Config(sdk = [34])
-    class MyWidgetTest {
-        @Test
-        fun provideWidgetData_serializesRemoteComposeDocument() = runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val widget = MyWidget()
-            for (containerType in listOf(
-                ContainerInfo.CONTAINER_TYPE_SMALL,
-                ContainerInfo.CONTAINER_TYPE_LARGE,
-            )) {
-                val params = WearWidgetParams(
-                    instanceId = WidgetInstanceId(namespace = "test", id = 1),
-                    containerType = containerType,
-                    widthDp = 220f,
-                    heightDp = 120f,
-                    horizontalPaddingDp = 8f,
-                    verticalPaddingDp = 8f,
-                    cornerRadiusDp = 16f,
-                )
-                val data = widget.provideWidgetData(context, params)
-                val rawContent = data.captureRawContent(context, params)
-                assertNotNull(rawContent.rcDocument)
-                assertTrue(rawContent.rcDocument.isNotEmpty())
-            }
+@SuppressLint("RestrictedApi")
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
+class MyWidgetTest {
+    @Test
+    fun provideWidgetData_serializesRemoteComposeDocument() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val widget = MyWidget()
+        for (containerType in listOf(
+            ContainerInfo.CONTAINER_TYPE_SMALL,
+            ContainerInfo.CONTAINER_TYPE_LARGE,
+        )) {
+            val params = WearWidgetParams(
+                instanceId = WidgetInstanceId(namespace = "test", id = 1),
+                containerType = containerType,
+                widthDp = 220f,
+                heightDp = 120f,
+                horizontalPaddingDp = 8f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
+            )
+            val data = widget.provideWidgetData(context, params)
+            val rawContent = data.captureRawContent(context, params)
+            assertNotNull(rawContent.rcDocument)
+            assertTrue(rawContent.rcDocument.isNotEmpty())
         }
     }
+}
+```
