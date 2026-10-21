@@ -12,7 +12,7 @@ description: Create, migrate, update, and verify Wear OS widgets using Glance We
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-10'
+  last-updated: '2026-10-16'
   keywords:
   - Wear OS
   - Widgets
@@ -31,8 +31,6 @@ They serialize declarative UI and state documents to the watch host process.
    - Use an available dependency lookup tool if present.
    - Otherwise, fetch the latest version from Google Maven metadata ([Glance Wear metadata](https://dl.google.com/dl/android/maven2/androidx/glance/wear/wear/maven-metadata.xml), [Compose Remote metadata](https://dl.google.com/dl/android/maven2/androidx/compose/remote/remote-creation-compose/maven-metadata.xml), [Wear Compose Remote metadata](https://dl.google.com/dl/android/maven2/androidx/wear/compose/remote/remote-material3/maven-metadata.xml)).
 2. **SDK and Compose compiler requirements** : Ask permission before modifying repo-wide Gradle files unless the user requested widget creation, tile migration, or dependency setup. Set `compileSdk = 37` or higher and enable `buildFeatures { compose = true }`. Keep the project's existing Android and Kotlin Gradle plugin declarations intact.
-
-<br />
 
     dependencies {
         implementation("androidx.glance.wear:wear:{GLANCE_WEAR_VERSION}")
@@ -61,20 +59,19 @@ Register the `GlanceWearWidgetService` subclass in
 entries. When configuring the service, provider XML, or legacy `TileService`
 migration, you MUST follow [Widget service and manifest reference](references/widget-service-and-manifest.md).
 
-<br />
-
-    <service
-      android:name=".MyWidgetService"
-      android:exported="true"
-      android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
-      >
-      <intent-filter>
+```xml
+<service
+    android:name=".snippets.widget.skill.MyWidgetService"
+    android:exported="true"
+    android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+    <intent-filter>
         <action android:name="androidx.glance.wear.action.BIND_WIDGET_PROVIDER" />
-      </intent-filter>
-      <meta-data
+    </intent-filter>
+    <meta-data
         android:name="androidx.glance.wear.widget.provider"
         android:resource="@xml/my_widget_info" />
-    </service>
+</service>
+```
 
 ### Step 2: Implement GlanceWearWidget and GlanceWearWidgetService
 
@@ -82,29 +79,30 @@ Extend `GlanceWearWidget` and override `provideWidgetData` returning
 `WearWidgetDocument`. Annotate the `GlanceWearWidgetService` subclass with
 `@AssociateWithGlanceWearWidget` for static provider resolution:
 
-<br />
+```kotlin
+// WRONG: Mobile GlanceAppWidget API (don't use on Wear OS)
+class BrokenWidget : GlanceAppWidget() {
+    override suspend fun provideGlance(context: Context, id: GlanceId) {}
+}
 
-    // WRONG: Mobile GlanceAppWidget API (don't use on Wear OS)
-    class BrokenWidget : GlanceAppWidget() {
-        override suspend fun provideGlance(context: Context, id: GlanceId) {}
-    }
+// CORRECT: Wear OS GlanceWearWidget + GlanceWearWidgetService
+@AssociateWithGlanceWearWidget(MyWidget::class)
+class MyWidgetService : GlanceWearWidgetService() {
+    override val widget: GlanceWearWidget = MyWidget()
+}
 
-    // CORRECT: Wear OS GlanceWearWidget + GlanceWearWidgetService
-    @AssociateWithGlanceWearWidget(MyWidget::class)
-    class MyWidgetService : GlanceWearWidgetService() {
-        override val widget: GlanceWearWidget = MyWidget()
-    }
-
-    class MyWidget : GlanceWearWidget() {
-        override suspend fun provideWidgetData(
-            context: Context,
-            params: WearWidgetParams,
-        ): WearWidgetData = WearWidgetDocument(
+class MyWidget : GlanceWearWidget() {
+    override suspend fun provideWidgetData(
+        context: Context,
+        params: WearWidgetParams,
+    ): WearWidgetData =
+        WearWidgetDocument(
             background = WearWidgetBrush.color(Color(0xFF1C1B1F).rc)
         ) {
             MyWidgetContent(params = params)
         }
-    }
+}
+```
 
 ### Step 3: Build Remote Compose layouts, state, and actions
 

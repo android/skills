@@ -36,6 +36,9 @@ Use the Engage SDK [Android skill](https://developer.android.com/tools/agents/an
 
 ## Integration detail
 
+This section details the steps, data models, and terminology required to
+integrate with the Engage SDK for food content.
+
 ### Terminology
 
 This integration includes the following five cluster types: **Recommendation** ,
@@ -43,8 +46,8 @@ This integration includes the following five cluster types: **Recommendation** ,
 
 - **Recommendation** clusters show personalized food-related suggestions from an
   individual developer partner. These recommendations can be personalized to the
-  user or generalized (for example, new on sale). Use them to surface recipes,
-  stores, dishes, groceries, and so on as you see fit.
+  user or generalized (for example, new on sale). Use them to feature items such
+  as recipes, stores, dishes, or groceries.
 
   - A Recommendation cluster can be made of `ProductEntity`, `StoreEntity`, or `RecipeEntity` listings, but not a mix of different entity types.
 
@@ -122,7 +125,8 @@ the following entities for the Food category:
 5. `FoodShoppingList`
 6. `FoodReorderCluster`
 
-The charts below outline available attributes and requirements for each type.
+The following charts outline available attributes and requirements for each
+type.
 
 #### `ProductEntity`
 
@@ -264,7 +268,7 @@ to publish.
 
 #### Image specifications
 
-Required specifications for image assets are listed below:
+The following table lists the required specifications for image assets:
 
 | Aspect ratio | Minimum pixels | Recommended pixels |
 |---|---|---|
@@ -402,24 +406,17 @@ required for `ServiceAvailabilityRequest` from the following table.
 ###### Conditional Service Availability Feature
 
 Some integrated apps request a special configuration that enables and disables
-the Engage service intermittently in order to reduce their serving cost. This
-intermittent content ingestion strategy, although possible, negatively affects
-the user and the product -- stale content will not be presented and some surfaces
-will not be served at all.
+the Engage service intermittently to reduce serving costs. However, this
+intermittent content ingestion strategy negatively affects the user experience:
+stale content won't be presented, and some surfaces won't be served.
 
 Starting with v1.6.0, the Engage SDK allows checking availability for specific
-cluster types. This provides more flexibility so that if the intermittent
-content strategy was adopted by a given application, some cluster types can
-follow that intermittent strategy while other cluster types are always enabled
-(i.e. continuation clusters).
+cluster types. If your app uses intermittent ingestion:
 
-If the Engage service should not be 'continuously' enabled on all supported
-devices for whatever reason, and is configured for intermittent ingestion for
-any set of devices, all continuation cluster publications (e.g. Food Shopping
-Cart, Food Shopping List, and Reorder) will be still enabled by default
-configuration, and the rest of the cluster types will be enabled and disabled
-intermittently. If intermittent ingestion applies to you but this default
-configuration is not suitable for your needs, please contact
+- **Continuation clusters** (such as Food Shopping Cart, Food Shopping List, and Reorder) remain enabled by default across all supported devices.
+- **Other cluster types** (such as Recommendations) are enabled and disabled intermittently.
+
+If this default configuration isn't suitable for your needs, contact
 engage-developers@google.com.
 
 ##### For SDK versions prior to v1.6.0 (Deprecated)
@@ -594,7 +591,7 @@ This API is used to publish a list of `FoodShoppingList` objects.
     client.publishFoodShoppingLists(
                 PublishFoodShoppingListsRequest.Builder()
                     .addFoodShoppingList(
-                        FoodShoppingListEntity.Builder()
+                        FoodShoppingList.Builder()
                             ...
                             .build())
                     .build())
@@ -604,7 +601,7 @@ This API is used to publish a list of `FoodShoppingList` objects.
     client.publishFoodShoppingLists(
                 new PublishFoodShoppingListsRequest.Builder()
                     .addFoodShoppingList(
-                        new FoodShoppingListEntity.Builder()
+                        new FoodShoppingList.Builder()
                             ...
                             .build())
                     .build());
@@ -785,7 +782,7 @@ with the status code **NOT_PUBLISHED_REQUIRES_SIGN_IN**
             .setStatusCode(AppEngagePublishStatusCode.NOT_PUBLISHED_REQUIRES_SIGN_IN)
             .build());
 
-#### `deleteRecommendationClusters`
+#### `deleteRecommendationsClusters`
 
 This API is used to delete the content of Recommendation Clusters.
 
@@ -794,11 +791,11 @@ This API is used to delete the content of Recommendation Clusters.
 
 ### Kotlin
 
-    client.deleteRecommendationClusters()
+    client.deleteRecommendationsClusters()
 
 ### Java
 
-    client.deleteRecommendationClusters();
+    client.deleteRecommendationsClusters();
 
 When the service receives the request, it removes the existing data from the
 Recommendation Clusters. In case of an error, the entire request is rejected

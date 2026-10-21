@@ -6,14 +6,17 @@ This recipe demonstrates how to structure a multi-module application using Navig
 
 The application is divided into several Android modules:
 
-- **`app` module** : This is the main application module. It `includes()` the feature modules and initializes a common `Navigator`.
+- **`app` module** : This is the main application module. It provides `KoinDeepLinkActivity` (an entry point demonstrating regular and deep link intent launches), `KoinModularActivity` (which hosts the `NavDisplay` and delegates deep link intents to `Navigator.handleDeepLink(intent)`), and initializes a common `Navigator` (resolving all registered `BackStackMatcher<*, NavKey>`s via `getAll()`).
 
-- **`common` module** : This module contains the core navigation logic used by both the application module and the feature modules. Namely, it defines a `Navigator` class that manages the back stack.
+- **`common` module**: This module contains the core navigation logic used by both the application module and the feature modules, including:
 
+  - A `Navigator` class that manages the back stack, resolves incoming deep link intents, and builds synthetic back stacks via `handleDeepLink(intent)`.
+  - A `startDestination: NavKey` used to initialize the back stack.
+  - `BackStackMatcher<*, NavKey>`, which feature modules use to contribute their deep link matchers with synthetic back stacks.
 - **Feature modules (e.g., `conversation`, `profile`)**: Each feature is split into two sub-modules:
 
-  - **`api` module**: Defines the public API for the feature, including its navigation routes. This allows other modules to navigate to this feature without needing to know about its implementation details.
-  - **`impl` module** : Provides the implementation of the feature, including its composables and Koin `Module`. The Koin module uses the [`navigation`](https://insert-koin.io/docs/reference/koin-compose/navigation3/#declaring-navigation-entries) DSL to define the entry provider installers for the feature module.
+  - **`api` module**: Defines the public API for the feature, including its navigation routes and deep link URI patterns. This allows other modules to navigate to this feature without needing to know about its implementation details.
+  - **`impl` module** : Provides the implementation of the feature, including its composables and Koin `Module`. The Koin module uses the [`navigation`](https://insert-koin.io/docs/reference/koin-compose/navigation3/#declaring-navigation-entries) DSL to define the entry provider installers and `single<BackStackMatcher<*, NavKey>>(named<...>())` configured with `.withBackStack` to establish the appropriate hierarchical back stack (e.g., `[ConversationList, ConversationDetail(id)]`).
 
 This modular approach allows for a clean separation of concerns, making the codebase more scalable and maintainable. Each feature is responsible for its own navigation logic, and the `app` module only combines these pieces together.
 [![](https://developer.android.com/static/images/picto-icons/code.svg) Explore View the full recipe on GitHub.](https://github.com/android/nav3-recipes/tree/main/app/src/main/java/com/example/nav3recipes/modular/koin)
@@ -32,19 +35,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.deeplink.BackStackMatcher
+import androidx.navigation3.runtime.deeplink.DeepLinkUri
+import androidx.navigation3.runtime.deeplink.UriDeepLinkMatcher
+import androidx.navigation3.runtime.deeplink.withBackStack
+import kotlinx.serialization.Serializable
 import org.koin.androidx.scope.dsl.activityRetainedScope
 import org.koin.core.annotation.KoinExperimentalAPI
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.dsl.navigation3.navigation
 
 // API
-object Profile
+@Serializable
+object Profile : NavKey
+
+const val PROFILE_URI = "https://www.nav3recipes.com/profile"
 
 // IMPL
 @OptIn(KoinExperimentalAPI::class)
 val profileModule = module {
     activityRetainedScope {
         navigation<Profile> { ProfileScreen() }
+    }
+
+    single<BackStackMatcher<*, NavKey>>(named<Profile>()) {
+        UriDeepLinkMatcher(
+            uriPattern = DeepLinkUri(PROFILE_URI),
+            serializer = Profile.serializer(),
+        ).withBackStack { matchResult ->
+            listOf(ConversationList, matchResult.key)
+        }
     }
 }
 
@@ -92,18 +114,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.deeplink.BackStackMatcher
+import androidx.navigation3.runtime.deeplink.DeepLinkUri
+import androidx.navigation3.runtime.deeplink.UriDeepLinkMatcher
+import androidx.navigation3.runtime.deeplink.withBackStack
 import com.example.nav3recipes.ui.theme.colors
+import kotlinx.serialization.Serializable
 import org.koin.androidx.scope.dsl.activityRetainedScope
 import org.koin.core.annotation.KoinExperimentalAPI
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.dsl.navigation3.navigation
 
 // API
-object ConversationList
-data class ConversationDetail(val id: Int) {
+object ConversationList : NavKey
+
+@Serializable
+data class ConversationDetail(val id: Int) : NavKey {
     val color: Color
         get() = colors[id % colors.size]
 }
+
+const val CONVERSATION_URI = "https://www.nav3recipes.com/conversation"
 
 // IMPL
 @OptIn(KoinExperimentalAPI::class)
@@ -121,6 +154,15 @@ val conversationModule = module {
             ConversationDetailScreen(key) {
                 get<Navigator>().goTo(Profile)
             }
+        }
+    }
+
+    single<BackStackMatcher<*, NavKey>>(named<ConversationDetail>()) {
+        UriDeepLinkMatcher(
+            uriPattern = DeepLinkUri("$CONVERSATION_URI/{id}"),
+            serializer = ConversationDetail.serializer(),
+        ).withBackStack { matchResult ->
+            listOf(ConversationList, matchResult.key)
         }
     }
 }
@@ -186,17 +228,37 @@ private fun ConversationDetailScreen(
 ```
 package com.example.nav3recipes.modular.koin
 
+import android.content.Intent
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.deeplink.BackStackMatcher
+import androidx.navigation3.runtime.deeplink.DeepLinkRequest
+import androidx.navigation3.runtime.deeplink.invoke
 
-class Navigator(startDestination: Any) {
-    val backStack : SnapshotStateList<Any> = mutableStateListOf(startDestination)
+class Navigator(
+    startDestination: NavKey,
+    private val deepLinkMatchers: List<BackStackMatcher<*, NavKey>>,
+) {
+    val backStack: SnapshotStateList<NavKey> = mutableStateListOf(startDestination)
 
-    fun goTo(destination: Any){
+    fun goTo(destination: NavKey) {
         backStack.add(destination)
     }
 
-    fun goBack(){
+    fun handleDeepLink(intent: Intent) {
+        if (intent.data == null && intent.extras == null) return
+
+        val request = DeepLinkRequest(intent)
+        val matchResult = deepLinkMatchers.firstNotNullOfOrNull { matcher ->
+            matcher.match(request)
+        } ?: return
+
+        backStack.clear()
+        backStack.addAll(matchResult.backStack)
+    }
+
+    fun goBack() {
         backStack.removeLastOrNull()
     }
 }
@@ -209,11 +271,14 @@ import org.koin.androidx.scope.dsl.activityRetainedScope
 import org.koin.dsl.module
 
 val appModule = module {
-    includes(profileModule,conversationModule)
+    includes(profileModule, conversationModule)
 
     activityRetainedScope {
         scoped {
-            Navigator(startDestination = ConversationList)
+            Navigator(
+                startDestination = ConversationList,
+                deepLinkMatchers = getAll(),
+            )
         }
     }
 }
@@ -271,6 +336,7 @@ class KoinModularActivity : ComponentActivity(), AndroidScopeComponent, KoinComp
         super.onCreate(savedInstanceState)
 
         setEdgeToEdgeConfig()
+        navigator.handleDeepLink(intent)
         setContent {
             Scaffold { paddingValues ->
                 NavDisplay(

@@ -37,6 +37,11 @@
     },
     {
       "source": {
+        "path": "./device-ai/litert/litert-lm"
+      }
+    },
+    {
+      "source": {
         "path": "./device-ai/litert/litert-runtime"
       }
     },
@@ -93,6 +98,11 @@
     {
       "source": {
         "path": "./navigation/navigation-event"
+      }
+    },
+    {
+      "source": {
+        "path": "./performance/anr-audit-and-fix"
       }
     },
     {
@@ -163,6 +173,11 @@
     {
       "source": {
         "path": "./xr/display-glasses-with-jetpack-compose-glimmer"
+      }
+    },
+    {
+      "source": {
+        "path": "./xr/projected-hardware"
       }
     }
   ],

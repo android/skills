@@ -6,7 +6,7 @@ description: Diagnose and optimize Android Jetpack Compose UI code. Use this ski
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-13'
+  last-updated: '2026-10-14'
   keywords:
   - Jetpack Compose
   - performance

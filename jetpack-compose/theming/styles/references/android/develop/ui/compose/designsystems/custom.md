@@ -6,7 +6,7 @@ the same manner.
 There are several approaches you might take:
 
 - [Extend `MaterialTheme`](https://developer.android.com/develop/ui/compose/designsystems/custom#extending-material) with additional theming values.
-- [Replace one or more Material systems](https://developer.android.com/develop/ui/compose/designsystems/custom#replacing-systems) --- `Colors`, `Typography`, or `Shapes` --- with custom implementations while keeping the others.
+- [Replace one or more Material systems](https://developer.android.com/develop/ui/compose/designsystems/custom#replacing-systems) --- `ColorScheme`, `Typography`, or `Shapes` --- with custom implementations while keeping the others.
 - [Implement a fully custom design system](https://developer.android.com/develop/ui/compose/designsystems/custom#implementing-fully-custom) to replace `MaterialTheme`.
 
 You may also want to continue using Material components with a custom design
@@ -156,8 +156,8 @@ fun ExtendedApp() {
 ## Replace Material subsystems
 
 Instead of extending Material Theming, you may want to replace one or more
-systems --- `Colors`, `Typography`, or `Shapes` --- with a custom implementation,
-while maintaining the others.
+systems --- `ColorScheme`, `Typography`, or `Shapes` --- with a custom
+implementation, while maintaining the others.
 
 Suppose you want to replace the type and shape systems while keeping the color
 system:
@@ -286,9 +286,9 @@ fun ReplacementApp() {
 You may want to replace Material Theming with a fully custom design system.
 Consider that `MaterialTheme` provides the following systems:
 
-- `Colors`, `Typography`, and `Shapes`: Material Theming systems
+- `ColorScheme`, `Typography`, and `Shapes`: Material Theming systems
 - `TextSelectionColors`: Colors used for text selection by `Text` and `TextField`
-- `Ripple` and `RippleTheme`: Material implementation of `Indication`
+- `ripple`, provided as `LocalIndication`: Material implementation of `Indication`
 
 If you want to continue using Material components, you must replace some of
 these systems in your custom themes or handle the systems in your
@@ -443,7 +443,7 @@ val ButtonShape = RoundedCornerShape(percent = 50)
 <br />
 
 > [!NOTE]
-> **Note:** `Button` uses `rememberRipple()` internally to provide a `Ripple` `Indication`. It's a good idea to check the source code when implementing other custom components that wrap existing components.
+> **Note:** `Button` uses `ripple` internally, through `Surface`, as its `Indication`. To change the ripple color or alpha, provide `LocalRippleConfiguration`. Starting with `material3` 1.5.0-beta01, you can also provide `LocalRippleThemeConfiguration` to configure the ripple theme for all Material components, such as using an inset focus ring. All of these are in `androidx.compose.material3`. For more information, see [Migrate to `Indication` and `Ripple` APIs](https://developer.android.com/develop/ui/compose/touch-input/user-interactions/migrate-indication-ripple). It's a good idea to check the source code when implementing other custom components that wrap existing components.
 
 If you've introduced new class types --- such as `List<Color>` to represent
 gradients --- then it may be better to implement components from scratch instead

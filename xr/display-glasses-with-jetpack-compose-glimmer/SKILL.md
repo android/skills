@@ -1,15 +1,16 @@
 ---
 name: display-glasses-with-jetpack-compose-glimmer
 description: Provides guidelines for developing projected Android XR apps for display
-  glasses using the Jetpack Compose Glimmer UI toolkit. This skill covers foundational
-  Glimmer design principles, workflows for implementing Jetpack Compose Glimmer, and
-  interaction models for the glasses form factor. Use this skill to build an Android
-  XR Augmented Experience app with Jetpack Compose Glimmer that adheres to the Glimmer
-  design system for optimized glasses styling.
+  glasses using the Jetpack Compose Glimmer UI toolkit. Covers Glimmer design principles,
+  workflows, and interaction models for the glasses form factor. Use this skill to
+  build an Android XR Augmented Experience app with Jetpack Compose Glimmer. Don't
+  use for audio-only AI glasses without a display, non-glasses Android XR headsets
+  (spatial panels or 3D volumes with Jetpack Compose for XR), or phone and tablet
+  Material 3 UIs.
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-11'
+  last-updated: '2026-10-17'
   keywords:
   - Jetpack Compose Glimmer
   - display glasses

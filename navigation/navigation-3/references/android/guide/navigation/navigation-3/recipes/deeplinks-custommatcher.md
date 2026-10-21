@@ -44,7 +44,6 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.deeplink.DeepLinkMatcher
 import androidx.navigation3.runtime.deeplink.DeepLinkRequest
 import androidx.navigation3.runtime.deeplink.RequestExtrasKey
-import androidx.navigation3.runtime.deeplink.get
 import com.example.nav3recipes.common.deeplink.EntryScreen
 import com.example.nav3recipes.ui.setEdgeToEdgeConfig
 import kotlinx.serialization.KSerializer
