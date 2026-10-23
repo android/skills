@@ -9,22 +9,24 @@ description: Instructions to make or update an app's UI so that it adapts to dif
   or resizing a window). It also covers multi-pane layouts using Navigation3 Scenes,
   adaptive UI components (such as buttons) with varying target sizes, and adaptive
   layouts (including navigation areas - nav rails and nav bars) using the Compose
-  Grid and FlexBox APIs.
+  Grid and FlexBox APIs. It also covers desktop experiences with keyboard shortcuts,
+  tooltips and custom cursors.
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-16'
+  last-updated: '2026-10-22'
   keywords:
-  - Jetpack Compose
-  - Adaptive UI
-  - Navigation
-  - Multi-pane
-  - Layouts
-  - Responsive Design
+  - android
+  - ui
+  - adaptive
   - Grid
   - FlexBox
   - MediaQuery
-  - Android Development
+  - navigation
+  - foldables
+  - state
+  - resizability
+  - configuration-changes
 ---
 
 ## Prerequisites
@@ -45,6 +47,7 @@ task.
 - Step 4: Make vertical lists adaptive by changing the number of columns
 - Step 5: Hide app bars when scrolling
 - Step 6: Preserve UI state across configuration changes
+- Step 7: Add desktop experiences
 
 ## Step 1. Verify current UI
 
@@ -413,6 +416,26 @@ private fun rememberExoPlayer(@RawRes videoResId: Int, fromUri: Unit.(Uri) -> Me
 ```
 
 <br />
+
+## Step 7: Add desktop experiences
+
+### Step 7.1: Identify the required desktop feature
+
+Look at the user's prompt, requirements, or uploaded files to determine which
+desktop feature needs to be implemented.
+
+### Step 7.2: Run feature-specific processing
+
+Based on the feature identified, you must read the corresponding reference file
+and follow its instructions:
+
+- **Keyboard Shortcuts** -\> read [`references/keyboard_shortcuts.md`](references/keyboard_shortcuts.md)
+- **Tooltips** -\> read [`references/tooltips.md`](references/tooltips.md)
+- **Custom Cursors** -\> read [`references/custom_cursors.md`](references/custom_cursors.md)
+
+Each reference starts by searching the whole app for the targets of that
+feature. Write that list down first, implement all of it (not only the first
+screen you open), and re-check the list before you finish.
 
 ## Final step: Build and test
 

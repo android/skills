@@ -54,12 +54,15 @@ want a restartable but non-skippable composable. In this case, use the
 
 ### Annotate classes as stable
 
-If you want an object using object equality instead of instance equality,
-continue to annotate the given class with `@Stable`.
-An example of when you might
-have to do this is when observing an entire list of objects, data sources such
-as Room will allocate new objects for every item in the list any time one of
-them changes.
+If you want an object to be compared using object equality (`Object.equals()`)
+instead of instance equality (`===`), continue to annotate the given class with
+`@Stable` or `@Immutable`.
+
+Keep the following trade-offs in mind before adding `@Stable` or `@Immutable`:
+
+- **Classes with stable properties in Compose modules are already stable** : A class with `val` properties of stable types in a module compiled with the Compose compiler is automatically inferred as stable and uses `.equals()` without needing `@Immutable` or `@Stable`.
+- **Only annotate classes with cheap `.equals()` checks** : Add `@Stable` or `@Immutable` when the compiler can't infer stability (such as classes from non-Compose modules) and new instances with identical values are frequently allocated, provided the class's `.equals()` check is inexpensive.
+- **Be cautious when annotating models with collections** : Adding `@Stable` or `@Immutable` to models containing collections (or replacing `List` with `ImmutableList`) causes Compose to compare every element in the collection with `.equals()` on each recomposition pass. For large collections or models used in lazy layouts (`LazyColumn`, `LazyRow`, `LazyGrid`), comparing every element can be slower than using instance equality (`===`) or recomposing directly.
 
 ## Lambda memoization
 

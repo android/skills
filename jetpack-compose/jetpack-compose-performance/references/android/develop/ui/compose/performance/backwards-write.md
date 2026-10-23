@@ -168,19 +168,23 @@ fun OkCounter() {
 
 <br />
 
+> [!NOTE]
+> **Note:** A backwards write strictly requires a state read to precede the state write (`Read -> Write`). Assigning to a `MutableState` at the start of a composable before any read occurs (`Write -> Read`, or writing in Composition and reading later in the Draw phase) is not a backwards write. However, wrapping a synchronous value in `remember { mutableStateOf(...) }` only to overwrite it immediately in Composition adds unnecessary `MutableState` and slot table overhead (and risks becoming a backwards write if a read is later added before the assignment)---prefer a plain local `val` or read the value directly in the target phase.
+
 *** ** * ** ***
 
 ## Key rules to prevent backwards writes
 
-1. **Don't write to state in `onGloballyPositioned`, `onSizeChanged`, or
-   `LayoutModifier` if that state is read in Composition** as this causes the first-frame-correctness problem.
+1. **Don't write to state in `onGloballyPositioned`, `onSizeChanged`,
+   `onPlaced`, `onLayoutRectChanged`, or `LayoutModifier` if that state is read
+   in Composition** as this causes the first-frame-correctness problem.
    - If layout coordinates or sizes are only needed for custom drawing, read them directly in the Draw or Layout phase (for example, using `Modifier.drawWithCache` or `Modifier.layout`).
    - **For Window-Level Sizing (`WindowWidthSizeClass`):** Hoist size observation to the window level. Composition branches on window size classes before local measurement occurs.
    - **Keep Composition Uniform:** Use a single custom Layout or components like `FlowRow` or `LazyVerticalGrid` that adjust measurement and placement during Phase 2 without recomposing or altering state used in composition.
    - **Use Sub-composition:** Use `BoxWithConstraints` or `SubcomposeLayout` when child composables must branch based on local width or height. Use caution: Subcomposition carries a performance cost and can usually be avoided.
    - **As a last resort:** Allow the first frame to be wrong, storing size in `onSizeChanged` to trigger a second frame recomposition. This causes visible layout popping, jank, and risks infinite loops.
-2. **Don't mutate state after its read the first time in composition** :
-   - Although you may safely write to `MutableState` objects during composition outside of a`SideEffect`, take special care to ensure that you don't write to a state that you may have previously read in composition. It's recommended to use `rememberUpdatedState` when this need for a state write in composition arises. Writing to a state during composition in another way is usually a sign of a missing effect or an inappropriately designed state or composable. Remember that composition is optimistic and always executes with the latest value of a state, so you may not see all state changes in recompositions. UI updates shouldn't be used as a way of handling one-time events, which makes it uncommon for a state's value to require being updated as a result of recomposing.
+2. **Don't mutate state after it's read the first time in composition** :
+   - Although you may safely write to `MutableState` objects during composition outside of a `SideEffect`, take special care to ensure that you don't write to a state that you may have previously read in composition. It's recommended to use `rememberUpdatedState` when this need for a state write in composition arises. Writing to a state during composition in another way is usually a sign of a missing effect or an inappropriately designed state or composable. Remember that composition is optimistic and always executes with the latest value of a state, so you may not see all state changes in recompositions. UI updates shouldn't be used as a way of handling one-time events, which makes it uncommon for a state's value to require being updated as a result of recomposing.
    - Avoid mutating states that are observed outside of composition (for example, `ViewModel` fields or `isVisible` flags). State writes that affect composition belong in event lambdas (`onClick`), coroutines (`LaunchedEffect`), or side effects (`SideEffect`). `rememberUpdatedState` is an exception as it is designed to mutate state that is only used in `@Composable` body.
 3. **Defer state reads to the latest possible phase** :
    - Reading states in Draw (`Modifier.graphicsLayer { alpha = ... }`) or Layout (`Modifier.offset { IntOffset(...) }`) ensures that changes only invalidate Phase 2 or 3, completely skipping Phase 1 (Composition).

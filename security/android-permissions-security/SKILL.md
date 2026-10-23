@@ -7,7 +7,7 @@ description: Audits, detects gaps, and remediates Android permissions and IPC co
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-25'
+  last-updated: '2026-10-22'
   keywords:
   - recipe
   - Android
@@ -237,7 +237,7 @@ if (callingPackage != null && SignatureUtils.verifyPartnerPackage(this, callingP
 ### Secure pattern: Authenticate calling UID cryptographically
 
 1. **Completely remove** all `intent.getStringExtra("calling_package")`, `intent.getStringExtra("sender")`, and `callingPackage == "..."` checks.
-2. Obtain caller identity using `Binder.getCallingUid()`.
+2. Obtain caller identity using `Binder.getCallingUid()` inside an active Binder IPC transaction (such as an AIDL `Stub` method or `ContentProvider` method).
 3. Verify caller certificate using `PackageManager.hasSigningCertificate()` (API 28+) or `PackageManager.getPackagesForUid()`.
 
 ### Complete CallerVerifier implementation
@@ -245,6 +245,7 @@ if (callingPackage != null && SignatureUtils.verifyPartnerPackage(this, callingP
 Apply this to the service that currently performs the spoofable check.
 
 - **Placement** : declare `CallerVerifier` in the **same file** as the service you are fixing (for example inside `SecureDataService.kt`). Do not move the verification into a new file and leave the original service untouched.
+- **Active Binder IPC context** : `Binder.getCallingUid()` only returns the remote caller's UID during an active Binder transaction (never inside `Service.onStartCommand()` or `Service.onBind()`, where it returns `Process.myUid()`). Reject `callingUid == Process.myUid()` so calls outside an active IPC transaction or after `Binder.clearCallingIdentity()` fail closed instead of bypassing verification.
 - **Nullability** : `packageInfo.signatures` is `Array<Signature>?`. Copy the `?: return false` guard exactly as written below. Iterating `packageInfo.signatures` directly fails to compile with "Non-nullable value required to call an 'iterator()' method in a for-loop."
 
 
@@ -255,15 +256,13 @@ object CallerVerifier {
 
     fun isCallerAuthorized(context: Context): Boolean {
         val callingUid = Binder.getCallingUid()
-        if (callingUid == android.os.Process.myUid()) return true
+        if (callingUid == android.os.Process.myUid()) return false
 
         val pm = context.packageManager
         // Modern API 28+ check by UID:
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val certBytes = hexStringToByteArray(TRUSTED_PARTNER_SHA256)
-            if (pm.hasSigningCertificate(callingUid, certBytes, PackageManager.CERT_INPUT_SHA256)) {
-                return true
-            }
+            return pm.hasSigningCertificate(callingUid, certBytes, PackageManager.CERT_INPUT_SHA256)
         }
 
         // Fallback for legacy APIs:
@@ -564,9 +563,13 @@ class ProtectedReceiver : BroadcastReceiver() {
 
 <br />
 
-*Legacy compatibility (Pre-API 34)* : For apps targeting API 33 or lower,
-attach an immutable `PendingIntent` extra (`FLAG_IMMUTABLE`) to the broadcast
-and authenticate the sender using `pendingIntent.creatorPackage`.
+*Legacy compatibility (Pre-API 34)* : On API 33 and lower, **never** authenticate
+a broadcast sender using `PendingIntent.getCreatorPackage()` or
+`PendingIntent.getCreatorUid()`, because any app that acquires a trusted app's
+`PendingIntent` can attach and send it (see [Sender of Pending Intents](references/android/privacy-and-security/risks/sender-of-pending-intents.md)).
+Instead, restrict the `<receiver>` with a `signature` or `signature|knownSigner`
+(API 31+) permission in the manifest; if `minSdkVersion` is lower than 31, use a
+bound `Service` or `ContentProvider` and verify `Binder.getCallingUid()`.
 
 *** ** * ** ***
 
@@ -588,6 +591,7 @@ and authenticate the sender using `pendingIntent.creatorPackage`.
 ### NEVER
 
 - **NEVER** extract or verify package names from Intent extras (`intent.getStringExtra("calling_package")`, `intent.getStringExtra("sender")`, `intent.getStringExtra("package")`). Always authenticate using `Binder.getCallingUid()` and certificates.
+- **NEVER** authenticate a broadcast or IPC sender using `PendingIntent.getCreatorPackage()` or `PendingIntent.getCreatorUid()`.
 - **NEVER** remediate caller spoofing by merely adding manifest permissions while keeping spoofable intent extra checks.
 - **NEVER** use `checkCallingOrSelfPermission()` or `enforceCallingOrSelfPermission()` to guard external caller methods. Always use `enforceCallingPermission()` or `checkCallingPermission()`.
 - **NEVER** use deprecated `signatureOrSystem`.

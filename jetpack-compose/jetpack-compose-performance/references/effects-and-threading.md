@@ -488,20 +488,20 @@ nested `launch { ... }` calls instead of declaring multiple standalone
 Understanding the execution lifecycle and performance costs of Compose effects
 is critical when choosing between them:
 
-#### A. Execution order relative to frame rendering
+#### A. Execution order when composition changes are applied
 
-Compose executes effects in a strictly defined order across frame phases:
+When composition changes are applied (`RememberObserver.onRemembered`), Compose
+triggers effects in the following order:
 
-1. **`DisposableEffect`**: Executes first, immediately after composition changes are applied, in the exact order declared in the composable.
-2. **`SideEffect`** : Executes second, after all `DisposableEffect`s have run, before layout and drawing occur.
-3. **Layout \& Draw**: The UI hierarchy measures, places, and draws pixels onto the screen.
-4. **`LaunchedEffect`** : Executes **after Draw at the end of the frame**, scheduled on the coroutine dispatcher.
+1. **`DisposableEffect`**: Executes synchronously first as composition changes are applied, in the order declared in the composable.
+2. **`SideEffect`** : Executes synchronously second, after `DisposableEffect`s have run, before layout and drawing occur.
+3. **`LaunchedEffect`** : Launches its coroutine on the composition's `CoroutineContext` when composition changes are applied. Because it is dispatched asynchronously on that coroutine dispatcher, it does not run synchronously during the apply pass, and it is **not** guaranteed to run after Layout and Draw.
 
 > **Warning:**
-> If your code implicitly relies on `LaunchedEffect` running after the frame has
-> rendered (e.g., waiting for layout bounds to be drawn), migrating to
-> `SideEffect` will execute *before* Layout and Draw. Always verify execution
-> order dependencies when refactoring effects.
+> Do not assume `LaunchedEffect` waits until after Layout and Draw to execute.
+> If your code needs layout bounds or coordinates, observe them through layout
+> modifiers (`onPlaced`, `onSizeChanged`, or `onLayoutRectChanged`) rather than
+> relying on effect dispatch timing.
 
 #### B. Effect allocation and teardown costs
 

@@ -102,9 +102,7 @@ package com.example.nav3recipes.multiplestacks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
@@ -113,8 +111,6 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import androidx.navigation3.runtime.serialization.NavKeySerializer
-import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 
 /**
  * Create a navigation state that persists config changes and process death.
@@ -128,12 +124,7 @@ fun rememberNavigationState(
     topLevelRoutes: Set<NavKey>
 ): NavigationState {
 
-    val topLevelRoute = rememberSerializable(
-        startRoute, topLevelRoutes,
-        serializer = MutableStateSerializer(NavKeySerializer())
-    ) {
-        mutableStateOf(startRoute)
-    }
+    val topLevelRoute = rememberNavKey(startRoute)
 
     // Create a back stack for each top level route.
     val backStacks = topLevelRoutes.associateWith { key -> rememberNavBackStack(key) }

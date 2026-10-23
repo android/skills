@@ -7,7 +7,7 @@ description: Best practices for Android Intent security. Use this skill when aud
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-25'
+  last-updated: '2026-10-22'
   keywords:
   - recipe
   - Android
@@ -89,8 +89,8 @@ IF (AndroidX Core 1.9.0+ and higher is available) {
 MUST construct an `IntentSanitizer` to explicitly allowlist components, actions, data, and extras.
 MUST call `sanitizeByThrowing()` or `sanitizeByFiltering()` before launching.
 } ELSE {
-MUST verify that the nested Intent's target package matches the current application package.
-MUST verify that the target component of the nested Intent is publicly exported.
+MUST reject or strip URI permission grant flags (`FLAG_GRANT_READ_URI_PERMISSION`, `FLAG_GRANT_WRITE_URI_PERMISSION`, `FLAG_GRANT_PERSISTABLE_URI_PERMISSION`, `FLAG_GRANT_PREFIX_URI_PERMISSION`).
+MUST resolve the target component using `resolveActivity()` and verify that both its `packageName` and `className` match an explicitly allowlisted component.
 }
 NEVER launch the nested Intent directly without validation.
 } ELSE IF (the component handles broadcasts) {
@@ -123,8 +123,8 @@ MUST set `android:grantUriPermissions="false"` unless temporary URL access is st
 ### 6. Service caller verification logic
 
 IF (an exported service communicates with trusted sister/partner apps) {
-MUST retrieve the calling UID using `Binder.getCallingUid()` and resolve it to package names using `PackageManager.getPackagesForUid()`.
-MUST verify that the calling package signature fingerprint matches your trusted certificate hash.
+MUST expose a cross-process interface (such as an AIDL `Stub` or `Messenger`) rather than a local `Binder` subclass, which only works within the same process.
+MUST verify the caller on every IPC request---using `Binder.getCallingUid()` inside an AIDL `Stub` method (or `onTransact()`) or `Message.sendingUid` in a `Messenger` `Handler`---and verify that the calling package signature fingerprint matches your trusted certificate hash.
 }
 
 *** ** * ** ***
@@ -159,26 +159,21 @@ fun safeIntentRedirectionManual() {
             throw SecurityException("Nested intent contains forbidden URI permission grant flags!")
         }
 
-        val pm = packageManager
-        val target = nestedIntent.resolveActivity(pm)
-        if (target != null) {
-            // 2. Verify target is within the same package
-            if (target.packageName != packageName) {
-                throw SecurityException("Cross-app intent redirection is forbidden!")
-            }
-            try {
-                // 3. Verify target activity is exported
-                val info = pm.getActivityInfo(target, 0)
-                if (!info.exported) {
-                    throw SecurityException("Target activity is private: ${target.className}")
-                }
-                // 4. Explicitly set the component to prevent intent interception
-                nestedIntent.component = target
-                // Safe to launch
-                startActivity(nestedIntent)
-            } catch (e: PackageManager.NameNotFoundException) {
-                Log.e("Security", "Failed to resolve target activity", e)
-            }
+        // 2. Clear any selector intent that could override resolution
+        nestedIntent.selector = null
+
+        // 3. Resolve the target activity and verify both packageName and className
+        //    match the expected allowlisted destination
+        val target = nestedIntent.resolveActivity(packageManager)
+        if (target != null &&
+            target.packageName == packageName &&
+            target.className == TargetActivity::class.java.name
+        ) {
+            // 4. Explicitly pin the resolved component to prevent intent interception
+            nestedIntent.component = target
+            startActivity(nestedIntent)
+        } else {
+            throw SecurityException("Invalid or disallowed redirect target: $target")
         }
     }
 }
@@ -199,30 +194,34 @@ Filter or reject dynamic intents using AndroidX `IntentSanitizer` (AndroidX Core
 
 ```kotlin
 fun safeIntentRedirectionSanitizer() {
-    val untrustedIntent = IntentCompat.getParcelableExtra(intent, "EXTRA_NESTED_INTENT", Intent::class.java)
-    if (untrustedIntent != null) {
-        // Define the strict boundaries for allowed redirection target
-        val sanitizer = IntentSanitizer.Builder()
-            .allowComponent(ComponentName("com.example.app", "com.example.app.SafeTargetActivity")) // Explicitly allowed target
-            .allowAction(Intent.ACTION_VIEW) // Explicitly allowed actions
-            .allowDataWithAuthority("com.example.app.provider") // Allowed URI authority
-            .allowType("text/plain") // Allowed mime type
-            .allowExtra("user_display_name", String::class.java) // Safe type-enforced extras
-            // Note: URI permission flags are NOT allowed, so the sanitizer will automatically strip or throw on them
-            .build()
+    // Allowlist: anything NOT listed is rejected (only component is required; other fields are optional).
+    // No allowFlags(): every flag, including FLAG_GRANT_*_URI_PERMISSION, is rejected.
+    val sanitizer = IntentSanitizer.Builder()
+        .allowComponent(ComponentName(this, TargetActivity::class.java))
+        .allowAction(Intent.ACTION_VIEW)
+        .allowData { it.scheme == ContentResolver.SCHEME_CONTENT && it.authority == "$packageName.provider" }
+        .allowType("text/plain")
+        .allowExtra("user_display_name", String::class.java) { it.length <= 100 } // type and content
+        .build()
 
-        try {
-            // Option A: Throws SecurityException if the intent violates policies
-            val safeIntent = sanitizer.sanitizeByThrowing(untrustedIntent)
-            startActivity(safeIntent)
-        } catch (e: SecurityException) {
-            Log.e("SECURITY_ALERT", "Attempted launch of non-allowlisted intent blocked", e)
-        }
-
-        // Option B: Silently filter and launch only the authorized parts (no exception thrown)
-        // val filteredIntent = sanitizer.sanitizeByFiltering(untrustedIntent)
-        // startActivity(filteredIntent)
+    val safeIntent = try {
+        val untrusted = IntentCompat.getParcelableExtra(intent, "EXTRA_NESTED_INTENT", Intent::class.java)
+            ?: return
+        sanitizer.sanitizeByThrowing(untrusted)
+    } catch (_: SecurityException) {
+        Log.w("SECURITY_ALERT", "Blocked non-allowlisted nested intent")
+        return
+    } catch (_: BadParcelableException) { // e.g. an extra naming an unknown Parcelable/Serializable
+        Log.w("SECURITY_ALERT", "Malformed nested intent")
+        return
     }
+
+    // The sanitizer doesn't enforce presence; check what the target actually requires.
+    if (safeIntent.getStringExtra("user_display_name") == null) {
+        Log.w("SECURITY_ALERT", "Nested intent missing user_display_name")
+        return
+    }
+    startActivity(safeIntent)
 }
 ```
 
@@ -387,12 +386,13 @@ override fun query(
 
 ### 7. Service caller signature verification
 
-Verify the calling application's signature before binding to a service.
+Verify the calling application's signing certificate on incoming cross-process
+IPC calls in an exported bound service.
 
 - **Expected Inputs:**
-  - `intent` (`Intent`): The binding request intent.
+  - An incoming cross-process Binder transaction (for example, an AIDL `Stub` method call or `onTransact()`).
 - **Expected Outputs:**
-  - `IBinder`: Local binder instance if caller signature matches trusted partner; throws `SecurityException` otherwise.
+  - Executes the requested service operation if the calling UID's signing certificate matches the trusted partner hash; throws `SecurityException` otherwise.
 
 
 ```kotlin
@@ -526,7 +526,7 @@ Use the following markdown template when reporting changes to developers:
 
 ## Antipatterns
 
-- **NEVER** launch a nested `Intent` received from an untrusted source without verifying its target package and exported status.
+- **NEVER** launch a nested `Intent` received from an untrusted source without verifying that its resolved component (`packageName` and `className`) matches an explicit allowlist and rejecting or stripping URI permission grant flags.
 - **NEVER** use sticky broadcasts (`sendStickyBroadcast`).
 - **NEVER** assume an exported component is safe because it runs in a background thread or performs internal checks.
 - **NEVER** expose sensitive functionalities (like SSO authentication or payment processors) to components without signature-level permission restrictions.
@@ -546,5 +546,5 @@ Use the following markdown template when reporting changes to developers:
 - **MUST** use `PendingIntent.FLAG_IMMUTABLE` by default when constructing `PendingIntent` instances.
 - **MUST** protect exported `ContentProviders` with `readPermission` and `writePermission`.
 - **MUST** enforce parameterized selection structures in `ContentProvider` query/update methods.
-- **MUST** verify the package signature fingerprint of binding applications at runtime inside exported services.
+- **MUST** verify the calling application's signing certificate on incoming IPC transactions at runtime inside exported bound services using a cross-process interface (such as an AIDL `Stub` or `Messenger`).
 - **MUST** use `androidx.core.content.IntentSanitizer` to sanitize incoming dynamic intents before redirection, if AndroidX Core 1.9.0+ is imported in the project.

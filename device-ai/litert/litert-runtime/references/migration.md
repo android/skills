@@ -44,8 +44,29 @@ The golden output is the legacy app's output for one fixed input, recorded
 before any dependency changes. Step 6 compares the migrated app with it. Pick
 one path:
 
-- **Path A (device or emulator connected)** : Write an instrumented test with the project's existing test setup. The test feeds one deterministic input through the app's own inference class and preprocessing on the CPU, without the GPU or NNAPI delegate. Use a bitmap of another size than the model input, never a camera frame. Write the output with `writeGoldenOutput`, then copy the file to `app/src/androidTest/assets/golden/output.txt`.
-- **Path B (no device)**: Don't capture. Report the capture and the device comparison of Step 6 to the user as post-implementation steps.
+- **Path A (device or emulator connected)** : Write an instrumented test with
+  the project's existing test setup. The test feeds one deterministic input
+  through the app's own inference class and preprocessing on the CPU, without
+  the GPU or NNAPI delegate. Use a bitmap of another size than the model input,
+  never a camera frame. Write the output with `writeGoldenOutput` to a file in
+  `InstrumentationRegistry.getInstrumentation().targetContext.filesDir`. When
+  the model has signatures, also log the legacy
+  `interpreter.getSignatureInputs(key)` and `getSignatureOutputs(key)`: the
+  migrated by-name calls need these names (Step 5). When the model has no
+  signatures, log `interpreter.getInputTensor(i).name()` and
+  `getOutputTensor(i).name()` instead. Don't run the capture test
+  with `./gradlew connectedDebugAndroidTest`: it uninstalls the app when the
+  test ends, which deletes the file. Install both APKs, run the test with
+  `am instrument`, and copy the file out of the debuggable app:
+
+      ./gradlew installDebug installDebugAndroidTest
+      adb shell pm list instrumentation  # shows <test package>/<runner> for the app
+      adb shell am instrument -w -e class <capture test class> <test package>/<runner>
+      mkdir -p app/src/androidTest/assets/golden
+      adb shell run-as <application ID> cat files/golden.txt > app/src/androidTest/assets/golden/output.txt
+
+- **Path B (no device)**: Don't capture. Report the capture and the device
+  comparison of Step 6 to the user as post-implementation steps.
 
     // Before the dependency swap: record the legacy app's output for one fixed
     // input, one value per line.
@@ -60,8 +81,11 @@ one path:
         return golden.indices.maxOf { abs(golden[it] - migrated[it]) }
     }
 
-    fun readGoldenOutput(context: Context, path: String = "golden/output.txt"): FloatArray =
-        context.assets.open(path).bufferedReader().use { reader ->
+    // The golden file is an asset of the test APK: pass
+    // InstrumentationRegistry.getInstrumentation().context, not targetContext,
+    // whose assets throw FileNotFoundException for it.
+    fun readGoldenOutput(testContext: Context, path: String = "golden/output.txt"): FloatArray =
+        testContext.assets.open(path).bufferedReader().use { reader ->
             reader.readLines().filter { it.isNotBlank() }.map { it.toFloat() }.toFloatArray()
         }
 
@@ -127,8 +151,8 @@ Keep the app's own classes and their public functions as the callers.
 - **Model loading** : `Interpreter` from `FileUtil.loadMappedFile`, and the Support `Model.createModel`, become `CompiledModel.create` in the helper. No overload takes a `ByteBuffer`.
 - **Inference** : `run` on `ByteBuffer` objects becomes `writeFloat`, `run`, and `readFloat` on buffers that the helper creates once. Use `writeInt8` and `readInt8` for int8 and uint8 tensors.
 - **Thread count** : `setNumThreads` becomes `CpuOptions(numThreads = n)` on new CPU options.
-- **Tensor shapes** : `getInputTensor` and its `shape` become a lookup by name. `resizeInput` has no counterpart in 2.3.0.
-- **Signatures** : `runSignature` becomes `run` with maps from tensor names to buffers.
+- **Tensor shapes** : `getInputTensor` and its `shape` become a lookup by name. `getInputTensorType` throws `LiteRtException` for `uint8` tensors; for the size, use `getInputBufferRequirements(name, signature).bufferSize`, which is in bytes for every element type. `resizeInput` has no counterpart in 2.3.0.
+- **Signatures** : `runSignature` becomes `run` with maps from the signature's input and output names to buffers. Every by-name call (`run` with maps, `getInputTensorType`, `getInputBufferRequirements`) takes the names in the signature, such as `x` or `args_0` and `output_0`, not the graph tensor names such as `serving_default_x:0`. When the model has no signatures, the names are its input and output tensor names (such as `images` and `Softmax`). `CompiledModel` has no call that lists them, so take them from the legacy code (Step 2). A missing or wrong name in an output map crashes the process (JNI abort) instead of throwing, so check the names before the first `run`.
 - **Closing** : Closing the interpreter becomes the helper's `close`.
 
     // Replaces Interpreter.Options.setNumThreads. Create new options; never change
@@ -138,13 +162,19 @@ Keep the app's own classes and their public functions as the callers.
             cpuOptions = CompiledModel.CpuOptions(numThreads = numThreads)
         }
 
-    // Replaces interpreter.getInputTensor(0).shape(). Look the tensor up by name.
+    // Replaces interpreter.getInputTensor(0).shape() for float tensors. Look the
+    // tensor up by its signature name; this throws for uint8 tensors.
     fun inputShape(model: CompiledModel, inputName: String): List<Int>? =
         model.getInputTensorType(inputName).layout?.dimensions
 
+    // Replaces interpreter.getInputTensor(0).numBytes() for any element type.
+    fun inputSizeBytes(model: CompiledModel, inputName: String, signature: String): Int =
+        model.getInputBufferRequirements(inputName, signature).bufferSize
+
     // Replaces interpreter.runSignature. Create the buffers once with
     // model.createInputBuffers(signature) and model.createOutputBuffers(signature),
-    // and reuse them for every call.
+    // and reuse them for every call. The map keys are the signature's input and
+    // output names (such as "args_0" and "output_0").
     fun runSignature(
         model: CompiledModel,
         signature: String,
@@ -207,7 +237,8 @@ leftover Interpreter code, because the `litert` 2.3.0 artifact still contains
 
 **Stage 2, on a device**: Pick one path:
 
-- **Path A (golden output captured in Step 2)** : Extend the instrumented test of Step 2. Run the same input through the migrated preprocessing and the helper on `Accelerator.CPU`, and read the golden file with `readGoldenOutput`. The test must fail when `maxAbsDifference` is 1e-3 or more. When the golden file holds only one value, the top-1 index must match; a wrong normalization often still passes this check. Then compare the CPU and the GPU as in Step 5 of the skill.
+- **Path A (golden output captured in Step 2)** : Extend the instrumented test of Step 2. Run the same input through the migrated preprocessing and the helper on `Accelerator.CPU`, and read the golden file with `readGoldenOutput(InstrumentationRegistry.getInstrumentation().context)`. The test must fail when `maxAbsDifference` is 1e-3 or more. When the golden file holds only one value, the top-1 index must match; a wrong normalization often still passes this check. Then compare the CPU and the GPU as in Step 5 of the skill; on the bundled runtime, first check that Logcat shows `Dynamically loaded GPU accelerator` and not `GPU accelerator
+  could not be loaded`, because the GPU and CPU option runs on the CPU without an error when `litert-gpu` is missing.
 - **Path B (no device)**: Run Stage 1 only, and report that Stage 2 didn't run.
 
 ## Out of scope

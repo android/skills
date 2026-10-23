@@ -1,9 +1,10 @@
 ## 1. Layout coordinates, rects, and visibility tracking
 
-`Modifier.onGloballyPositioned` executes on every layout pass across the entire
-Compose hierarchy whenever any node is placed or moved, making it a frequent
-source of frame drops, unnecessary callbacks, and layout feedback loops. Use
-targeted modern APIs instead:
+`Modifier.onGloballyPositioned` fires for its node whenever that node's global
+position in the window may have changed after a layout pass (for example, on
+every frame during scrolling or animation when an ancestor moves), making it a
+frequent source of frame drops, unnecessary callbacks, and layout feedback
+loops. Use targeted modern APIs instead:
 
 ### 1. Viewport and dwell tracking: use `Modifier.onVisibilityChanged`
 
@@ -31,10 +32,11 @@ Box(
 
 <br />
 
-### 2. Local bounds and placement: prefer `onPlaced` or `onLayoutRectChanged`
+### 2. Local placement and throttled bounds: prefer `onPlaced` or `onLayoutRectChanged`
 
 - **Dimensions Only (`IntSize`)** : If you only need width and height, use `Modifier.onSizeChanged`. It executes only when the node's dimensions change, ignoring position shifts.
-- **Local Coordinates after Placement** : Use `Modifier.onPlaced` or `Modifier.onLayoutRectChanged` when you need local coordinates relative to the parent without subscribing to global window or screen coordinate updates across the entire tree.
+- **Local Coordinates after Placement (`Modifier.onPlaced`)** : Use `Modifier.onPlaced` when you need placement coordinates relative to the parent after the node is placed, without subscribing to window or screen movement from ancestors.
+- **Throttled Bounds Tracking (`Modifier.onLayoutRectChanged`)** : When you need root-, window-, or screen-relative bounds (`RelativeLayoutBounds`), prefer `Modifier.onLayoutRectChanged` over `onGloballyPositioned`; it supports built-in `throttleMillis` and `debounceMillis` parameters to avoid firing on every frame.
 
 ### 3. On-demand coordinate queries: avoid `MutableState` position tracking
 

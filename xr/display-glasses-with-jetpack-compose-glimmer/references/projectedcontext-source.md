@@ -246,13 +246,25 @@ public object ProjectedContext {
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private fun getProjectedDeviceId(context: Context) =
-        context
-            .getSystemService(VirtualDeviceManager::class.java)
-            .virtualDevices
-            // TODO: b/424824481 - Replace the name matching with a better method.
-            .find { it.name?.startsWith(PROJECTED_DEVICE_NAME) ?: false }
-            ?.deviceId
+    private fun getProjectedDeviceId(context: Context): Int? {
+        val projectedDevices =
+            context
+                .getSystemService(VirtualDeviceManager::class.java)
+                .virtualDevices
+                // TODO: b/424824481 - Replace the name matching with a better method.
+                .filter { it.name?.startsWith(PROJECTED_DEVICE_NAME) ?: false }
+        // Prefer a device with active virtual displays so a stale device without displays from an
+        // earlier incomplete session is not selected over an active one.
+        val candidates =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                projectedDevices.filter { it.displayIds.isNotEmpty() }.ifEmpty { projectedDevices }
+            } else {
+                projectedDevices
+            }
+        // VirtualDeviceManager assigns monotonically increasing device IDs on creation, so picking
+        // the largest deviceId selects the most recently created device.
+        return candidates.maxByOrNull { it.deviceId }?.deviceId
+    }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun getVirtualDevice(context: Context) =

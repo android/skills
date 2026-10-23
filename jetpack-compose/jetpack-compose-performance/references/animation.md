@@ -2,9 +2,9 @@
 
 When animating visual properties (such as alpha, scale, rotation, color, or
 translation), never read the animated state directly in the Composable body
-during the Composition phase. Reading state during composition causes the entire
-composable tree to recompose on every animation tick (60 to 120 times per
-second).
+during the Composition phase. Reading state during composition causes the
+reading recompose scope (and any non-skippable children) to recompose on every
+animation tick (60 to 120 times per second).
 
 Wrap animated state reads in lambdas so evaluation is deferred to the **Draw**
 or

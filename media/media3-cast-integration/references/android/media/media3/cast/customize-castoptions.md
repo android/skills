@@ -83,8 +83,7 @@ public static final class MyCustomCastOptionsProvider implements OptionsProvider
   }
 
   @Override
-  @Nullable
-  public List<SessionProvider> getAdditionalSessionProviders(Context context) {
+  public @Nullable List<SessionProvider> getAdditionalSessionProviders(Context context) {
     return null;
   }
 }

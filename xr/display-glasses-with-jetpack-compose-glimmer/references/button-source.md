@@ -203,7 +203,7 @@ public object ButtonDefaults {
      */
     @Composable
     public fun focusedColor(baseColor: Color = GlimmerTheme.colors.surface): Color =
-        SurfaceDefaults.focusedColor(baseColor)
+        SurfaceDefaults.calculateFocusedColor(baseColor)
 
     /** Default minimum height for [Button] and [ToggleButton] with the specified [buttonSize]. */
     internal fun minimumHeight(buttonSize: ButtonSize): Dp {

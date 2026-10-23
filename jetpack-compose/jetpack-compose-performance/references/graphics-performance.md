@@ -179,8 +179,8 @@ small UI icons.
 
 - **Synchronous Main-Thread Decoding** : `painterResource` decodes bitmaps synchronously on the main thread during composition (`Compose:recompose` -\> `ImageDecoder`), including during lazy list prefetch (`lazy:prefetch:compose`). Even a small compressed JPEG in the APK (e.g., 159 KB) can decompress into a large `2760x1840` bitmap, blocking the main thread and causing dropped frames.
 - **No Target-Size Downsampling** : `painterResource` has no awareness of the layout size (such as `Modifier.size(160.dp)`) and decodes the image at full original resolution.
-- **Prefer Async image loading like Coil's `AsyncImage` (or Asynchronous
-  Downsampling)** :
+- **Prefer Async image loading like Coil's `AsyncImage` (from
+  `io.coil-kt.coil3:coil-compose`, or Asynchronous Downsampling)** :
   - **Offloads Decoding** : `AsyncImage` decodes images asynchronously on a background thread, keeping the main thread free during scroll and prefetch.
   - **Automatic Downsampling (`ImageDecoder.setTargetSize`)** : `AsyncImage` measures the target layout bounds and configures `ImageDecoder.setTargetSize()` automatically so only the pixels actually displayed are decoded and uploaded to the GPU.
   - **Ship Appropriately Sized Assets**: If bundling static thumbnails in the APK, ship pre-scaled thumbnail assets matching the display bucket rather than full-resolution camera photos.
