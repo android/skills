@@ -9,7 +9,7 @@ description: Provides instructions for installing and using the `android` CLI. T
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-16'
+  last-updated: '2026-10-25'
   keywords:
   - android-cli
   - sdk
@@ -59,7 +59,7 @@ Use the `android layout` command to inspect the UI layout of an Android
 application in JSON format. Use the `android screen` command to visually inspect
 the UI and obtain bounding coordinates for visual regions.
 `android layout` dumps the UI as JSON. `android screen capture -o <file path>` saves a PNG.
-Both auto-select the device when only one is connected.
+Both auto-select the device when only one is connected; with more than one, pass `--device=<serial>` (use `adb devices` to list serials).
 
 ### UI Dump
 
@@ -79,7 +79,7 @@ Each JSON object represents a UI element in the Android app. The following prope
 Use `layout` as a primary means of examining an Android app.
 
 By default, `layout` only returns elements that have content or are interactive:
-- elements with non-empty `text` or `contentDesc` properties
+- elements with non-empty `text` or `content-desc` properties
 - elements with non-empty `interactions` or `state`
 To return all elements, use the `--full` flag
 
@@ -87,7 +87,7 @@ If `layout` continues to fail, use `android screen capture --annotate` to inspec
 
 ### Screenshot
 
-`android screen capture -o <file path>` saves a PNG of the current device screen to `<file path>`
+`android screen capture -o <file path>` (or `--output=<file path>`) saves a PNG of the current device screen to `<file path>`.
 
 Use `screen capture` as a secondary means of examining an Android app
 Examples:
@@ -95,17 +95,15 @@ Examples:
 - Looking at a `WebView` (web content does not always appear in the ui dump)
 - Trying to find a UI element by its visual appearance
 
-**IMPORTANT** : Always *VISUALLY* examine the PNG image returned from `android screen` BEFORE doing anything else.
+**IMPORTANT** : Always *VISUALLY* examine the PNG image returned from any `android screen` command BEFORE doing anything else.
 
-### Annotated Screenshot
+#### Annotated Screenshot
 
-`android screen capture --annotate -o <file path>`
+`android screen capture --annotate -o <file path>` (or `-a -o <file path>`)
 `android screen resolve --screenshot <path> --string <string>`
 
 The `--annotate` command adds numerical labels and bounding boxes around UI elements. Use this command to locate UI elements that cannot
 be located in the `layout` output.
-
-**IMPORTANT** : When using `android screen capture --annotate`, always *VISUALLY* examine the resulting PNG file.
 
 To refer to these labels in input commands, use `screen resolve` to convert labels into coordinates:
 
@@ -156,7 +154,7 @@ To enter text, ensure the field is focused and execute `adb shell input text "<t
 3. Always scroll slowly when executing scroll inputs. The 5th argument to `adb shell input swipe` controls scroll duration.
 4. Content may take time to load; if a `layout` is missing information after you take an action, wait a few seconds, then perform `layout` again to see if anything changes.
 
-### Running journey tests
+## Running journey tests
 
 Journey tests involve device interaction; use the `android layout` and `android
 screen` commands to evaluate Journeys. The instructions for device interaction
@@ -187,7 +185,7 @@ Additionally, if the app exits, crashes, or freezes, journey evaluation stops an
 **IMPORTANT** - Execute each step EXACTLY as written, and independently of other steps! If an action says to `"tap the first search result"`,
 you MUST find the search results and tap the first one. Do this even if you believe you know the intent behind the action.
 
-#### Taking Actions
+### Taking Actions
 
 Some `<action>` elements specify UI interactions to perform on the running Android app. Perform the interaction and verify that the app does
 not crash or behave in an unexpected manner. This is the *only* verification you should perform for an `<action>`.
@@ -207,7 +205,7 @@ This should be evaluated as:
 If an `<action>` contains something that is not a specification for a UI interaction, alert the user that the journey is malformed and exit
 early, specifying the error in question.
 
-#### Verifying Expectations
+### Verifying Expectations
 
 `<action>` elements that begin with "check" or "verify" specify expectations for the current state of the Android app. Determine the current
 state of the app and check if the expectations are met.
@@ -226,7 +224,7 @@ This `<action>` fails if ANY of the following are false:
 - There is a Home icon, and it is blue
 - A temperature is displayed
 
-#### Handling failure
+### Handling failure
 
 When running a journey, evaluate it as a test. Failure is acceptable, and often expected. Proper reporting of failures is the priority.
 
@@ -234,7 +232,7 @@ Keep debugging and troubleshooting to a minimum; assume that tools are showing y
 if the *current* Android app can correctly handle the *current* steps outlined in the journey. Suggestions for bug fixes, clarification, or
 other improvements should be kept to journey evaluation summary at the end.
 
-#### Summarizing
+### Summarizing
 
 After evaluating the whole journey, output a markdown (.md) file describing the results.
 
@@ -288,18 +286,6 @@ Use the `run` command to run Android apps.
 
 Manage Android Virtual Devices (AVDs) using the `android emulator` command
 
-## Capturing screenshots
-
-`android screen capture -o <file path>` (or `--output=<file path>`)
-
-Saves a PNG of the current device screen. When exactly one device or emulator is
-connected it is selected automatically. With more than one, pass
-`--device=<serial>`; `adb devices` lists the serials (`android info` does not
-report connected devices).
-
-**IMPORTANT:** Always *VISUALLY* examine the resulting PNG before doing anything
-else.
-
 ## Managing skills
 
 Manage agent skills for Android using the `android skills` command.
@@ -316,8 +302,11 @@ Update the Android CLI using the `android update` command.
       -v, --verbose    Enable verbose output for troubleshooting
       -V, --version    Print version information and exit
     Commands:
+      analyze     Analyzes the file(s) (AAB, APK, JAR, AAR) at the given location(s)
+                  and reports back all available details
       auth        Authentication commands. Log in to and out of Google services for
                   Android CLI
+      build       Build android artifacts
       completion  Installs shell autocomplete configuration for Android CLI in the
                   current user profile
       create      Creates a new Android project from available templates. You can
@@ -329,15 +318,15 @@ Update the Android CLI using the `android update` command.
                   corresponding output artifact locations (such as APKs). This
                   information enables other tools and commands to locate build
                   artifacts efficiently
-      device      Manage physical Android devices. Create remote physical device
-                  reservations
+      device      Manage Android devices. Mirror connected devices or emulators in a
+                  desktop window and manage remote physical device reservations
       docs        Searches and fetches developer documentation from the official
                   Android Knowledge Base
       emulator    Manages Android Virtual Devices (AVDs). Includes commands to
                   start, stop, list, and view details about emulators
       help        Shows the help information for a specified command
-      info        Prints environment information including SDK location, connected
-                  devices, and configuration variables
+      info        Prints environment information including SDK location and
+                  configuration variables
       init        Initializes the environment for Android CLI. Sets up required
                   configurations, directories, and default skills
       input       Interact with Android apps by performing gestures and key events
@@ -346,6 +335,10 @@ Update the Android CLI using the `android update` command.
                   or emulator without activating any components, using incremental
                   optimizations for faster deployment than `adb`
       layout      Returns the layout tree of an app
+      preview     Renders Jetpack Compose @Preview functions to PNG images and
+                  optionally exports component tree JSON files. Runs without a
+                  device or an IDE
+      profiler    Profiles Android apps, games, and devices
       run         Deploys and launches an Android app on a connected device or
                   emulator
       screen      Captures and inspects the screen of a connected Android device or
@@ -353,12 +346,35 @@ Update the Android CLI using the `android update` command.
       sdk         Manages the Android SDK installation. Includes commands to
                   install, update, remove, and list available and installed SDK
                   packages
+      signals     Queries app stability and field telemetry from Crashlytics
       skills      Manages Android CLI skills. Includes commands to install, remove,
                   list, and search for skills by keyword
       studio      Connects Android CLI to a running Android Studio instance to
                   analyze files, find declarations and usages, render Compose
                   previews, and look up library versions
       update      Updates Android CLI to the latest version
+
+    analyze
+              Usage: android analyze [-h] [--analysis=PARAM] [--format=PARAM] <path>
+              Analyzes the file(s) (AAB, APK, JAR, AAR) at the given location(s) and
+              reports back all available details
+              
+              Options:
+                    --analysis=PARAM  Analysis category to filter output (basic,
+                                      optimization). Supports comma-separated values
+                                      (default: all)
+                -f, --format=PARAM    Output format: json, textproto. If omitted,
+                                      output is formatted for human readability
+                -h, --help            Shows the help message for the specified
+                                      command
+              
+              android options:
+                    --sdk=PARAM       Path to the Android SDK
+                -v, --verbose         Enable verbose output for troubleshooting
+                -V, --version         Print version information and exit
+              
+              Positional Parameters:
+                <path>  Path to the target file(s) to analyze (AAB, APK, JAR, AAR)
 
     auth
               Usage: android auth [-h] [COMMAND]
@@ -376,6 +392,23 @@ Update the Android CLI using the `android update` command.
                 login   Log in to Google services for Android CLI
                 logout  Log out from Google services for Android CLI
                 status  Prints the currently signed-in account
+
+    build
+              Usage: android build [-h] [<reference>] [-- <build_args>]
+              Build android artifacts
+              
+              Options:
+                -h, --help       Shows the help message for the specified command
+              
+              android options:
+                    --sdk=PARAM  Path to the Android SDK
+                -v, --verbose    Enable verbose output for troubleshooting
+                -V, --version    Print version information and exit
+              
+              Positional Parameters:
+                <reference>      Build reference ([system://][path]?[target])
+                -- <build_args>  Arguments passed verbatim to the build system. Use
+                                 -- to separate from other arguments
 
     completion
               Usage: android completion [-h] [<shell>]
@@ -451,8 +484,8 @@ Update the Android CLI using the `android update` command.
 
     device
               Usage: android device [-h] [COMMAND]
-              Manage physical Android devices. Create remote physical device
-              reservations
+              Manage Android devices. Mirror connected devices or emulators in a
+              desktop window and manage remote physical device reservations
               
               Options:
                 -h, --help       Shows the help message for the specified command
@@ -462,6 +495,9 @@ Update the Android CLI using the `android update` command.
                 -v, --verbose    Enable verbose output for troubleshooting
                 -V, --version    Print version information and exit
               Commands:
+                hub     Launches a desktop window for real-time screen mirroring and
+                        interactive control of a connected Android device or
+                        emulator
                 remote  Manage remote physical devices. Includes commands to list,
                         reserve, connect to, and manage remote device reservations
 
@@ -519,8 +555,8 @@ Update the Android CLI using the `android update` command.
 
     info
               Usage: android info [-h] [<field>]
-              Prints environment information including SDK location, connected
-              devices, and configuration variables
+              Prints environment information including SDK location and
+              configuration variables
               
               Options:
                 -h, --help       Shows the help message for the specified command
@@ -531,8 +567,8 @@ Update the Android CLI using the `android update` command.
                 -V, --version    Print version information and exit
               
               Positional Parameters:
-                <field>  The specific field to print the value of. If omitted,
-                         prints all fields
+                <field>  The specific field to print the value of (sdk, version,
+                         launcher_version). If omitted, prints all fields
 
     init
               Usage: android init [-h]
@@ -572,7 +608,8 @@ Update the Android CLI using the `android update` command.
 
     install
               Usage: android install [-h] [--apks=PARAM] [--device=PARAM] [--install-options=PARAM]
-                                     [--use-delta-install]
+                                     [--use-delta-install] [<apks_or_reference>] [--
+                                     <build_args>]
               Installs an Android app (one or more APKs) on a connected device or
               emulator without activating any components, using incremental
               optimizations for faster deployment than `adb`
@@ -595,6 +632,12 @@ Update the Android CLI using the `android update` command.
                 -v, --verbose                Enable verbose output for
                                              troubleshooting
                 -V, --version                Print version information and exit
+              
+              Positional Parameters:
+                <apks_or_reference>  APK file path(s) or a build reference
+                                     ([system://][path]?[target])
+                -- <build_args>      Arguments passed verbatim to the build system.
+                                     Use -- to separate from other arguments
 
     layout
               Usage: android layout [-dhp] [--device=PARAM] [--flat] [--full] [--no-idle]
@@ -620,9 +663,50 @@ Update the Android CLI using the `android update` command.
                 -v, --verbose       Enable verbose output for troubleshooting
                 -V, --version       Print version information and exit
 
+    preview
+              Usage: android preview [-h] [COMMAND]
+              Renders Jetpack Compose @Preview functions to PNG images and
+              optionally exports component tree JSON files. Runs without a device or
+              an IDE
+              
+              Options:
+                -h, --help       Shows the help message for the specified command
+              
+              android options:
+                    --sdk=PARAM  Path to the Android SDK
+                -v, --verbose    Enable verbose output for troubleshooting
+                -V, --version    Print version information and exit
+              Commands:
+                list    Lists available Jetpack Compose @Preview functions in a
+                        target
+                render  Builds a target and renders its Jetpack Compose @Preview
+                        functions to PNG images and optional component tree JSON
+                        files
+
+    profiler
+              Usage: android profiler [-h] [COMMAND]
+              Profiles Android apps, games, and devices
+              
+              Options:
+                -h, --help       Shows the help message for the specified command
+              
+              android options:
+                    --sdk=PARAM  Path to the Android SDK
+                -v, --verbose    Enable verbose output for troubleshooting
+                -V, --version    Print version information and exit
+              Commands:
+                heapdump     Capture Android JVM heap dump snapshots (requires API
+                             29+)
+                session      Manage profiling sessions of any type: list them, query
+                             their status, or terminate them
+                systemtrace  System tracing tools. Captures CPU scheduling, thread
+                             slices, frame lifecycle, GPU counters, and Vulkan
+                             timing into a Perfetto trace file
+
     run
               Usage: android run [-h] [--activity=PARAM] [--apks=PARAM] [--debug] [--device=PARAM]
                                  [--install-options=PARAM] [--type=PARAM] [--use-delta-install]
+                                 [<apks_or_reference>] [-- <build_args>]
               Deploys and launches an Android app on a connected device or emulator
               
               Options:
@@ -649,6 +733,12 @@ Update the Android CLI using the `android update` command.
                 -v, --verbose                Enable verbose output for
                                              troubleshooting
                 -V, --version                Print version information and exit
+              
+              Positional Parameters:
+                <apks_or_reference>  APK file path(s) or a build reference
+                                     ([system://][path]?[target])
+                -- <build_args>      Arguments passed verbatim to the build system.
+                                     Use -- to separate from other arguments
 
     screen
               Usage: android screen [-h] [COMMAND]
@@ -695,6 +785,24 @@ Update the Android CLI using the `android update` command.
                 list     Lists installed and available SDK packages
                 remove   Removes packages from the SDK
                 update   Updates one or all packages to the latest version
+
+    signals
+              Usage: android signals [-h] [COMMAND]
+              Queries app stability and field telemetry from Crashlytics
+              
+              Options:
+                -h, --help       Shows the help message for the specified command
+              
+              android options:
+                    --sdk=PARAM  Path to the Android SDK
+                -v, --verbose    Enable verbose output for troubleshooting
+                -V, --version    Print version information and exit
+              Commands:
+                context  Lists accessible Crashlytics projects and apps
+                crashes  Lists, describes, and analyzes field-reported crash, ANR,
+                         and non-fatal issues
+                heaps    Lists, describes, and downloads heap dumps collected on
+                         low-memory events
 
     skills
               Usage: android skills [-h] [COMMAND]

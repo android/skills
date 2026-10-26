@@ -13,7 +13,7 @@ description: 'Records and analyzes Android performance data and diagnoses perfor
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-22'
+  last-updated: '2026-10-23'
   keywords:
   - android performance
   - debugging

@@ -9,7 +9,7 @@ description: Analyzes Android apps to identify key user workflows for AppFunctio
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-08-14'
+  last-updated: '2026-10-25'
   keywords:
   - AppFunctions
   - Kotlin

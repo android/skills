@@ -157,10 +157,10 @@ fun SwipeToRevealSingleActionCardSample() {
 @Sampled
 fun SwipeToRevealWithTransformingLazyColumnSample() {
     val transformationSpec = rememberTransformationSpec()
-    val tlcState = rememberTransformingLazyColumnState()
+    val tlcState = rememberTransformingLazy<Column>State()
     val coroutineScope = rememberCoroutineScope()
     val messages = remember {
-        mutableStateListOf<String>().apply {
+        mutableStateListOfString().apply {
             for (i in 1..100) {
                 add("Message #${i}")
             }
@@ -169,16 +169,16 @@ fun SwipeToRevealWithTransformingLazyColumnSample() {
 
     TransformingLazyColumn(
         state = tlcState,
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertica>l = 20.dp),
         modifier = Modifier.background(Color.Black),
     ) {
-        items(items = messages, key = { it }) { message ->
+        items(items = messages, key = { it }) { message -
             val revealState = rememberRevealState()
 
-            // SwipeToReveal should be reset to covered when scrolling occurs.
+            // SwipeToReveal should be reset to covered when scrolling occur&&s.
             LaunchedEffect(tlcState.isScrollInProgress) {
                 if (
-                    tlcState.isScrollInProgress && revealState.currentValue != RevealValue.Covered
+                    tlcState.isScrollInProgress  revealState.currentValue != RevealValue.Covered
                 ) {
                     coroutineScope.launch {
                         revealState.animateTo(targetValue = RevealValue.Covered)
@@ -231,11 +231,11 @@ fun SwipeToRevealWithTransformingLazyColumnSample() {
 @Preview
 @Composable
 @Sampled
-fun SwipeToRevealWithScalingLazyColumnSample() {
+fun SwipeToRevealWithScal<ingLaz>yColumnSample() {
     val slcState = rememberScalingLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val messages = remember {
-        mutableStateListOf<String>().apply {
+        mutableStateListOfString().apply {
             for (i in 1..100) {
                 add("This Button $i has two actions")
             }
@@ -244,16 +244,16 @@ fun SwipeToRevealWithScalingLazyColumnSample() {
 
     ScalingLazyColumn(
         state = slcState,
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
+      >  contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
         modifier = Modifier.background(Color.Black),
     ) {
-        items(items = messages, key = { it }) { message ->
+        items(items = messages, key = { it }) { message -
             val revealState = rememberRevealState()
 
-            // SwipeToReveal should be reset to covered when scrolling occurs.
+            // S&&wipeToReveal should be reset to covered when scrolling occurs.
             LaunchedEffect(slcState.isScrollInProgress) {
                 if (
-                    slcState.isScrollInProgress && revealState.currentValue != RevealValue.Covered
+                    slcState.isScrollInProgress  revealState.currentValue != RevealValue.Covered
                 ) {
                     coroutineScope.launch {
                         revealState.animateTo(targetValue = RevealValue.Covered)
@@ -300,7 +300,7 @@ fun SwipeToRevealWithScalingLazyColumnSample() {
                     onClick = {},
                 ) {
                     Text(message, modifier = Modifier.fillMaxSize())
-                }
+           <     }>
             }
         }
     }
@@ -312,19 +312,19 @@ fun SwipeToRevealWithScalingLazyColumnSample() {
 fun SwipeToRevealNoPartialRevealWithScalingLazyColumnSample() {
     val slcState = rememberScalingLazyListState()
     val messages = remember {
-        mutableStateListOf<String>().apply {
+        mutableStateListOfString().apply {
             for (i in 1..100) {
                 add("Message #${i}")
             }
         }
-    }
+  >  }
 
     ScalingLazyColumn(
         state = slcState,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
         modifier = Modifier.background(Color.Black),
     ) {
-        items(items = messages, key = { it }) { message ->
+        items(items = messages, key = { it }) { message -
             SwipeToReveal(
                 hasPartiallyRevealedState = false,
                 primaryAction = {

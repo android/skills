@@ -137,3 +137,37 @@ ButtonGroup(modifier = Modifier.fillMaxWidth(), state = state) {
 ```
 
 <br />
+
+## Customize focus color for brand expression
+
+In Jetpack Compose Glimmer, components are [designed and optimized for
+transparent displays](https://developer.android.com/design/ui/ai-glasses/guides/foundations/made-for-glasses#transparent-first), so they rely primarily on subtle translucent
+surfaces and high-contrast borders to ensure legibility and visual comfort
+against the real world. Because resting states favor neutral tones to avoid both
+visual fatigue and obstructing the user's field of view, the
+[`focusedColor`](https://developer.android.com/reference/kotlin/androidx/xr/glimmer/ButtonDefaults#focusedColor(androidx.compose.ui.graphics.Color)) parameter on [`Button`](https://developer.android.com/reference/kotlin/androidx/xr/glimmer/Button.composable) provides the primary affordance
+expressing your app's brand.
+
+This affordance makes your brand's accent a dynamic part of the system's active
+interaction state instead of tinting idle buttons with saturated colors that
+might compromise transparency and contrast in optical see-through environments.
+When focused, the button elevates its background to this branded hue, paired
+with automatic content contrast recalculation using
+`calculateContentColor(focusedColor)`, achieving clear, interactive feedback
+while preserving the restraint and optical ergonomics required on display
+glasses.
+
+The following example shows how override the default `focusedColor` with
+your brand's color:
+
+
+```kotlin
+Button(
+    onClick = {},
+    focusedColor = brandColor,
+) {
+    Text("Focus Color Button")
+}
+```
+
+<br />

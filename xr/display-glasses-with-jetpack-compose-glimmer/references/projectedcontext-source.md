@@ -171,8 +171,14 @@ public object ProjectedContext {
                         "CoroutineContext must contain a CoroutineDispatcher."
                     )
 
+            // The lock keeps a slow callback from sending a stale value after a newer one.
+            val lock = Any()
             fun checkAndSend() {
-                trySend(isProjectedDisplayAvailable(hostContext))
+                synchronized(lock) {
+                    // TODO: b/568039612 - Investigate handling the ChannelResult returned by
+                    // trySend().
+                    trySend(isProjectedDisplayAvailable(hostContext))
+                }
             }
 
             val virtualDeviceListener =
@@ -201,12 +207,11 @@ public object ProjectedContext {
                     }
                 }
 
-            checkAndSend()
-
+            val executor = coroutineDispatcher.asExecutor()
             val virtualDeviceManager =
                 hostContext.getSystemService(VirtualDeviceManager::class.java)
             virtualDeviceManager.registerVirtualDeviceListener(
-                coroutineDispatcher.asExecutor(),
+                executor,
                 virtualDeviceListener,
             )
 
@@ -214,12 +219,19 @@ public object ProjectedContext {
             val eventFilter =
                 EVENT_TYPE_DISPLAY_ADDED or EVENT_TYPE_DISPLAY_CHANGED or EVENT_TYPE_DISPLAY_REMOVED
             displayManager.registerDisplayListener(
-                coroutineDispatcher.asExecutor(),
+                executor,
                 eventFilter,
                 displayListener,
             )
 
-            awaitClose {
+            try {
+                // Send the initial state so that the flow listener is guaranteed to know the
+                // current state. Evaluate whether the projected device is connected only after
+                // both listeners have been registered, to avoid a time-of-check to time-of-use
+                // race condition.
+                checkAndSend()
+                awaitClose()
+            } finally {
                 virtualDeviceManager.unregisterVirtualDeviceListener(virtualDeviceListener)
                 displayManager.unregisterDisplayListener(displayListener)
             }
@@ -245,25 +257,37 @@ public object ProjectedContext {
         }
     }
 
+    /**
+     * Returns the device ID of the most recently created Projected virtual device, preferring one
+     * with an active virtual display on API 35+, or `null` if no Projected virtual device is
+     * currently registered in [VirtualDeviceManager] (meaning no Projected device is attached).
+     *
+     * Note: A non-null device ID indicates that a Projected virtual device exists in
+     * [VirtualDeviceManager], though its virtual display may still be in the process of being
+     * attached.
+     */
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun getProjectedDeviceId(context: Context): Int? {
-        val projectedDevices =
+        val allProjectedDevices =
             context
                 .getSystemService(VirtualDeviceManager::class.java)
                 .virtualDevices
                 // TODO: b/424824481 - Replace the name matching with a better method.
                 .filter { it.name?.startsWith(PROJECTED_DEVICE_NAME) ?: false }
-        // Prefer a device with active virtual displays so a stale device without displays from an
-        // earlier incomplete session is not selected over an active one.
-        val candidates =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                projectedDevices.filter { it.displayIds.isNotEmpty() }.ifEmpty { projectedDevices }
-            } else {
-                projectedDevices
+        // All connected Projected devices have a virtual display, irrespective of whether they have
+        // a physical display or not. Prefer a device with virtual displays so a stale device
+        // without displays from an earlier incomplete session is not selected over an active one.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val devicesWithDisplay = allProjectedDevices.filter { it.displayIds.isNotEmpty() }
+            if (devicesWithDisplay.isNotEmpty()) {
+                // VirtualDeviceManager assigns monotonically increasing device IDs on creation, so
+                // picking the largest deviceId selects the most recently created device.
+                return devicesWithDisplay.maxBy { it.deviceId }.deviceId
             }
-        // VirtualDeviceManager assigns monotonically increasing device IDs on creation, so picking
-        // the largest deviceId selects the most recently created device.
-        return candidates.maxByOrNull { it.deviceId }?.deviceId
+        }
+        // Fall back to allProjectedDevices on API 34 (where VirtualDevice.getDisplayIds() is not
+        // available) or when no virtual display has been attached to a Projected device yet.
+        return allProjectedDevices.maxByOrNull { it.deviceId }?.deviceId
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

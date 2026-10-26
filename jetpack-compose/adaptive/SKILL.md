@@ -14,7 +14,7 @@ description: Instructions to make or update an app's UI so that it adapts to dif
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-22'
+  last-updated: '2026-10-24'
   keywords:
   - android
   - ui
@@ -48,6 +48,7 @@ task.
 - Step 5: Hide app bars when scrolling
 - Step 6: Preserve UI state across configuration changes
 - Step 7: Add desktop experiences
+- Step 8: Support foldable devices
 
 ## Step 1. Verify current UI
 
@@ -436,6 +437,26 @@ and follow its instructions:
 Each reference starts by searching the whole app for the targets of that
 feature. Write that list down first, implement all of it (not only the first
 screen you open), and re-check the list before you finish.
+
+## Step 8. Support foldable devices
+
+Tabletop mode allows users to view and interact with content while their
+foldable device is placed on a flat surface. The top screen is angled at a
+convenient viewing angle and provides visual content. The bottom screen is flat
+on the surface and provides controls for that content.
+
+To support foldable devices, identify any screens that provide the following:
+
+- Media and audio playback or streaming: The video or audio content renders on the upright top display. Comments, details, and playback scrubber controls render on the flat bottom surface.
+- Video calls: Remote participants display on the upright screen. Microphone and camera toggles, participant lists, and chat controls sit on the flat bottom surface.
+- Camera capture: The camera viewfinder displays on the upright screen. The shutter button, zoom controls, and exposure sliders sit on the flat bottom surface for hands-free photography.
+- Photo editing: The image canvas displays unobstructed on the upright screen. Sliders, preset palettes, and curves remain accessible on the flat bottom surface.
+- Audio mixing: Waveforms and stem controls display on the upright screen. Turntable decks and pads sit on the flat bottom surface.
+- Cooking: Viewing recipe instructions hands-free on the upright screen while keeping timers or step navigation on the bottom screen.
+- Slide shows: Viewing presentation slides on the top screen with presenter notes or navigation on the bottom screen.
+
+To create layouts for foldables on these screens, you must read
+[tabletop posture](references/foldable-tabletop.md).
 
 ## Final step: Build and test
 
