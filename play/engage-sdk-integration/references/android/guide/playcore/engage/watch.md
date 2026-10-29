@@ -195,13 +195,14 @@ The following chart outlines attributes and requirements for each type.
 |---|---|---|
 | Name | **Required** |   |
 | Poster images | **Required** | At least one image is required, and must be provided with an aspect ratio. (Landscape is preferred but passing both portrait and landscape images for different scenarios is recommended.) See [Image Specifications](https://developer.android.com/guide/playcore/engage/watch#image-specs) for guidance. |
-| Playback uri | **Required** | The deep link to the provider app to start playing the movie. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
+| Playback uri | **Required** for mobile | The deep link to the provider app to start playing the movie. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
+| Platform specific playback URIs | Optional for mobile; required for Google TV | Platform-specific deep links to the provider app to start playing the movie. |
 | Info page uri | Optional | The deep link to the provider app to show details about the movie. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
 | Release date | Optional | In epoch milliseconds. |
-| Availability | **Required** | AVAILABLE: The content is available to the user without any further action. FREE_WITH_SUBSCRIPTION: The content is available after the user purchases a subscription. PAID_CONTENT: The content requires user purchase or rental. PURCHASED: The content has been purchased or rented by the user. |
+| Availability | Optional | AVAILABLE: The content is available to the user without any further action. FREE_WITH_SUBSCRIPTION: The content is available after the user purchases a subscription. PAID_CONTENT: The content requires user purchase or rental. PURCHASED: The content has been purchased or rented by the user. |
 | Offer price | Optional | Free text |
 | Duration | **Required** | In milliseconds. |
-| Genre | **Required** | Free text |
+| Genre | Optional | Free text |
 | Content ratings | Optional | Free text, follow the industry standard. ([Example](https://www.spectrum.net/support/tv/tv-and-movie-ratings-descriptions)) |
 | Call to action text | Optional | Free text to be displayed as a call to action. |
 | Tags | Optional | List of tags associated with the entity. |
@@ -217,12 +218,13 @@ The following chart outlines attributes and requirements for each type.
 | Poster images | **Required** | At least one image is required, and must be provided with an aspect ratio. (Landscape is preferred but passing both portrait and landscape images for different scenarios is recommended.) See [Image Specifications](https://developer.android.com/guide/playcore/engage/watch#image-specs) for guidance. |
 | Info page uri | **Required** | The deep link to the provider app to show the details of the TV show. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
 | Playback uri | Optional | The deep link to the provider app to start playing the TV show. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
+| Platform specific playback URIs | Optional for mobile; required for Google TV | Platform-specific deep links to the provider app to start playing the TV show. |
 | First episode air date | Optional | In epoch milliseconds. |
 | Latest episode air date | Optional | In epoch milliseconds. |
-| Availability | **Required** | AVAILABLE: The content is available to the user without any further action. FREE_WITH_SUBSCRIPTION: The content is available after the user purchases a subscription. PAID_CONTENT: The content requires user purchase or rental. PURCHASED: The content has been purchased or rented by the user. |
+| Availability | Optional | AVAILABLE: The content is available to the user without any further action. FREE_WITH_SUBSCRIPTION: The content is available after the user purchases a subscription. PAID_CONTENT: The content requires user purchase or rental. PURCHASED: The content has been purchased or rented by the user. |
 | Offer price | Optional | Free text |
-| Season count | **Required** | Positive integer |
-| Genre | **Required** | Free text |
+| Season count | Optional | Positive integer |
+| Genre | Optional | Free text |
 | Content ratings | Optional | Free text, follow the industry standard. ([Example](https://www.spectrum.net/support/tv/tv-and-movie-ratings-descriptions)) |
 | Call to action text | Optional | Free text to be displayed as a call to action. |
 | Tags | Optional | List of tags associated with the entity. |
@@ -238,13 +240,13 @@ The following chart outlines attributes and requirements for each type.
 | Poster images | **Required** | At least one image is required, and must be provided with an aspect ratio. (Landscape is preferred but passing both portrait and landscape images for different scenarios is recommended.) See [Image Specifications](https://developer.android.com/guide/playcore/engage/watch#image-specs) for guidance. |
 | Info page uri | **Required** | The deep link to the provider app to show the details of the TV show season. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
 | Playback uri | Optional | The deep link to the provider app to start playing the TV show season. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
-| Display Season number | **Optional** **Available in v1.3.1** | String |
+| Display Season number | Optional **Available in v1.3.1** | String |
 | First episode air date | Optional | In epoch milliseconds. |
 | Latest episode air date | Optional | In epoch milliseconds. |
-| Availability | **Required** | AVAILABLE: The content is available to the user without any further action. FREE_WITH_SUBSCRIPTION: The content is available after the user purchases a subscription. PAID_CONTENT: The content requires user purchase or rental. PURCHASED: The content has been purchased or rented by the user. |
+| Availability | Optional | AVAILABLE: The content is available to the user without any further action. FREE_WITH_SUBSCRIPTION: The content is available after the user purchases a subscription. PAID_CONTENT: The content requires user purchase or rental. PURCHASED: The content has been purchased or rented by the user. |
 | Offer price | Optional | Free text |
-| Episode count | **Required** | Positive integer |
-| Genre | **Required** | Free text |
+| Episode count | Optional | Positive integer |
+| Genre | Optional | Free text |
 | Content ratings | Optional | Free text, follow the industry standard. ([Example](https://www.spectrum.net/support/tv/tv-and-movie-ratings-descriptions)) |
 | Call to action text | Optional | Free text to be displayed as a call to action. |
 | Tags | Optional | List of tags associated with the entity. |
@@ -258,14 +260,17 @@ The following chart outlines attributes and requirements for each type.
 |---|---|---|
 | Name | **Required** |   |
 | Poster images | **Required** | At least one image is required, and must be provided with an aspect ratio. (Landscape is preferred but passing both portrait and landscape images for different scenarios is recommended.) See [Image Specifications](https://developer.android.com/guide/playcore/engage/watch#image-specs) for guidance. |
-| Playback uri | **Required** | The deep link to the provider app to start playing the episode. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
+| Playback uri | **Required** for mobile | The deep link to the provider app to start playing the episode. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
+| Platform specific playback URIs | Optional for mobile; required for Google TV | Platform-specific deep links to the provider app to start playing the episode. |
 | Info page uri | Optional | The deep link to the provider app to show details about the TV show episode. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
-| Display Episode number | **Optional** **Available in v1.3.1** | String |
-| Air date | **Required** | In epoch milliseconds. |
-| Availability | **Required** | AVAILABLE: The content is available to the user without any further action. FREE_WITH_SUBSCRIPTION: The content is available after the user purchases a subscription. PAID_CONTENT: The content requires user purchase or rental. PURCHASED: The content has been purchased or rented by the user. |
+| Show title | Optional for mobile; required for Google TV Continue Watching | Title of the parent TV show of the episode. |
+| Season number | Optional for mobile; required for Google TV Continue Watching | String |
+| Display Episode number | Optional for mobile; required for Google TV Continue Watching **Available in v1.3.1** | String |
+| Air date | Optional | In epoch milliseconds. |
+| Availability | Optional | AVAILABLE: The content is available to the user without any further action. FREE_WITH_SUBSCRIPTION: The content is available after the user purchases a subscription. PAID_CONTENT: The content requires user purchase or rental. PURCHASED: The content has been purchased or rented by the user. |
 | Offer price | Optional | Free text |
 | Duration | **Required** | Must be a positive value in milliseconds. |
-| Genre | **Required** | Free text |
+| Genre | Optional | Free text |
 | Content ratings | Optional | Free text, follow the industry standard. ([Example](https://www.spectrum.net/support/tv/tv-and-movie-ratings-descriptions)) |
 | Call to action text | Optional | Free text to be displayed as a call to action. |
 | Tags | Optional | List of tags associated with the entity. |
@@ -279,8 +284,9 @@ The following chart outlines attributes and requirements for each type.
 |---|---|---|
 | Name | **Required** |   |
 | Poster images | **Required** | At least one image is required, and must be provided with an aspect ratio. (Landscape is preferred but passing both portrait and landscape images for different scenarios is recommended.) See [Image Specifications](https://developer.android.com/guide/playcore/engage/watch#image-specs) for guidance. |
-| Playback uri | **Required** | The deep link to the provider app to start playing the video. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
-| Broadcaster | **Required** | Free text |
+| Playback uri | **Required** for mobile | The deep link to the provider app to start playing the video. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
+| Platform specific playback URIs | Optional for mobile; required for Google TV | Platform-specific deep links to the provider app to start playing the video. |
+| Broadcaster | Optional | Free text |
 | Start time | Optional | In epoch milliseconds. |
 | End time | Optional | In epoch milliseconds. |
 | View count | Optional | Free text, must be localized. |
@@ -299,10 +305,11 @@ such as TikTok or YouTube.
 |---|---|---|
 | Name | **Required** |   |
 | Poster images | **Required** | At least one image is required, and must be provided with an aspect ratio. (Landscape is preferred but passing both portrait and landscape images for different scenarios is recommended.) See [Image Specifications](https://developer.android.com/guide/playcore/engage/watch#image-specs) for guidance. |
-| Playback uri | **Required** | The deep link to the provider app to start playing the video. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
-| Created time | **Required** | In epoch milliseconds. |
+| Playback uri | **Required** for mobile | The deep link to the provider app to start playing the video. Note: You can use deep links for attribution. [Refer to this FAQ](https://developer.android.com/guide/playcore/engage/faq#deeplinks-attribution) |
+| Platform specific playback URIs | Optional for mobile; required for Google TV | Platform-specific deep links to the provider app to start playing the video. |
+| Created time | Optional | In epoch milliseconds. |
 | Duration | **Required** | Must be a positive value in milliseconds. |
-| Creator | **Required** | Free text |
+| Creator | Optional | Free text |
 | Creator image | Optional | Image of the Creator avatar |
 | View count | Optional | Free text, must be localized. |
 | Call to action text | Optional | Free text to be displayed as a call to action. |

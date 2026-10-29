@@ -11,7 +11,7 @@ description: Configures and implements LiteRT (.tflite) on-device inference on A
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-23'
+  last-updated: '2026-10-28'
   keywords:
   - LiteRT
   - CompiledModel
@@ -398,9 +398,33 @@ instead:
 3. **Swap the dependencies** : Delete every legacy artifact line (never leave it commented out) and add the dependencies of the runtime that Step 1 picks: by default those of [LiteRT in Google Play services](references/play-services.md), with the same fallback to the bundled runtime when Gradle can't find `play-services-litert`. On the Play services runtime, replace the Support library classes as [LiteRT in Google Play
    services](references/play-services.md) describes. On the bundled runtime, an app keeps them with `com.google.ai.edge.litert:litert-support:2.3.0`, with the package `org.tensorflow.lite.support` renamed to `com.google.ai.edge.litert.support` ([LiteRT Support migration guide](https://github.com/google-ai-edge/LiteRT/blob/main/litert/support_lib/MIGRATION_GUIDE.md)).
 4. **Replace the delegates** : `GpuDelegate` becomes `CompiledModel.Options(Accelerator.GPU, Accelerator.CPU)`, so the CPU runs the operators that the GPU doesn't support. An NNAPI choice in the app maps to the same GPU option, not to `Accelerator.CPU` alone or to an NPU accelerator. `setNumThreads(n)` becomes new CPU options with `cpuOptions = CompiledModel.CpuOptions(numThreads = n)`.
-5. **Rewrite the inference code** : Replace `Interpreter` and `FileUtil.loadMappedFile` with the `Classifier` helper of Step 2, created and run only on the single-thread executor of Step 3, never in a constructor that the main thread calls. When no caller retries on the CPU as in Step 3, create the helper's GPU option with the CPU as a second accelerator (`CompiledModel.Options(Accelerator.GPU, Accelerator.CPU)`).
-6. **Verify in two stages**: The build passes and the searches for legacy references print nothing; then the migrated output matches the golden output on a device.
-7. **Report what changed and what didn't migrate** : When the app used NNAPI, tell the user that it now runs on the GPU with the CPU as a second accelerator, which changes the speed and the numerical results of a quantized model that ran on a DSP or an NPU before; point them to [NPU acceleration with LiteRT](https://ai.google.dev/edge/litert/next/npu) for the NPU. Tell the user about the TensorFlow Lite Task Library, C++ modules, and Select TensorFlow operators, which this skill doesn't migrate.
+5. **Rewrite the inference code** : Replace `Interpreter` and
+   `FileUtil.loadMappedFile` with the `Classifier` helper of Step 2, created and
+   run only on the single-thread executor of Step 3, never in a constructor
+   that the main thread calls. When no caller retries on the CPU as in Step 3,
+   create the helper's GPU option with the CPU as a second accelerator
+   (`CompiledModel.Options(Accelerator.GPU, Accelerator.CPU)`). An
+   `interpreter.runSignature(inputs, outputs, key)` call becomes the helper's
+   buffers and `run` call with the signature key, as follows. This form runs on
+   both runtimes, also after the app changes runtime or upgrades LiteRT; when
+   the signature has more than one input or output, you must follow the
+   signature rules in [migration](references/migration.md):
+
+       inputs += model.createInputBuffers("serving_default")
+       outputs += model.createOutputBuffers("serving_default")
+       model.run(inputs, outputs, "serving_default")
+
+6. **Verify in two stages**: The build passes and the searches for legacy
+   references print nothing; then the migrated output matches the golden
+   output on a device.
+
+7. **Report what changed and what didn't migrate** : When the app used NNAPI,
+   tell the user that it now runs on the GPU with the CPU as a second
+   accelerator, which changes the speed and the numerical results of a
+   quantized model that ran on a DSP or an NPU before; point them to
+   [NPU acceleration with LiteRT](https://ai.google.dev/edge/litert/next/npu) for the NPU. Tell the user about the
+   TensorFlow Lite Task Library, C++ modules, and Select TensorFlow operators,
+   which this skill doesn't migrate.
 
 Migration mandates that apply to every migrated app:
 

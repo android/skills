@@ -8,7 +8,8 @@ handling system-wide configuration, and managing build dependencies.
 Add the following to `build.gradle.kts`. App Functions requires the KSP (Kotlin
 Symbol Processing) plugin.
 
-1. **Version check** : Use library version `1.0.0-alpha10` or later from maven.google.com.
+1. **Version check** : Use library version `1.0.0-beta01` or later from maven.google.com.
+2. **Version catalog** : The following snippet uses version catalog aliases for `androidx.appfunctions:appfunctions` and `androidx.appfunctions:appfunctions-compiler`. Add both to `libs.versions.toml`. Without a version catalog, declare the coordinates and version directly.
 
 
 ```kotlin
@@ -25,7 +26,12 @@ ksp(libs.androidx.appfunctions.compiler)
 ### Step 2: Set up app metadata XML
 
 Describe the app's capabilities to the LLM by defining
-`res/xml/app_metadata.xml`.
+`res/xml/app_metadata.xml`. Write the app description in the
+`appfn:instructions` attribute, as described in the KDoc refinement step.
+Before 1.0.0-beta01, this attribute was `appfn:description`. The optional
+`appfn:displayDescription` attribute references a string resource with a
+short, user-visible summary of what the app's functions let agents do.
+Define that resource, or omit the attribute.
 
 
 ```xml
@@ -67,39 +73,60 @@ within the `<application>` tag:
 
 <br />
 
+Set `android:name` to the class that KSP generates from the `serviceName` of
+the `@AppFunctionServiceEntryPoint` class in Step 4, in that class's package.
+Set the `android.app.appfunctions.v2` value to its `appFunctionXmlFileName`
+plus `.xml`.
+
 ### Step 3: Implement functions
 
 When generating Kotlin code for AppFunctions, you MUST adhere to these rules:
 
 1. **Annotations** :
-   - Annotate the function with `@AppFunction(isDescribedByKDoc = true)`.
+   - Annotate the function with `@AppFunctionDeclaration(isDescribedByKDoc = true)`. Before 1.0.0-alpha13, this annotation was `@AppFunction`.
    - Annotate associated data classes with `@AppFunctionSerializable(isDescribedByKDoc = true)`.
-2. **Parameter strategy** :
+   - Always set `isDescribedByKDoc` explicitly. Since 1.0.0-beta01, it has no default value.
+2. **Naming and parameters** :
+   - **Function names** : Give each function a human-readable name that identifies its purpose, such as `createTask`. Never use a name that misstates what the code does or resembles another tool or service.
    - **Specificity**: Keep parameters specific. State objects must be unambiguous.
+   - **Necessity**: Define parameters only for data that the function uses.
+   - **Naming** : Name parameters after the expected input, such as `taskId`, `searchQuery`, or `recipientEmail`. Never use names such as `full_context` or `conversation_history`. These ambiguous names risk agents passing unneeded user data to the function.
    - **Optionality**: If a parameter isn't essential, make it optional with a default value.
+   - **Updates** : For functions that update existing items, distinguish "set to null" from "don't change". Declare each updatable parameter as a nullable `@AppFunctionSerializable` wrapper class that the app defines, such as `SetField<T>`. A `null` wrapper means "don't change", and a wrapper that holds `null` means "set to null". Never unwrap a nullable field with `?:`, which turns "set to null" into "don't change".
 3. **Execution and threading** :
    - Use `suspend` functions.
    - To avoid blocking the Android UI thread, always run AppFunction implementations on a background dispatcher, such as `withContext(Dispatchers.IO)`.
 4. **Supported types** :
    - **Primitives** : `Int`, `Long`, `Float`, `Double`, `Boolean`
    - **Arrays** : `IntArray`, `LongArray`, `FloatArray`, `DoubleArray`, `BooleanArray`
-   - **Native types** : `String`, `PendingIntent`, `Uri`, `LocalTime`, `LocalDate`, `LocalDateTime`, `Instant`. Prefer using `LocalDateTime` or `Instant` for date and time fields.
+   - **Native types** : `String`, `PendingIntent`, `Uri`, `LocalTime`, `LocalDate`, `LocalDateTime`, `Instant`, `ZoneId`. Prefer using `LocalDateTime` or `Instant` for date and time fields.
    - **Custom objects** : Classes annotated with `@AppFunctionSerializable`.
    - **Collections** : `List` of any supported non-primitive type
+   - Use these types instead of defining custom date, time, or link classes. The library represents them the same way in every app.
 5. **Default values** :
-   - Use defaults that align with the type's empty state, such as `0` for `Int`, `null` for nullable objects, and `emptyList()` for `List`.
+   - Optional parameters MUST be nullable, primitive, list, or array types.
+   - Declare defaults that match the type's empty state, such as `0` for `Int`, `null` for nullable objects, and `emptyList()` for `List`.
+   - When the agent omits a parameter, the library passes this empty value, not the declared default. Resolve meaningful defaults in the function body.
 6. **Error handling** :
-   - Throw subclasses of `androidx.appfunctions.AppFunctionException` to report errors to callers.
+   - Throw the `androidx.appfunctions.AppFunctionException` subclass that matches the cause, with a plain-language message. For example, throw `AppFunctionInvalidArgumentException` for an invalid argument, or `AppFunctionElementNotFoundException` for a missing item.
+   - Never let other exceptions escape. The agent receives them as `AppFunctionAppUnknownException`, which doesn't identify the failure.
 7. **Security** :
-   - Don't expose highly sensitive user data, such as passwords or financial details.
-   - Don't expose irreversible destructive actions without confirmation steps.
+   - Expose only safe, non-destructive tasks that the app's UI already offers on that form factor.
+   - Never give agents wide-ranging access to user data or system resources.
+   - Never require or return passwords, financial details, private keys, or other highly sensitive personal information. Share other personal or confidential data only when the user explicitly consents to share it for the requested action.
+   - Never perform actions that the user didn't request. Actions that the user scheduled, such as sending a message later, are allowed.
+8. **Opening screens** :
+   - To let the agent open a screen in the app, return a `PendingIntent`. Create it from an explicit intent with `FLAG_IMMUTABLE`, which locks where it leads.
 
 ### Step 4: Set up dependency injection and service entry points
 
 In version 1.0.0-alpha10 and later, App Functions use the compile-time
 `@AppFunctionServiceEntryPoint` architecture. Create an abstract class extending
 `AppFunctionService` annotated with `@AppFunctionServiceEntryPoint`. KSP
-generates the concrete service class and XML schema.
+generates the concrete service class and XML schema. Declare only one entry
+point class: before `Build.VERSION_CODES.CINNAMON_BUN`, Android allows only
+one service per app to handle the
+`android.app.appfunctions.AppFunctionService` action.
 
 #### Recommended approach with Hilt
 
@@ -169,10 +196,12 @@ abstract class BaseAppFunctionServiceLocator : AppFunctionService() {
 
 ### Step 5: Architectural cleanliness
 
-Don't attempt to make an `AppFunction` class or method OS-agnostic---App Functions are inherently part of the Android platform integration in `androidx.appfunctions`. For architectural cleanliness, use existing
+Don't attempt to make an AppFunction class or method OS-agnostic---AppFunctions
+are inherently part of the Android platform integration in
+`androidx.appfunctions`. For architectural cleanliness, use existing
 application functionality (such as existing repositories, use cases, or domain
-orchestrators) to execute the behavior within your `@AppFunction` methods rather
-than creating redundant abstraction layers around the OS service.
+orchestrators) to execute the behavior within the `@AppFunctionDeclaration`
+methods rather than creating redundant abstraction layers around the OS service.
 
 <br />
 
@@ -183,11 +212,15 @@ than creating redundant abstraction layers around the OS service.
 **Critical constraints** : For `@AppFunctionSerializable` data classes, KSP
 only extracts documentation if it's written as inline KDoc directly for each
 property definition. Don't use class-level `@param` or `@property` tags.
+Declare every primary constructor parameter as a `val` property, and keep the
+primary constructor public. Other constructor parameters cause a compiler
+error.
 
 ### Package integrity
 
-Configuration APIs and the `@AppFunction` annotation are located in
-`androidx.appfunctions`.
+The `@AppFunctionDeclaration` annotation, `AppFunctionService`, and
+`AppFunctionName` are located in `androidx.appfunctions`. Before 1.0.0-beta01,
+`AppFunctionName` was in `androidx.appfunctions.metadata`.
 
 ## Examples
 
@@ -270,6 +303,14 @@ abstract class BaseTaskAppFunctionService : AppFunctionService() {
 
 ## Troubleshooting
 
+### Error: Build fails after adding or upgrading the library
+
+**Cause** : An annotation omits `isDescribedByKDoc`, which has no default value
+since 1.0.0-beta01, or the module's `compileSdk` is lower than 37.
+
+**Solution** : Set `isDescribedByKDoc = true` on every `@AppFunctionDeclaration`
+and `@AppFunctionSerializable`, and set `compileSdk` to 37 or higher.
+
 ### Error: "AppFunction unavailable" or "Metadata missing"
 
 **Cause**: The AppSearch indexing failed to extract the schema correctly.
@@ -279,4 +320,3 @@ abstract class BaseTaskAppFunctionService : AppFunctionService() {
 1. Verify `@AppFunctionSerializable` classes use inline KDoc comments, not class-level `@param` tags.
 2. Check that the `assets/<appFunctionXmlFileName>.xml` file exists in the APK.
 3. Confirm the `ksp("androidx.appfunctions:appfunctions-compiler")` dependency is correctly applied.
-4. Ensure the `ksp` argument `appfunctions:aggregateAppFunctions` is set to `"true"`.

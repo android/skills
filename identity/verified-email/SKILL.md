@@ -8,7 +8,7 @@ description: Provides a complete workflow for implementing verified email retrie
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-16'
+  last-updated: '2026-10-28'
   keywords:
   - implementation
   - Android
@@ -120,7 +120,7 @@ actions:
 ## Overview
 
 This guide describes how to implement verified email retrieval using the
-[Digital Credentials Verifier API](references/android/identity/digital-credentials/credential-verifier.md) through an [OpenID for Verifiable
+[Digital Credentials Verifier API](https://developer.android.com/identity/digital-credentials/credential-verifier) through an [OpenID for Verifiable
 Presentations (OpenID4VP)](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html) request.
 
 ## Add dependencies
@@ -344,7 +344,7 @@ additional metadata as well along with verified email:
      */
 
 > [!IMPORTANT]
-> **Important:** We highly recommend that after receiving the verified email, you trigger Credential Manager's [passkey creation](https://developer.android.com/identity/credential-manager/passkeys/create-passkeys).
+> **Important:** We highly recommend that after receiving the verified email, you trigger Credential Manager's [passkey creation](references/android/identity/passkeys/create-passkeys.md).
 
 ## Server-side validation for account creation
 

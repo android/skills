@@ -1,8 +1,5 @@
-> [!WARNING]
-> **Deprecated:** Starting with Android Gradle Plugin (AGP) 9.5.0-alpha03 and Compose Preview Screenshot Testing 0.0.1-alpha16, we recommend configuring screenshot tests using [AGP test suites](https://developer.android.com/studio/preview/compose-screenshot-testing-with-testsuites). The standalone plugin method described on this page is deprecated.
-
-> [!WARNING]
-> **Experimental:** Compose Preview Screenshot Testing is still in development. Its features and APIs are subject to change substantially during the alpha phase. Report any feedback and issues through the [issue tracker](https://issuetracker.google.com/issues/new?component=192708&template=840533).
+> [!CAUTION]
+> **Caution:** The standalone `com.android.compose.screenshot` plugin described on this page is no longer maintained. We recommend setting up screenshot tests with [AGP test suites](https://developer.android.com/studio/preview/compose-screenshot-testing-with-testsuites) using Android Gradle Plugin (AGP) 9.5 or higher. To switch, see [Migrate an existing project](https://developer.android.com/studio/preview/compose-screenshot-testing-with-testsuites#migration).
 
 Screenshot testing is an effective way to verify how your UI looks to users.
 The Compose Preview Screenshot Testing tool combines the simplicity and

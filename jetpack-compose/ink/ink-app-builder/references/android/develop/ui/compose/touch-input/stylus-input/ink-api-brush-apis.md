@@ -2,6 +2,19 @@ The [`Brush`](https://developer.android.com/reference/kotlin/androidx/ink/brush/
 define the visual style of your strokes. You can create brushes with different
 colors, sizes, and families to achieve a variety of looks.
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/jetpack-compose/ink/ink-custom-brush-builder)
+
+### Create custom Ink brushes
+
+Use the `ink-custom-brush-builder` [Android skill](https://developer.android.com/tools/agents/android-skills) to design custom BrushFamily styles in Jetpack Compose with custom tips, dynamic behaviors, textures, and coats. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add ink-custom-brush-builder
+
+<br />
+
 ## Create a brush
 
 To create a brush, use the Compose [`Brush`](https://developer.android.com/reference/kotlin/androidx/ink/brush/Brush)

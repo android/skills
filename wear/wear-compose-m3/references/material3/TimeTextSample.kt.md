@@ -19,10 +19,14 @@ package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.weight
+import androidx.wear.compose.material3.LocalTimeSource
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.TimeSource
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.TimeTextDefaults
 import androidx.wear.compose.material3.curvedText
@@ -61,5 +65,17 @@ fun TimeTextWithStatusEllipsized() {
         timeTextSeparator(style)
         timeTextCurvedText(time)
     }
+}
+
+@Sampled
+@Composable
+fun TimeTextOverrideTimeSourceForTesting() {
+    val fixedTimeSource = remember {
+        object : TimeSource {
+            @Composable override fun currentTime(): String = "12:34"
+        }
+    }
+
+    CompositionLocalProvider(LocalTimeSource provides fixedTimeSource) { TimeText() }
 }
 ```

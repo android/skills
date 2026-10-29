@@ -12,7 +12,7 @@ description: Creates custom BrushFamily definitions for an Android app using Jet
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-24'
+  last-updated: '2026-10-28'
   keywords:
   - Android
   - Jetpack Ink

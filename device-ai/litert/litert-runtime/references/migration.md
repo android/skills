@@ -163,7 +163,7 @@ Keep the app's own classes and their public functions as the callers.
 - **Inference** : `run` on `ByteBuffer` objects becomes `writeFloat`, `run`, and `readFloat` on buffers that the helper creates once. Use `writeInt8` and `readInt8` for int8 and uint8 tensors.
 - **Thread count** : `setNumThreads` becomes `CpuOptions(numThreads = n)` on new CPU options; combine `numThreads` with `xnnPackFlags = 0x23` and `xnnPackWeightCachePath` in the same `CpuOptions` when memory also matters.
 - **Tensor shapes** : `getInputTensor` and its `shape` become a lookup by name. `getInputTensorType` throws `LiteRtException` for `uint8` tensors; for the size, use `getInputBufferRequirements(name, signature).bufferSize`, which is in bytes for every element type. `resizeInput` has no counterpart in 2.3.0.
-- **Signatures** : `runSignature` becomes `run` with maps from the signature's input and output names to buffers. Every by-name call (`run` with maps, `getInputTensorType`, `getInputBufferRequirements`) takes the names in the signature, such as `x` or `args_0` and `output_0`, not the graph tensor names such as `serving_default_x:0`. When the model has no signatures, the names are its input and output tensor names (such as `images` and `Softmax`). `CompiledModel` has no call that lists them, so take them from the legacy code (Step 2). A missing or wrong name in an output map crashes the process (JNI abort) instead of throwing, so check the names before the first `run`.
+- **Signatures** : `runSignature(inputs, outputs, key)` becomes `run(inputs, outputs, key)` on the lists that `createInputBuffers(key)` and `createOutputBuffers(key)` return, created once with the model. Use this List overload by default on both runtimes, and always on the Google Play services runtime: with `litert-api` 2.3.0, the `Map<String, TensorBuffer>` overload of `run` aborts the process on that runtime, and the List overload doesn't, so code that uses it keeps running when the app changes runtime or upgrades LiteRT. The lists follow the order of the signature's inputs and outputs in the model, so a signature with one input and one output needs no names. For a signature with more than one input or output on the bundled runtime, create each buffer by name with `createInputBuffer(name, key)` and `createOutputBuffer(name, key)`, and pass maps from those names to `run(inputs, outputs, key)`; on the Google Play services runtime, keep the lists and check each position against the golden output. Every by-name call (`createInputBuffer`, `createOutputBuffer`, `run` with maps, `getInputTensorType`, `getInputBufferRequirements`) takes the names in the signature, such as `x` or `args_0` and `output_0`, not the graph tensor names such as `serving_default_x:0`. When the model has no signatures, the names are its input and output tensor names (such as `images` and `Softmax`). `CompiledModel` has no call that lists them, so take them from the legacy code (Step 2). A missing or wrong name in an output map crashes the process (JNI abort) instead of throwing, so check the names before the first `run`.
 - **Closing** : Closing the interpreter becomes the helper's `close`.
 
     // Replaces Interpreter.Options.setNumThreads. Create new options; never change
@@ -182,18 +182,38 @@ Keep the app's own classes and their public functions as the callers.
     fun inputSizeBytes(model: CompiledModel, inputName: String, signature: String): Int =
         model.getInputBufferRequirements(inputName, signature).bufferSize
 
-    // Replaces interpreter.runSignature. Create the buffers once with
+    // Replaces interpreter.runSignature(mapOf("args_0" to input),
+    // mapOf("output_0" to output), "serving_default") for a signature with one
+    // input and one output, on both runtimes. The Classifier helper of Step 2 of
+    // the skill creates its buffers once in init with
     // model.createInputBuffers(signature) and model.createOutputBuffers(signature),
-    // and reuse them for every call. The map keys are the signature's input and
-    // output names (such as "args_0" and "output_0").
+    // and calls this from infer.
     fun runSignature(
         model: CompiledModel,
         signature: String,
-        inputs: Map<String, TensorBuffer>,
-        outputs: Map<String, TensorBuffer>
-    ) {
+        inputs: List<TensorBuffer>,
+        outputs: List<TensorBuffer>,
+        input: FloatArray
+    ): FloatArray {
+        inputs[0].writeFloat(input)
         model.run(inputs, outputs, signature)
+        return outputs[0].readFloat()
     }
+
+    // Bundled runtime only, for a signature with more than one input or output:
+    // create each buffer by its signature name, once. Never use the map overload
+    // of run on the Google Play services runtime, where it aborts with litert-api
+    // 2.3.0; change it to the List overload when the app moves to that runtime.
+    fun createSignatureBuffers(
+        model: CompiledModel,
+        signature: String,
+        inputNames: List<String>,
+        outputNames: List<String>
+    ): Pair<Map<String, TensorBuffer>, Map<String, TensorBuffer>> =
+        inputNames.associateWith { model.createInputBuffer(it, signature) } to
+            outputNames.associateWith { model.createOutputBuffer(it, signature) }
+
+    // Then, for every call: model.run(inputs, outputs, signature)
 
 ### With the Support library
 

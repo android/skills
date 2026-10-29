@@ -41,6 +41,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onVisibilityChanged
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.AmbientMode
 import androidx.wear.compose.foundation.LocalAmbientModeManager
@@ -548,6 +550,98 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
             autoCentering = null,
         ) {
             items(10) { Text("Item $it") }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun OneHandedGestureVisibilitySample() {
+    var label by remember { mutableStateOf("Double-pinch") }
+    val onClick = { label = "Gestured" }
+    val scrollState = rememberTransformingLazyColumnState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val scrollGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Scrollable,
+        )
+    val scrollIndicatorState =
+        remember(scrollGestureConfig) { OneHandedGestureScrollIndicatorState() }
+
+    ScreenScaffold(
+        scrollState = scrollState,
+        scrollIndicator = {
+            OneHandedGestureScrollIndicator(
+                gestureConfiguration = scrollGestureConfig,
+                indicatorState = scrollIndicatorState,
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
+        },
+    ) { contentPadding ->
+        TransformingLazyColumn(
+            state = scrollState,
+            contentPadding = contentPadding,
+            modifier =
+                Modifier.fillMaxSize()
+                    .oneHandedGesture(
+                        gestureConfiguration = scrollGestureConfig,
+                        onGestureLabel = "scroll",
+                        onGestureAvailable = {
+                            coroutineScope.launch { scrollIndicatorState.showIndicator() }
+                        },
+                        onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
+                    ),
+        ) {
+            items(10) { Text("Item $it") }
+            item {
+                var isButtonVisible by remember { mutableStateOf(false) }
+                val buttonInteractionSource = remember { MutableInteractionSource() }
+                val buttonGestureConfig =
+                    rememberOneHandedGestureConfiguration(
+                        action = OneHandedGestureAction.Primary,
+                        priority = OneHandedGesturePriority.Clickable,
+                    )
+                val buttonIndicatorState = remember { OneHandedGestureClickIndicatorState() }
+
+                Button(
+                    onClick = onClick,
+                    interactionSource = buttonInteractionSource,
+                    modifier =
+                        Modifier.onVisibilityChanged(minFractionVisible = 0.9f) {
+                                isButtonVisible = it
+                            }
+                            .then(
+                                if (isButtonVisible) {
+                                    // Apply the one-handed gesture modifier only when the button
+                                    // is at least 90% visible.
+                                    Modifier.oneHandedGesture(
+                                        gestureConfiguration = buttonGestureConfig,
+                                        interactionSource = buttonInteractionSource,
+                                        onGestureLabel = "activate the button",
+                                        onGestureAvailable = {
+                                            coroutineScope.launch {
+                                                buttonIndicatorState.showIndicator()
+                                            }
+                                        },
+                                        onGesture = onClick,
+                                    )
+                                } else {
+                                    Modifier
+                                }
+                            ),
+                ) {
+                    OneHandedGestureClickIndicator(buttonGestureConfig, buttonIndicatorState) {
+                        Text(
+                            label,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+            }
         }
     }
 }

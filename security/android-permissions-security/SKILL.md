@@ -7,7 +7,7 @@ description: Audits, detects gaps, and remediates Android permissions and IPC co
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-22'
+  last-updated: '2026-10-28'
   keywords:
   - recipe
   - Android
@@ -60,9 +60,9 @@ vulnerabilities, systematically inspect each area:
 
 | Vulnerability Area | Search In / Pattern | Risk | Remediation Action |
 |---|---|---|---|
-| **Weak Custom Permission Protection** | `AndroidManifest.xml` with `android:protectionLevel="normal"`, `"dangerous"`, or `"signatureOrSystem"` | Unauthorized apps request or claim permission without restriction | Upgrade to `signature` or `signature|knownSigner` with `android:knownCerts`. |
+| **Weak Custom Permission Protection** | `AndroidManifest.xml` with `android:protectionLevel="normal"`, `"dangerous"`, or `"signatureOrSystem"` | Unauthorized apps request or claim permission without restriction | Upgrade to `signature` or `signature` with `knownSigner` and `android:knownCerts`. |
 | **Overly Broad URI Permission Grants** | `<grant-uri-permission android:pathPrefix="/" />` or `pathPrefix=""` in `<provider>` | Leaks all provider data to third parties | Replace with explicit scoped subpath (e.g. `android:pathPrefix="/shared/"`). Retain `android:grantUriPermissions="true"`. Remove any wildcard `pathPrefix="/"`. |
-| **Missing ContentProvider Split Permissions** | `<provider>` with only generic `android:permission` or missing `android:readPermission` and `android:writePermission` | Read-only callers execute write operations or write-only callers access read operations | Configure granular `android:readPermission="...READ_DATA"` and `android:writePermission="...WRITE_DATA"`, AND declare the custom `<permission>` tags with `android:protectionLevel="signature"` (or `signature|knownSigner`) at the `<manifest>` root. |
+| **Missing ContentProvider Split Permissions** | `<provider>` with only generic `android:permission` or missing `android:readPermission` and `android:writePermission` | Read-only callers execute write operations or write-only callers access read operations | Configure granular `android:readPermission="...READ_DATA"` and `android:writePermission="...WRITE_DATA"`, AND declare the custom `<permission>` tags with `android:protectionLevel="signature"` (or `signature` with `knownSigner`) at the `<manifest>` root. |
 | **Spoofable Caller Identity Checks** | `intent.getStringExtra("calling_package")`, `intent.getStringExtra("sender")`, `callingPackage == "..."` in Services | Malicious callers forge intent extras or strings | Remove string checks; authenticate caller UID cryptographically using `Binder.getCallingUid()` and `pm.hasSigningCertificate()`. |
 | **Bound Service Permission Bypass** | `checkCallingOrSelfPermission()` or `enforceCallingOrSelfPermission()` in Binder AIDL stubs | Falls back to host app UID outside IPC or when identity is cleared, causing Confused Deputy bypass | Replace with `enforceCallingPermission("...WRITE_DATA", ...)` or `checkCallingPermission("...WRITE_DATA")`. |
 | **Missing Method-Level Checks in Bound Services** | Bound Service AIDL methods mutating state without enforcing write permissions | Callers with read-only binding access invoke mutating write operations | Add `enforceCallingPermission("...WRITE_DATA", "Caller lacks WRITE_DATA permission")` inside mutating AIDL methods. |
@@ -142,9 +142,9 @@ certificate digests.
 - **Granular `UriPermission` Management** : Instead of broad manifest grants, use runtime `android.content.UriPermission` tokens for least-privilege per-URI sharing:
   - *Grant temporary access* : `context.grantUriPermission(targetPackage,
     uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)` or attach `Intent.FLAG_GRANT_READ_URI_PERMISSION` to outgoing intents.
-  - *Persist access* : The receiving app calls `contentResolver.takePersistableUriPermission(uri, modeFlags)` for durable access across reboots.
+  - *Persist and release access* : The receiving app calls `contentResolver.takePersistableUriPermission(uri, modeFlags)` for durable access across reboots, and `contentResolver.releasePersistableUriPermission(uri, modeFlags)` when durable access is no longer needed.
   - *Audit active grants* : Inspect `contentResolver.persistedUriPermissions` (`List<UriPermission>`) to verify granted URIs (`uriPermission.uri`, `uriPermission.isReadPermission()`, `uriPermission.isWritePermission()`).
-  - *Revoke access* : Call `context.revokeUriPermission(uri, modeFlags)` or `contentResolver.releasePersistableUriPermission(uri, modeFlags)` as soon as operations conclude.
+  - *Revoke temporary access* : Call `context.revokeUriPermission(targetPackage, uri, modeFlags)` (API 26+), falling back to `context.revokeUriPermission(uri, modeFlags)` on API 25 and lower so access fails closed as soon as operations conclude.
 
 ### Manifest snippet: Complete secure ContentProvider declaration
 
@@ -363,7 +363,7 @@ caching states or creating infinite retry loops:
 
 1. **Check Granted State** : `ContextCompat.checkSelfPermission(this,
    permission) == PackageManager.PERMISSION_GRANTED`.
-2. **Check Rationale** : `shouldShowRequestPermissionRationale(permission)` to present educational context before requesting.
+2. **Check Rationale** : When `shouldShowRequestPermissionRationale(permission)` returns `true`, show a rationale dialog and launch the permission request only from its Continue button.
 3. **Launch Contract** : `ActivityResultContracts.RequestPermission()`.
 4. **Handle Permanent Denial** : In the callback, if permission was denied and `!shouldShowRequestPermissionRationale(permission)`, guide the user to `Settings.ACTION_APPLICATION_DETAILS_SETTINGS`.
 

@@ -139,21 +139,22 @@ buffers, `infer`, and `close` stay as in the skill.
 1. Check the first table row. When it matches, stop and tell the user.
 2. Swap the dependencies as in "Gradle".
 3. Replace `Environment.create` with `PlayServicesEnvironment`, and pass the `Environment` to every `CompiledModel.create` call. When a `create` call omits the `Environment`, add it.
-4. Keep the buffer and inference code. When no caller retries on the CPU as in Step 3, pass `Accelerator.CPU` next to `Accelerator.GPU` in `CompiledModel.Options`.
+4. Keep the buffer and inference code. When no caller retries on the CPU as in Step 3, pass `Accelerator.CPU` next to `Accelerator.GPU` in `CompiledModel.Options`. Change every `model.run` call that passes `Map<String, TensorBuffer>` arguments to the List overload (see "From the bundled TensorFlow Lite Interpreter"), because the map overload aborts on this runtime with `litert-api` 2.3.0.
 
 ### From the bundled TensorFlow Lite Interpreter
 
 Follow the migration guide of the skill. In its step 3, add the dependencies of
 "Gradle" instead of the bundled ones, and in its step 5, add
 `PlayServicesEnvironment` of "Create the Environment" and create the
-`Classifier` with its `Environment`. For a signature call, pass
-the `List<TensorBuffer>` lists from `createInputBuffers(signature)` and
-`createOutputBuffers(signature)` to `model.run(inputs, outputs, signature)`,
-not `Map<String, TensorBuffer>`, which aborts with `SIGABRT` in `17.0.0`
-looking for `libLiteRt.so`. The Play services runtime
-doesn't support `litert-support`, so replace every Support class, including the
-ones under `com.google.ai.edge.litert.support`, with `preprocess` of Step 4 of
-the skill and labels read from assets.
+`Classifier` with its `Environment`. For a signature call, pass the
+`List<TensorBuffer>` lists from `createInputBuffers(signature)` and
+`createOutputBuffers(signature)` to `model.run(inputs, outputs, signature)`, not
+`Map<String, TensorBuffer>`, which aborts with `SIGABRT` looking for
+`libLiteRt.so` with `litert-api` 2.3.0. Keep the List overload when you upgrade
+`play-services-litert` or `litert-api`. The Play services runtime doesn't
+support `litert-support`, so replace every Support class, including the ones
+under `com.google.ai.edge.litert.support`, with `preprocess` of Step 4 of the
+skill and labels read from assets.
 
 ### From the Interpreter API in Google Play services
 

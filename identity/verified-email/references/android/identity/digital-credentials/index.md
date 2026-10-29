@@ -21,8 +21,8 @@ The Digital Credentials API can be used across a broad set of use cases such as
 the following:
 
 - **Accept government-issued IDs**: Apps can request and use official government document attributes, for flows including age verification, account recovery, Know-Your-Customer (KYC) process.
-- **Verify phone numbers** : Apps can use the API for phone number verification, by exchanging digital credentials derived from the phone's SIM card directly with the user's carrier. This removes the need for one-time passwords (OTPs), improves security, and reduces transmission costs. For more information, see the [phone number verification guide](https://developer.android.com/identity/digital-credentials/phone-number-verification).
-- **Verify email addresses** : The API lets your app retrieve verified emails directly from the user's device, removing the need for OTPs, for frictionless sign-up, sign-in, and account recovery. For more information, see the [email verification guide](https://developer.android.com/identity/digital-credentials/email-verification).
+- **Verify phone numbers** : Apps can use the API for phone number verification, by exchanging digital credentials derived from the phone's SIM card directly with the user's carrier. This removes the need for one-time passwords (OTPs), improves security, and reduces transmission costs. For more information, see the [phone number verification guide](https://developer.android.com/identity/digital-credentials/credential-verifier/about-verifying-phone-numbers).
+- **Verify email addresses** : The API lets your app retrieve verified emails directly from the user's device, removing the need for OTPs, for frictionless sign-up, sign-in, and account recovery. For more information, see the [email verification guide](https://developer.android.com/identity/digital-credentials/about-email-verification).
 - **Custom credentials**: The extensibility of the API lets any app begin issuing its own custom digital credentials, which corresponding verifiers can request.
 - **Confirm payment credentials and transactions**: The API lets you secure payment authorizations and Digital Payment Credentials (DPC) with native, cryptographically bound wallet confirmation.
 
@@ -31,7 +31,7 @@ the following:
 The digital credential ecosystem involves three primary categories of apps:
 
 - **Issuers** : Issuers are apps that securely create and [issue](https://developer.android.com/identity/digital-credentials/credential-issuer/issue-credentials) credentials.
-- **Holders (wallets)** : Holders are apps on a user's device that store credentials. They should be able to share these credentials with requesting apps through a [presentation](https://developer.android.com/identity/digital-credentials/credential-holder/credential-holder) process.
+- **Holders (wallets)** : Holders are apps on a user's device that store credentials. They should be able to share these credentials with requesting apps through a [presentation](https://developer.android.com/identity/digital-credentials/credential-holder/present-credentials) process.
 - **Verifiers**: Verifiers are apps that verify and use digital credentials.
 
 Credential Manager's Digital Credentials API orchestrates the interaction
@@ -106,7 +106,7 @@ To test the flow, complete the following steps:
 
 - For more information about issuing digital credentials, see the [issuer
   guide](https://developer.android.com/identity/digital-credentials/credential-issuer/issue-credentials).
-- For more information about holder apps, see the [holder guide](https://developer.android.com/identity/digital-credentials/credential-holder/credential-holder).
-- For more information about verifying users based on digital credentials, see the [verifier guide](https://developer.android.com/identity/digital-credentials/credential-verifier).
+- For more information about holder apps, see the [holder guide](https://developer.android.com/identity/digital-credentials/credential-holder/present-credentials).
+- For more information about verifying users based on digital credentials, see the [verifier guide](https://developer.android.com/identity/digital-credentials/credential-verifier/request-credential).
 - For more information about digital credentials on the web, see [digital
   credentials on the web](https://developer.chrome.com/blog/digital-credentials-api-shipped).
