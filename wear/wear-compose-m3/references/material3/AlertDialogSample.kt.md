@@ -96,6 +96,51 @@ fun AlertDialogWithConfirmAndDismissSample() {
 @Preview
 @Sampled
 @Composable
+fun AlertDialogWithConfirmAndDismissGestureDisabledSample() {
+    var showDialog by remember { mutableStateOf(false) }
+    Box(Modifier.fillMaxSize()) {
+        FilledTonalButton(
+            modifier = Modifier.align(Alignment.Center),
+            onClick = { showDialog = true },
+            label = { Text("Show Dialog") },
+        )
+    }
+    AlertDialog(
+        visible = showDialog,
+        onDismissRequest = { showDialog = false },
+        icon = {
+            Icon(
+                Icons.Rounded.AccountCircle,
+                modifier = Modifier.size(32.dp),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        },
+        title = { Text("Reset all settings?") },
+        text = { Text("This action cannot be undone.") },
+        confirmButton = {
+            AlertDialogDefaults.ConfirmButton(
+                onClick = {
+                    // Perform confirm action here
+                    showDialog = false
+                },
+                gestureVisibilityThreshold = AlertDialogDefaults.GestureDisabled,
+            )
+        },
+        dismissButton = {
+            AlertDialogDefaults.DismissButton(
+                onClick = {
+                    // Perform dismiss action here
+                    showDialog = false
+                }
+            )
+        },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
 fun AlertDialogWithConfirmAndDismissTransformingContentSample() {
     var showDialog by remember { mutableStateOf(false) }
     val transformationSpec = rememberTransformationSpec()
@@ -234,6 +279,47 @@ fun AlertDialogWithEdgeButtonTransformingContentSample() {
                     // Perform confirm action here
                     showDialog = false
                 }
+            )
+        },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun AlertDialogWithEdgeButtonOneHandedGestureSample() {
+    var showDialog by remember { mutableStateOf(false) }
+
+    Box(Modifier.fillMaxSize()) {
+        FilledTonalButton(
+            modifier = Modifier.align(Alignment.Center),
+            onClick = { showDialog = true },
+            label = { Text("Show Dialog") },
+        )
+    }
+
+    AlertDialog(
+        visible = showDialog,
+        onDismissRequest = { showDialog = false },
+        icon = {
+            Icon(
+                Icons.Rounded.AccountCircle,
+                modifier = Modifier.size(32.dp),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        },
+        title = { Text("Mobile network is not currently available") },
+        text = { Text("Please try again later or check your network settings.") },
+        transformationSpec = rememberTransformationSpec(),
+        edgeButton = {
+            AlertDialogDefaults.EdgeButton(
+                onClick = {
+                    // Perform confirm action here
+                    showDialog = false
+                },
+                gestureVisibilityThreshold =
+                    AlertDialogDefaults.EdgeButtonGestureVisibilityThreshold,
             )
         },
     )

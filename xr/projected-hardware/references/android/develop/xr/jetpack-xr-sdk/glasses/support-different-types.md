@@ -67,7 +67,7 @@ experiences, including the following:
 - Listening to audio, audible feedback, or other sound cues.
 - App actions that trigger a user-facing LED, such as a privacy indicator if your app accesses the camera or microphone.
 
-In these situations, the user is aware that the audio glasses and display
+In these situations, the user is aware that their audio glasses or display
 glasses are active and responding, even if they aren't looking at a display:
 
 - The [`onStart()`](https://developer.android.com/reference/kotlin/android/app/Activity#onStart()) state for projected activities means the activity is active.
@@ -83,7 +83,7 @@ eventually triggers [`onStop()`](https://developer.android.com/reference/kotlin/
 Audio glasses and display glasses are treated as a connected device that extends
 the capabilities of a user's phone. A *projected context* is a device-aware
 [`Context`](https://developer.android.com/reference/kotlin/android/content/Context) that lets apps interact with the hardware on a connected glasses
-device---such as its sensors, camera, or microphone---rather than the phone's
+device---such as its sensors or camera---rather than the phone's
 hardware. As you develop experiences for audio glasses and display glasses, your
 app must use a projected context to access the glasses' hardware.
 
@@ -113,4 +113,3 @@ phone device:
 - [`CameraManager`](https://developer.android.com/reference/kotlin/android/hardware/camera2/CameraManager): Accesses the camera on the glasses.
 - [`SensorManager`](https://developer.android.com/reference/kotlin/android/hardware/SensorManager): Retrieves sensor data (for example, gyroscope or accelerometer data) from the glasses.
 - [`AudioManager`](https://developer.android.com/reference/kotlin/android/media/AudioManager): Manages audio streams, volume, and routing on the glasses.
-- [`AudioRecord`](https://developer.android.com/reference/kotlin/android/media/AudioRecord): Captures audio using the glasses' microphone.

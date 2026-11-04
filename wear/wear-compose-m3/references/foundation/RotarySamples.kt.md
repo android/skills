@@ -80,7 +80,7 @@ fun RotaryScrollWithOverscrollSample() {
     val focusRequester = remember { FocusRequester() }
     val overscrollEffect = rememberOverscrollEffect()
 
-    val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
 
     Column(
         Modifier.fillMaxSize()
@@ -95,9 +95,9 @@ fun RotaryScrollWithOverscrollSample() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("Top")
-        Spacer(modifier = Modifier.height(screenHeightDp / 2))
+        Spacer(modifier = Modifier.height(screenWidthDp / 2))
         Text("Scroll this list up and down with rotary input", textAlign = TextAlign.Center)
-        Spacer(modifier = Modifier.height(screenHeightDp / 2))
+        Spacer(modifier = Modifier.height(screenWidthDp / 2))
         Text("Bottom")
     }
 }

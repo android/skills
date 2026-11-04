@@ -16,6 +16,19 @@ app widgets, see [Build a widget host](https://developer.android.com/develop/ui/
 
 For information about how to design your widget, see [App widgets overview](https://developer.android.com/develop/ui/views/appwidgets/overview).
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/system/glance-appwidget-updates-and-memory)
+
+### Manage AppWidget updates and bitmap memory
+
+Use the AppWidget Updates and Memory [Android skill](https://developer.android.com/tools/agents/android-skills) to downsample widget bitmaps, deduplicate responsive images, and stay within Android 17 RemoteViews memory limits across Glance and classic AppWidgetProvider widgets. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add glance-appwidget-updates-and-memory
+
+<br />
+
 ## Widget components
 
 To create a widget, you need the following basic components:

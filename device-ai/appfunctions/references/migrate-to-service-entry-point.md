@@ -238,8 +238,8 @@ including apps migrated with the preceding steps:
 2. **Verify AppSearch discovery / indexing** : Run the following ADB command to
    confirm the OS successfully discovered and indexed your functions:
    `bash
-   adb shell cmd app_function list-app-functions`
-   *If your package doesn't appear, confirm that `android.app.appfunctions.v2`
+   adb shell cmd app_function list-app-functions --package com.example.chatapp`
+   *If the output is empty, confirm that `android.app.appfunctions.v2`
    matches the exact asset name generated in `assets/`.*
 
 3. **Verify execution using ADB** :
