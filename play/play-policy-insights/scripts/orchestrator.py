@@ -450,27 +450,28 @@ def determine_primary_identity(
         pass
 
   # 4. Cross-Platform Framework Detection
-  if not primary_id or not primary_sdk:
+  if not primary_id or primary_sdk is None:
     # Check for Flutter (pubspec.yaml)
     pubspec_path = os.path.join(app_dir, "pubspec.yaml")
     if os.path.exists(pubspec_path):
       try:
         with open(pubspec_path, "r", encoding="utf-8") as f:
           for line in f:
-            if line.startswith("name:"):
-              primary_id = line.split(":")[1].strip()
+            if line.startswith("name:") and not primary_id:
+              primary_id = line.split(":", 1)[1].strip()
               break
-        primary_sdk = FRAMEWORK_DEFAULTS.get("flutter.targetSdkVersion")
+        if primary_sdk is None:
+          primary_sdk = FRAMEWORK_DEFAULTS.get("flutter.targetSdkVersion")
       except Exception:  # pylint: disable=broad-exception-caught
         pass
 
     # Check for React Native (package.json)
     pkg_json_path = os.path.join(app_dir, "package.json")
-    if os.path.exists(pkg_json_path):
+    if os.path.exists(pkg_json_path) and not primary_id:
       try:
         with open(pkg_json_path, "r", encoding="utf-8") as f:
           data = json.load(f)
-          primary_id = data.get("name")
+          primary_id = primary_id or data.get("name")
       except Exception:  # pylint: disable=broad-exception-caught
         pass
 
