@@ -11,7 +11,7 @@ mobile, and tablet.
 
 Onboarding the media actions feed is required before you can use the device
 entitlement API. If you haven't already done so, complete the [media actions
-feed](https://developers.google.com/actions/media?authuser=0) onboarding process.
+feed](https://developers.google.com/actions/media) onboarding process.
 
 ## Pre-work
 

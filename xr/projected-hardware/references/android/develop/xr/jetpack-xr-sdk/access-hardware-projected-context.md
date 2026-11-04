@@ -63,8 +63,8 @@ private fun monitorProjectedConnectivity(activity: ComponentActivity) {
 Wrap the [`createProjectedDeviceContext`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#createProjectedDeviceContext(android.content.Context)) call within the
 [`ProjectedContext.isProjectedDeviceConnected`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#isProjectedDeviceConnected(android.content.Context,kotlin.coroutines.CoroutineContext)). While this method returns
 `true`, the projected context remains valid to the connected device, and your
-phone app activity or service (such as a `CameraManager`) can access the AI
-glasses hardware.
+phone app activity or service (such as a `CameraManager`) can access the glasses
+hardware.
 
 ### Clean up on disconnect
 
@@ -122,21 +122,41 @@ directs the system to retrieve audio from the Bluetooth peripheral.
 
 ```kotlin
 val audioManager = context.getSystemService(AudioManager::class.java) ?: return
-val devices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
-val hfpDevice = devices.find { it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO }
+val hfpDevice = audioManager.availableCommunicationDevices
+    .firstOrNull { it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO } ?: return
 
-hfpDevice?.let { device ->
-    val audioRecord = AudioRecord.Builder()
-        .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
-        .setAudioFormat(audioFormat)
-        .setBufferSizeInBytes(bufferSize)
-        .build()
+// HFP input is limited to 16 kHz, with mono or stereo channel configurations.
+val sampleRate = 16_000
+val channelMask = AudioFormat.CHANNEL_IN_MONO
+val encoding = AudioFormat.ENCODING_PCM_16BIT
 
-    // Route recording to the Bluetooth device
-    audioRecord.setPreferredDevice(device)
-    audioManager.setCommunicationDevice(device)
+// Use a small multiple of the minimum buffer size to keep chunks short for low latency.
+val minBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelMask, encoding)
+if (minBufferSize <= 0) return
 
+val audioRecord = AudioRecord.Builder()
+    .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+    .setAudioFormat(
+        AudioFormat.Builder()
+            .setSampleRate(sampleRate)
+            .setChannelMask(channelMask)
+            .setEncoding(encoding)
+            .build()
+    )
+    .setBufferSizeInBytes(minBufferSize * 2)
+    .build()
+
+try {
+    // Route voice communication audio through the Bluetooth device.
+    if (!audioManager.setCommunicationDevice(hfpDevice)) return
     audioRecord.startRecording()
+    // Read audio with audioRecord.read() on a background thread.
+} finally {
+    // Stop and release when done.
+    if (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) audioRecord.stop()
+    audioRecord.release()
+    audioManager.clearCommunicationDevice()
+}
 ```
 
 <br />
@@ -152,7 +172,7 @@ context for your app:
 
 
 ```kotlin
-private fun startCameraOnGlasses(activity: ComponentActivity) {
+private fun setUpGlassesCamera(activity: ComponentActivity) {
     activity.lifecycleScope.launch {
         // Before creating a projected context, check to see if the projected device is connected.
         ProjectedContext.isProjectedDeviceConnected(activity, coroutineContext)
@@ -179,31 +199,43 @@ private fun startCameraOnGlasses(activity: ComponentActivity) {
                             return@addListener
                         }
 
-                        // 3. Query supported streaming resolutions using Camera2 Interop.
+                        // 3. Query supported streaming resolutions dynamically using Camera2 Interop.
                         val cameraInfo = cameraProvider.getCameraInfo(cameraSelector)
-                        val camera2CameraInfo = Camera2CameraInfo.from(cameraInfo)
-                        val cameraCharacteristics = camera2CameraInfo.getCameraCharacteristic(
+                        val map = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
                             CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
                         )
+                        val supportedResolutions = map?.getOutputSizes(ImageFormat.JPEG)?.toList() ?: emptyList()
+                        Log.i(TAG, "Supported resolutions for JPEG: ${supportedResolutions.joinToString()}")
 
-                        // 4. Define the resolution strategy.
-                        val targetResolution = Size(1920, 1080)
+                        // 4. Dynamically select the best target resolution from the queried list.
+                        val preferredResolution = Size(1920, 1080)
+                        val dynamicTargetResolution = when {
+                            // Case A: The preferred resolution is explicitly supported by the glasses.
+                            supportedResolutions.contains(preferredResolution) -> preferredResolution
+
+                            // Case B: Find the highest supported 16:9 resolution as a fallback.
+                            else -> {
+                                val targetAspectRatio = 16.0 / 9.0
+                                val tolerance = 0.01
+                                supportedResolutions
+                                    .filter { abs((it.width.toDouble() / it.height) - targetAspectRatio) < tolerance }
+                                    .maxByOrNull { it.width * it.height }
+                                    // Case C: Absolute fallback if no 16:9 resolutions are found.
+                                    ?: supportedResolutions.firstOrNull()
+                                    ?: preferredResolution
+                            }
+                        }
+                        Log.i(TAG, "Selected target resolution: $dynamicTargetResolution")
+
                         val resolutionStrategy = ResolutionStrategy(
-                            targetResolution,
+                            dynamicTargetResolution,
                             ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
                         )
                         val resolutionSelector = ResolutionSelector.Builder()
                             .setResolutionStrategy(resolutionStrategy)
                             .build()
 
-                        // 5. If you have other continuous use cases bound, such as Preview or ImageAnalysis,
-                        // you can use  Camera2 Interop's CaptureRequestOptions to set the FPS
-                        val fpsRange = Range(30, 60)
-                        val captureRequestOptions = CaptureRequestOptions.Builder()
-                            .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange)
-                            .build()
-
-                        // 6. Initialize the ImageCapture use case with options.
+                        // 5. Initialize the ImageCapture use case with options.
                         val imageCapture = ImageCapture.Builder()
                             // Optional: Configure resolution, format, etc.
                             .setResolutionSelector(resolutionSelector)
@@ -246,32 +278,130 @@ After the glasses' camera is set up, you can capture an image with the CameraX's
 `ImageCapture` class. Refer to the CameraX's documentation to learn about using
 [`takePicture`](https://developer.android.com/media/camera/camerax/take-photo#take_a_picture) to [capture an image](https://developer.android.com/media/camera/camerax/take-photo#take_a_picture).
 
-### Capture a video with the glasses' camera
+## Capture a stream with the glasses' camera
 
-To capture a video instead of an image with the glasses' camera, replace the
-`ImageCapture` components with the corresponding [`VideoCapture`](https://developer.android.com/reference/kotlin/androidx/camera/video/VideoCapture) components
-and modify the capture execution logic.
+To capture streams instead of an image, replace the `ImageCapture` component
+from the [capture image example](https://developer.android.com/develop/xr/jetpack-xr-sdk/access-hardware-projected-context#capture-image) with [`VideoCapture`](https://developer.android.com/reference/kotlin/androidx/camera/video/VideoCapture) or
+[`ImageAnalysis`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageAnalysis) components and change the capture logic.
 
-The main changes involve using a different use case, creating a different output
-file, and initiating the capture using the appropriate video recording method.
-For more information about the `VideoCapture` API and how to use it, see the
-[CameraX's video capture documentation](https://developer.android.com/media/camera/camerax/video-capture#using-videocapture-api).
+For more information about these APIs how to use them, see the [CameraX video
+capture](https://developer.android.com/media/camera/camerax/video-capture#using-videocapture-api) and [CameraX iamge analysis](https://developer.android.com/media/camera/camerax/analyze) documentation.
 
-> [!IMPORTANT]
-> **Important:** Battery power and thermal dissipation on glasses devices is often limited. When developing for glasses, pay close attention to the requested **output format** and **resolution**, as these can severely impact system power and temperature.
+### Choose a resolution and frame rate
 
-The following table shows the recommended resolution and frame rate depending on
-your app's use case:
+You should query the device to find its supported resolutions and their
+corresponding maximum frame rates. The following table lists examples of values
+you might see, depending on your app's use case. To conserve battery power and
+reduce heat on the glasses, choose the lowest resolution and frame rate that
+work for your use case.
 
 | Use case | Resolution | Frame rate |
 |---|---|---|
-| Video Communication | 1280 x 720 | 15 FPS |
-| Computer Vision | 640 x 480 | 10 FPS |
-| AI Video Streaming | 640 x 480 | 1 FPS |
+| Text recognition (OCR) or world sensing | 1920 x 1080 | 1 FPS |
+| AI video streaming (multimodal assistants) | 1024 x 768 | 1 FPS |
+| Localization and visual positioning (VPS) | 640 x 360 or 640 x 480 | 10 FPS |
+| Video calling | 640 x 360 or 640 x 480 | 24 FPS |
+
+> [!IMPORTANT]
+> **Important:** Supported resolutions and their maximum frame rates vary by device and can change. You should query them at runtime instead of hardcoding them.
+
+### Query the maximum frame rate for each resolution
+
+[`CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES`](https://developer.android.com/reference/kotlin/android/hardware/camera2/CameraCharacteristics#CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES) reports the device's overall
+frame rate bounds, which can be higher than the streaming rate that a given
+resolution supports. To get the actual maximum for each resolution on audio and
+display glasses, read its minimum frame duration and convert it to FPS with
+[`StreamConfigurationMap.getOutputMinFrameDuration(format, size)`](https://developer.android.com/reference/kotlin/android/hardware/camera2/params/StreamConfigurationMap#getOutputMinFrameDuration(int,%20android.util.Size)):
+
+
+```kotlin
+@androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
+fun getMaxFpsBySize(cameraInfo: CameraInfo, format: Int): Map<Size, Int> {
+    val map = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
+        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
+    ) ?: return emptyMap()
+
+    return map.getOutputSizes(format).associateWith { size ->
+        val minFrameDurationNs = map.getOutputMinFrameDuration(format, size)
+        if (minFrameDurationNs > 0) (1_000_000_000L / minFrameDurationNs).toInt() else 0
+    }
+}
+```
+
+<br />
+
+Next, use that value to calculate the `minFps` and `maxFps` bounds for your
+target frame rate range. Cap the lower bound (`minFps`) at the resolution's
+maximum streaming frame rate calculated from `getOutputMinFrameDuration`, and
+set a higher upper bound (`maxFps`) as a catch-up window:
+
+
+```kotlin
+val maxFpsBySize = getMaxFpsBySize(cameraInfo, ImageFormat.YUV_420_888)
+val maxSupportedFps = maxFpsBySize[Size(640, 480)] ?: return ImageAnalysis.Builder().build()
+
+// minFps is the target streaming frame rate and should be at most maxSupportedFps.
+val minFps = minOf(desiredFps, maxSupportedFps)
+// Set the upper bound to 2x minFps so the stream can catch up if frames are delayed.
+val maxFps = minFps * 2
+```
+
+<br />
+
+#### Key points about the code
+
+- Use the format that matches your use case. For [`ImageAnalysis`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageAnalysis), that's [`YUV_420_888`](https://developer.android.com/reference/kotlin/android/graphics/ImageFormat#YUV_420_888).
+- For [`VideoCapture`](https://developer.android.com/reference/kotlin/androidx/camera/video/VideoCapture), use the `Class` overloads instead: [`getOutputSizes(MediaRecorder::class.java)`](https://developer.android.com/reference/kotlin/android/hardware/camera2/params/StreamConfigurationMap#getOutputSizes(java.lang.Class%3CT%3E)) and [`getOutputMinFrameDuration(MediaRecorder::class.java, size)`](https://developer.android.com/reference/kotlin/android/hardware/camera2/params/StreamConfigurationMap#getOutputMinFrameDuration(java.lang.Class%3CT%3E,%20android.util.Size)).
+- Specify a range where `maxFps` is greater than `minFps` (such as `minFps*2`) rather than setting both bounds to the same value like `Range(minFps,
+  minFps)`. The lower bound (`minFps`) sets the target streaming frame rate and should be at most the value calculated from `getOutputMinFrameDuration`, while the upper bound (`maxFps`) acts as a catch-up window for delayed frames to prevent persistent latency. For example, \[1,2\] or \[1,3\] for a 1 FPS stream, and \[24,30\] or \[24,48\] for a 24 FPS stream.
+
+> [!NOTE]
+> **Note:** Using the lower bound as the streaming frame rate reflects current device behavior and might change on future devices.
+
+### Configure the frame rate
+
+To configure the frame rate range based on your CameraX use case:
+
+
+```kotlin
+// Configure Resolution Strategy for the stream
+val resolutionStrategy = ResolutionStrategy(
+    size,
+    ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
+)
+val resolutionSelector = ResolutionSelector.Builder()
+    .setResolutionStrategy(resolutionStrategy)
+    .build()
+
+// Create and return the ImageAnalysis builder with proper frame rate ranges
+// ImageAnalysis: OCR, AI streaming, and VPS
+val analysisBuilder = ImageAnalysis.Builder()
+    .setResolutionSelector(resolutionSelector)
+
+Camera2Interop.Extender(analysisBuilder)
+    .setCaptureRequestOption(
+        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+        Range(minFps, maxFps)
+    )
+return analysisBuilder.build()
+```
+
+<br />
+
+This example shows configuration for both `VideoCapture` and `ImageAnalysis`,
+but you can implement whichever use cases your app supports.
+
+### Understand how the stream behaves
+
+Keep the following system behaviors in mind while working with capture streams:
+
+- **Unsupported resolutions are rejected**: If you request a size that isn't in the list, Camera2 rejects the configuration before the stream opens.
+- **Requesting frame rates above the maximum**: If you request a minimum frame rate above the maximum supported for your resolution, the session still opens, but the target frame rate from the glasses is clamped to that supported maximum while the upper bound continues to act as the catch-up rate limit. For example, requesting \[30,60\] at 640 x 480 clamps the target frame rate to 24 FPS (behaving like \[24,60\]).
+- **Thermal throttling**: When the glasses get warm, the frame rate drops but the resolution stays the same. Build your app to handle lower or uneven frame rates, for example by checking frame timestamps rather than assuming a fixed rate.
 
 ## Access a phone's hardware from a projected activity
 
-An [projected activity](https://developer.android.com/develop/xr/jetpack-xr-sdk/glasses/support-different-types#activity-lifecycle) can also access the phone's hardware (such as the
+A [projected activity](https://developer.android.com/develop/xr/jetpack-xr-sdk/glasses/support-different-types#activity-lifecycle) can also access the phone's hardware (such as the
 camera or microphone) by using [`createHostDeviceContext(context)`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#createHostDeviceContext(android.content.Context)) to get
 the host device's (phone) context:
 

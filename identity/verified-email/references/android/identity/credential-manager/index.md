@@ -29,7 +29,7 @@ application and your users:
 - **Enhanced security**: Passkeys offer enhanced security and protect users from phishing attempts.
 - **Support for various form factors** : The APIs work across Android [form
   factors](https://developer.android.com/identity/form-factors), including mobile, Android XR, and Wear OS devices.
-- **Simplified authentication across use cases** : [Digital credentials](https://developer.android.com/identity/digital-credentials), such as digital driver's licenses, corporate IDs, and national ID cards, enable authentication across various use cases, including those requiring [phone number verification](https://developer.android.com/identity/digital-credentials/phone-number-verification).
+- **Simplified authentication across use cases** : [Digital credentials](https://developer.android.com/identity/digital-credentials), such as digital driver's licenses, corporate IDs, and national ID cards, enable authentication across various use cases, including those requiring [phone number verification](https://developer.android.com/identity/digital-credentials/credential-verifier/about-verifying-phone-numbers).
 - **Improved user experience**: Credential Manager's unified interface gives users a familiar and consistent experience and improves registration and sign-in speeds. The bottom sheet UI appears inline to your app's content, so your users remain within your app's context during sign-in. The following image shows Credential Manager's built-in UI:
 
 ![The Credential Manager user interface for passkeys, passwords, and federated sign-ins](https://developer.android.com/static/identity/credential-manager/images/credman-ui.png) **Figure 1.**Credential Manager's built-in unified interface for passkeys, passwords, and federated sign-ins

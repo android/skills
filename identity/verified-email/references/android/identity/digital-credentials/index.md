@@ -22,7 +22,7 @@ the following:
 
 - **Accept government-issued IDs**: Apps can request and use official government document attributes, for flows including age verification, account recovery, Know-Your-Customer (KYC) process.
 - **Verify phone numbers** : Apps can use the API for phone number verification, by exchanging digital credentials derived from the phone's SIM card directly with the user's carrier. This removes the need for one-time passwords (OTPs), improves security, and reduces transmission costs. For more information, see the [phone number verification guide](https://developer.android.com/identity/digital-credentials/credential-verifier/about-verifying-phone-numbers).
-- **Verify email addresses** : The API lets your app retrieve verified emails directly from the user's device, removing the need for OTPs, for frictionless sign-up, sign-in, and account recovery. For more information, see the [email verification guide](https://developer.android.com/identity/digital-credentials/about-email-verification).
+- **Verify email addresses** : The API lets your app retrieve verified emails directly from the user's device, removing the need for OTPs, for frictionless sign-up, sign-in, and account recovery. For more information, see the [email verification guide](https://developer.android.com/identity/digital-credentials/email-verification).
 - **Custom credentials**: The extensibility of the API lets any app begin issuing its own custom digital credentials, which corresponding verifiers can request.
 - **Confirm payment credentials and transactions**: The API lets you secure payment authorizations and Digital Payment Credentials (DPC) with native, cryptographically bound wallet confirmation.
 

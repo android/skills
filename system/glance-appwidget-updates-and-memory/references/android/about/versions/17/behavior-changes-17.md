@@ -32,6 +32,19 @@ throws an `IllegalArgumentException`:
 For apps targeting API level 36 or lower, the system logs this memory violation
 as a warning (`Slog.w`) without throwing an exception.
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/system/glance-appwidget-updates-and-memory)
+
+### Manage AppWidget updates and bitmap memory
+
+Use the AppWidget Updates and Memory [Android skill](https://developer.android.com/tools/agents/android-skills) to downsample widget bitmaps, deduplicate responsive images, and stay within Android 17 RemoteViews memory limits across Glance and classic AppWidgetProvider widgets. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add glance-appwidget-updates-and-memory
+
+<br />
+
 #### How the system calculates the memory ceiling
 
 The system sets the widget bitmap memory budget at `6 * width * height` bytes

@@ -6,9 +6,8 @@ Display Glasses [](https://developer.android.com/develop/xr/devices#audio-displa
 
 <br />
 
-Just like on a phone, accessing sensitive hardware like the camera and
-microphone on audio glasses and display glasses requires explicit user consent.
-These are considered
+Just like on a phone, accessing sensitive hardware like the camera on audio
+glasses and display glasses requires explicit user consent. These are considered
 **glasses-specific permissions**, and your app must request them at runtime,
 even if it already has the corresponding permissions on the phone.
 

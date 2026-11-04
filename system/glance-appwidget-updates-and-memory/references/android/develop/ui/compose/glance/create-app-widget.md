@@ -3,6 +3,19 @@ The following sections describe how to create a basic app widget with Glance.
 > [!IMPORTANT]
 > **Key Point:** Glance provides a modern approach to build app widgets using Compose, but is restricted by the limitations of `AppWidgets` and `RemoteViews`. Therefore, Glance uses different *composables* from the Jetpack Compose UI.
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/system/glance-appwidget-updates-and-memory)
+
+### Manage AppWidget updates and bitmap memory
+
+Use the AppWidget Updates and Memory [Android skill](https://developer.android.com/tools/agents/android-skills) to downsample widget bitmaps, deduplicate SizeMode.Responsive images, and stay within Android 17 RemoteViews memory limits. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add glance-appwidget-updates-and-memory
+
+<br />
+
 ## Declare the `AppWidget` in the Manifest
 
 After completing the [setup steps](https://developer.android.com/develop/ui/compose/glance#get-started), declare the [`AppWidget`](https://developer.android.com/guide/topics/appwidgets) and its

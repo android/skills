@@ -14,7 +14,7 @@ description: Manages Android AppWidget state updates, background syncs, and Remo
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-23'
+  last-updated: '2026-10-31'
   keywords:
   - Android
   - AppWidget

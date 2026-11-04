@@ -10,7 +10,7 @@ description: Provides guidelines for developing projected Android XR apps for di
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-24'
+  last-updated: '2026-10-29'
   keywords:
   - Jetpack Compose Glimmer
   - display glasses
@@ -180,7 +180,7 @@ metadata:
 
 - Map tap and swipe interactions to the glasses touchpad. Inputs are one-dimensional; avoid nesting scrolling controls.
 - Use System Back to dismiss temporary states or detailed views.
-- When implementing focus navigation and hardware input handling, follow [Focus in Jetpack Compose Glimmer](references/android/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/focus.md) and [Hardware Controls for display
+- When implementing focus navigation and hardware input handling, follow [Focus in Jetpack Compose Glimmer](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/focus) and [Hardware Controls for display
   glasses](references/android/design/ui/ai-glasses/guides/interaction/inputs.md). Focus movement is continuous for scrollable containers and discrete for elements like button rows.
 
 ## 4. Build with Jetpack Compose Glimmer
@@ -220,7 +220,7 @@ interactive UI.
 
 Cards (`androidx.xr.glimmer.Card`) group related content into a single focal
 point. Never embed a `Card` within a `ListItem`. When implementing cards, follow
-the instructions in [Jetpack Compose Glimmer: Cards](references/android/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/cards.md), [card-source.md](references/card-source.md),
+the instructions in [Jetpack Compose Glimmer: Cards](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/cards), [card-source.md](references/card-source.md),
 and [card-samples-source.md](references/card-samples-source.md).
 
 - **Clickable versus non-clickable card** : Pass `onClick = { ... }` if the entire `Card` acts as a trigger; omit `onClick` if informational. Control focus on non-clickable cards with `focusable: Boolean = true` (such as `Card(focusable = false)`).
@@ -271,7 +271,7 @@ and [card-samples-source.md](references/card-samples-source.md).
 #### Buttons and ToggleButtons
 
 When implementing buttons or toggle buttons, follow the instructions in [Jetpack
-Compose Glimmer: Buttons](references/android/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/buttons.md), [button-source.md](references/button-source.md), and
+Compose Glimmer: Buttons](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/buttons), [button-source.md](references/button-source.md), and
 [button-samples-source.md](references/button-samples-source.md).
 
 - **Standard and icon buttons** : Use `Button` for text actions (with optional `leadingIcon`/`trailingIcon`) and `IconButton` for icon-only triggers (such as media next-track or previous-track buttons).
@@ -306,7 +306,7 @@ Compose Glimmer: Buttons](references/android/develop/xr/jetpack-xr-sdk/jetpack-c
 
 `TitleChip` (`androidx.xr.glimmer.TitleChip`) is a non-interactive pill header
 (three words or fewer, single line). When implementing title chips, follow the
-instructions in [Jetpack Compose Glimmer: Title Chips](references/android/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/title-chips.md),
+instructions in [Jetpack Compose Glimmer: Title Chips](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/title-chips),
 [titlechip-source.md](references/titlechip-source.md), and [titlechip-samples-source.md](references/titlechip-samples-source.md).
 
 - **Spatial spacing** : When placing a standalone `TitleChip` above a `Card` or
@@ -339,7 +339,7 @@ instructions in [Jetpack Compose Glimmer: Title Chips](references/android/develo
 #### Icons
 
 When adding icons or icon buttons, follow the instructions in [Jetpack Compose
-Glimmer: Icons](references/android/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/icons.md), [icon-source.md](references/icon-source.md), [iconbutton-source.md](references/iconbutton-source.md), and
+Glimmer: Icons](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/icons), [icon-source.md](references/icon-source.md), [iconbutton-source.md](references/iconbutton-source.md), and
 [iconsizes-source.md](references/iconsizes-source.md).
 
 - **Sizing and interactivity** : Size icons with `GlimmerTheme.iconSizes` (`small`, `medium`, `large`). Use `IconButton` or `IconToggleButton` for triggers and `Icon` for status indicators.
@@ -417,7 +417,7 @@ Use `GlimmerHorizontalPager`
 `rememberGlimmerPagerState(pageCount = { ... })` for horizontal card
 walkthroughs (never foundation `HorizontalPager`).
 
-- **Smooth text motion** : Inside pager pages, configure Glimmer [`Text`](references/android/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/text.md)
+- **Smooth text motion** : Inside pager pages, configure Glimmer [`Text`](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/text)
   (`androidx.xr.glimmer.Text`, never `androidx.compose.material3.Text`) with
   `textMotion = TextMotion.Animated` (using `.copy(textMotion =
   TextMotion.Animated)`) for smooth rendering during snap transitions:
