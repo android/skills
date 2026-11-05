@@ -8,7 +8,7 @@ handling system-wide configuration, and managing build dependencies.
 Add the following to `build.gradle.kts`. App Functions requires the KSP (Kotlin
 Symbol Processing) plugin.
 
-1. **Version check** : Use library version `1.0.0-beta01` or later from maven.google.com.
+1. **Version check** : Use library version `1.0.0-rc01` or later from maven.google.com.
 2. **Version catalog** : The following snippet uses version catalog aliases for `androidx.appfunctions:appfunctions` and `androidx.appfunctions:appfunctions-compiler`. Add both to `libs.versions.toml`. Without a version catalog, declare the coordinates and version directly.
 
 
@@ -36,11 +36,7 @@ Define that resource, or omit the attribute.
 
 ```xml
 <AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
-    appfn:description="This app manages user tasks and reminders.
-    Operational Patterns:
-    - Use 'createTask' to add new tasks or reminders with titles and content.
-    Constraints:
-    - Title or content must be non-null when creating a task."
+    appfn:instructions="This app manages a personal task list: creating tasks.""
     appfn:displayDescription="@string/user_visible_description" />
 ```
 
@@ -144,7 +140,15 @@ repositories or use cases using standard `@Inject internal lateinit var`:
 abstract class BaseAppFunctionServiceHeader : AppFunctionService() {
     @Inject internal lateinit var messageRepository: MessageRepository
 
-    @AppFunction(isDescribedByKDoc = true)
+    /**
+     * Sends a text message to a contact or group.
+     *
+     * @param name The display name of the contact or group.
+     * @param endpointValue The unique ID of the contact or group.
+     * @param messageBody The text of the message.
+     * @return Whether the message was sent, and when.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     internal suspend fun send(
         name: String,
         endpointValue: String,
@@ -181,7 +185,15 @@ abstract class BaseAppFunctionServiceLocator : AppFunctionService() {
     // Or with Koin / alternative DI locators:
     // private val messageRepository: MessageRepository by inject()
 
-    @AppFunction(isDescribedByKDoc = true)
+    /**
+     * Sends a text message to a contact or group.
+     *
+     * @param name The display name of the contact or group.
+     * @param endpointValue The unique ID of the contact or group.
+     * @param messageBody The text of the message.
+     * @return Whether the message was sent, and when.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     internal suspend fun send(
         name: String,
         endpointValue: String,
@@ -228,7 +240,7 @@ The `@AppFunctionDeclaration` annotation, `AppFunctionService`, and
 
 
 ```kotlin
-/** The parameter to create the task. */
+/** The title and content of a new task. */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class CreateTaskParams(
     /** The title of the task. */
@@ -267,18 +279,20 @@ abstract class BaseTaskAppFunctionService : AppFunctionService() {
     @Inject internal lateinit var taskRepository: TaskRepository
 
     /**
-     * Creates a task based on [createTaskParams].
+     * Creates a task with a title, content, or both.
      *
-     * @param createTaskParams The parameter to describe how to create the task.
+     * @param createTaskParams The title and content of the task. At least one
+     *   of them is required.
+     * @return The created task, including its ID.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun createTask(
         createTaskParams: CreateTaskParams,
     ): Task = withContext(Dispatchers.IO) {
         // Developers can use predefined exceptions to let the agent know
         // why it failed.
         if (createTaskParams.title == null && createTaskParams.content == null) {
-            throw AppFunctionInvalidArgumentException("Title or content should be non-null")
+            throw AppFunctionInvalidArgumentException("A task needs a title, content, or both.")
         }
 
         val id = taskRepository.createTask(

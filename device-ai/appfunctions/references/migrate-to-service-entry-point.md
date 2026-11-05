@@ -1,7 +1,7 @@
 Follow this systematic procedure to migrate Android applications that use the
 AppFunctions API in version 1.0.0-alpha09 and lower to the compile-time
 `@AppFunctionServiceEntryPoint` architecture introduced in version
-`1.0.0-alpha10`. Then follow the Upgrade to 1.0.0-beta01 section. Apps that
+`1.0.0-alpha10`. Then follow the Upgrade to 1.0.0-rc01 section. Apps that
 already use `@AppFunctionServiceEntryPoint` only need that section.
 
 *** ** * ** ***
@@ -53,7 +53,7 @@ within the main `appfunctions` artifact.
 
     # libs.versions.toml
     [versions]
-    appfunctions = "1.0.0-beta01"
+    appfunctions = "1.0.0-rc01"
 
     [libraries]
     androidx-appfunctions = { module = "androidx.appfunctions:appfunctions", version.ref = "appfunctions" }
@@ -61,7 +61,7 @@ within the main `appfunctions` artifact.
     androidx-appfunctions-compiler = { module = "androidx.appfunctions:appfunctions-compiler", version.ref = "appfunctions" }
 
 > [!NOTE]
-> **Note:** If another dependency in your project uses snapshot builds like `1.0.0-SNAPSHOT` or custom snapshot repositories from `https://androidx.dev/snapshots/...`, preserve your custom snapshot repository configuration in `settings.gradle.kts`. Otherwise, standard Google Maven repositories resolve `1.0.0-beta01` directly.
+> **Note:** If another dependency in your project uses snapshot builds like `1.0.0-SNAPSHOT` or custom snapshot repositories from `https://androidx.dev/snapshots/...`, preserve your custom snapshot repository configuration in `settings.gradle.kts`. Otherwise, standard Google Maven repositories resolve `1.0.0-rc01` directly.
 
 *** ** * ** ***
 
@@ -88,7 +88,15 @@ repositories or use cases using standard `@Inject internal lateinit var`:
 abstract class BaseAppFunctionService : AppFunctionService() {
     @Inject internal lateinit var messageRepository: MessageRepository
 
-    @AppFunction(isDescribedByKDoc = true)
+    /**
+     * Sends a text message to a contact or group.
+     *
+     * @param name The display name of the contact or group.
+     * @param endpointValue The unique ID of the contact or group.
+     * @param messageBody The text of the message.
+     * @return Whether the message was sent, and when.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     internal suspend fun send(
         name: String,
         endpointValue: String,
@@ -125,7 +133,15 @@ abstract class ServiceLocatorBaseAppFunctionService : AppFunctionService() {
     // Or with Koin / alternative DI locators:
     // private val messageRepository: MessageRepository by inject()
 
-    @AppFunction(isDescribedByKDoc = true)
+    /**
+     * Sends a text message to a contact or group.
+     *
+     * @param name The display name of the contact or group.
+     * @param endpointValue The unique ID of the contact or group.
+     * @param messageBody The text of the message.
+     * @return Whether the message was sent, and when.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     internal suspend fun send(
         name: String,
         endpointValue: String,
@@ -212,7 +228,7 @@ the `android.app.appfunctions.v2` value to `appFunctionXmlFileName` plus
 
 *** ** * ** ***
 
-## Upgrade to 1.0.0-beta01
+## Upgrade to 1.0.0-rc01
 
 Apply these changes to every app that uses `@AppFunctionServiceEntryPoint`,
 including apps migrated with the preceding steps:
@@ -228,6 +244,7 @@ including apps migrated with the preceding steps:
    - `AppFunctionAppMetadata.description`: Read `instructions` instead (1.0.0-beta01).
    - `AppFunctionMetadata.isEnabled`: Call `AppFunctionManager.getAppFunctionStates` instead (1.0.0-alpha11).
    - `ObserveAppFunctionsEvent`: Use `AppFunctionsChangeEvent` instead (1.0.0-alpha13).
+7. **Removed compiler option** : Remove the `appfunctions:aggregateAppFunctions` KSP argument from your build files. Version 1.0.0-rc01 removed it.
 
 *** ** * ** ***
 

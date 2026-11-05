@@ -13,7 +13,7 @@ description: Analyzes Android apps to find user workflows to expose as AppFuncti
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-29'
+  last-updated: '2026-11-05'
   keywords:
   - AppFunctions
   - Kotlin
@@ -41,7 +41,7 @@ AppFunctions, part of the Android platform API, are available from Android 16
 onwards.
 Always use the Jetpack library because it handles backward compatibility.
 Use `androidx.appfunctions:appfunctions` and the KSP compiler
-`androidx.appfunctions:appfunctions-compiler`, version 1.0.0-beta01 or later.
+`androidx.appfunctions:appfunctions-compiler`, version 1.0.0-rc01 or later.
 
 ## Workflows
 
@@ -63,7 +63,7 @@ whether to run them.
 If they apply, you must load the following references:
 
 - *[Context and terminology](references/context.md)*: Defines the ubiquitous language, architecture definitions, and design patterns across the AppFunctions skill suite. Load when you need to understand core architecture terminology or check the distinctions between modern and legacy AppFunctions APIs.
-- *[Migration to service entry point](references/migrate-to-service-entry-point.md)* : Migrates apps on AppFunctions 1.0.0-alpha09 or lower to the `AppFunctionServiceEntryPoint` architecture from 1.0.0-alpha10, and upgrades apps to 1.0.0-beta01. Load it when a user asks to migrate or upgrade existing AppFunctions code. When you find legacy `AppFunctionConfiguration.Provider` implementations, `@AppFunction` annotations, or `appfn:description` attributes, load it and ask the user before you migrate.
+- *[Migration to service entry point](references/migrate-to-service-entry-point.md)* : Migrates apps on AppFunctions 1.0.0-alpha09 or lower to the `AppFunctionServiceEntryPoint` architecture from 1.0.0-alpha10, and upgrades apps to 1.0.0-rc01. Load it when a user asks to migrate or upgrade existing AppFunctions code. When you find legacy `AppFunctionConfiguration.Provider` implementations, `@AppFunction` annotations, or `appfn:description` attributes, load it and ask the user before you migrate.
 
 ## Critical constraints
 
