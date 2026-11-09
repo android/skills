@@ -13,7 +13,7 @@ description: Adapt existing Android video streaming apps, games, and web browser
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-09'
+  last-updated: '2026-11-07'
   keywords:
   - Android Auto
   - Android Automotive OS
@@ -141,7 +141,7 @@ satisfy `DD-2`, `DD-3`, and `MC-1`:
 
 1. Pause playback on `ON_PAUSE` or `ON_STOP` using `LifecycleEventEffect` from `androidx.lifecycle:lifecycle-runtime-compose`.
 2. Expose a `MediaSession` (`androidx.media3:media3-session`) with play, pause, or stop commands and item metadata (`MC-1`), and release it in `onCleared`.
-3. Add `useLibrary("android.car")` in `build.gradle.kts`, wrap `ExoPlayer` in `ForwardingSimpleBasePlayer`, listen to `CarUxRestrictionsManager`, pause playback when `isRequiresDistractionOptimization` becomes `true`, and remove `COMMAND_PLAY_PAUSE` in `getState` so external `MediaSession` controls can't resume playback while driving:
+3. Add `useLibrary("android.car")` in `build.gradle.kts` and wrap `ExoPlayer` in `ForwardingSimpleBasePlayer`. Retain the `Car` instance from `Car.createCar(context)`, listen to `CarUxRestrictionsManager`, and pause playback when `isRequiresDistractionOptimization` becomes `true`. Remove `COMMAND_PLAY_PAUSE` in `getState` while driving, and unregister the listener and call `car.disconnect()` in `handleRelease()`:
 
 
 ```kotlin
@@ -218,10 +218,13 @@ Before syncing passwords or payment data to the vehicle, browsers **MUST**
 prompt the user to authenticate and display a notice on the car screen stating
 that their data will be synchronized to the car (`SD-2`).
 
-Check whether a PIN, pattern, or password is set using `KeyguardManager`, open
-`Settings.ACTION_SECURITY_SETTINGS` if unset, and authenticate with
-`BiometricPrompt` using `BiometricManager.Authenticators.DEVICE_CREDENTIAL`
-only (vehicles don't have biometric hardware):
+Check whether a PIN, pattern, or password is set using `KeyguardManager`, and
+open `Settings.ACTION_SECURITY_SETTINGS` if unset. Initialize `BiometricPrompt`
+with a `FragmentActivity` (or `Fragment`),
+`ContextCompat.getMainExecutor(context)`, and an `AuthenticationCallback`.
+Authenticate using
+`BiometricManager.Authenticators.DEVICE_CREDENTIAL` only (vehicles don't have
+biometric hardware):
 
 
 ```kotlin

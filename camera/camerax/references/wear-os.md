@@ -32,10 +32,15 @@ You can't send a raw 60 fps stream over Bluetooth. compress and throttle.
 
 
 ```kotlin
-// Example: Sending a viewfinder frame to the watch
-val bitmap = previewView.bitmap // Capture current frame
-if (bitmap != null) {
-    val compressed = compressToJpeg(bitmap, quality = 50)
+/** Phone side: sends a compressed viewfinder frame to the watch. */
+suspend fun sendPreviewFrame(context: Context, previewView: PreviewView) {
+    val bitmap = previewView.bitmap ?: return // Capture current frame on the main thread
+    val compressed = withContext(Dispatchers.Default) { // Compress off the main thread
+        ByteArrayOutputStream().use { stream ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream)
+            stream.toByteArray()
+        }
+    }
     val request = PutDataMapRequest.create("/camera/preview").apply {
         dataMap.putAsset("image", Asset.createFromBytes(compressed))
     }
@@ -55,8 +60,10 @@ Camera."
 
 
 ```kotlin
-// Watch sends a trigger to the phone
-Wearable.getMessageClient(context).sendMessage(nodeId, "/camera/capture", null)
+/** Watch side: sends a capture trigger to the phone node. */
+fun sendCaptureTrigger(context: Context, phoneNodeId: String) {
+    Wearable.getMessageClient(context).sendMessage(phoneNodeId, "/camera/capture", null)
+}
 ```
 
 <br />

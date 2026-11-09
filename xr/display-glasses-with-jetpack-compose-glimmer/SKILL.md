@@ -10,7 +10,7 @@ description: Provides guidelines for developing projected Android XR apps for di
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-29'
+  last-updated: '2026-11-08'
   keywords:
   - Jetpack Compose Glimmer
   - display glasses

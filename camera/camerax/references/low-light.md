@@ -22,13 +22,28 @@ To set up the extension, initialize the extension manager:
 
 
 ```kotlin
-// Use ListenableFuture.await() extension function for coroutine support
-val extensionsManager = ExtensionsManager.getInstanceAsync(context, cameraProvider).await()
-if (extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT)) {
-    val nightSelector = extensionsManager.getExtensionEnabledCameraSelector(
-        cameraSelector, ExtensionMode.NIGHT
-    )
-    cameraProvider.bindToLifecycle(lifecycleOwner, nightSelector, imageCapture, preview)
+/** Binds Night mode with ExtensionSessionConfig (CameraX 1.6.0 and higher). */
+suspend fun bindNightMode(
+    context: Context,
+    lifecycleOwner: LifecycleOwner,
+    cameraProvider: ProcessCameraProvider,
+    preview: Preview,
+    imageCapture: ImageCapture,
+): Boolean {
+    // Suspend version of getInstanceAsync (CameraX 1.6.0 and higher).
+    val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
+    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    if (!extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT)) {
+        return false // Bind without the extension instead.
+    }
+    // ImageAnalysis isn't supported in extension sessions.
+    val config = ExtensionSessionConfig.Builder(ExtensionMode.NIGHT, extensionsManager)
+        .addUseCase(preview)
+        .addUseCase(imageCapture)
+        .build()
+    cameraProvider.unbindAll()
+    cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, config)
+    return true
 }
 ```
 
@@ -39,27 +54,51 @@ if (extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT))
 - **Image postview** : Display a low-resolution image immediately while the multi-frame processing occurs.
 
   ```kotlin
-  val imageCapture = ImageCapture.Builder()
-      .setPostviewEnabled(true)
-      .build()
+  fun buildPostviewImageCapture(): ImageCapture =
+      ImageCapture.Builder()
+          .setPostviewEnabled(true)
+          .build()
   ```
 - **Extension strength** : Let users control the intensity of the night effect.
 
   ```kotlin
-  // Set the strength of the active extension (e.g. NIGHT mode intensity)
-  val extensionsManager = ExtensionsManager.getInstanceAsync(context, cameraProvider).await()
-  val extensionsControl = extensionsManager.getCameraExtensionsControl(camera.cameraControl)
-  extensionsControl?.setExtensionStrength(strength)
+  /** Sets the active extension's strength, from 0 to 100. */
+  suspend fun setExtensionStrength(
+      context: Context,
+      cameraProvider: ProcessCameraProvider,
+      camera: Camera,
+      strength: Int,
+  ) {
+      val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
+      // Null when the bound camera has no active extension.
+      extensionsManager.getCameraExtensionsControl(camera.cameraControl)
+          ?.setExtensionStrength(strength)
+  }
   ```
 - **Capture progress** : Show a UI progress bar for long exposures.
 
   ```kotlin
-  // Use the suspend extension function for takePicture to avoid callback boilerplate
-  try {
-      val result = imageCapture.takePicture(outputOptions)
-      // Use result.savedUri or other fields
-  } catch (e: ImageCaptureException) {
-      // Handle capture failure
+  /**
+   * Captures to a file and reports progress for long exposures. The callbacks
+   * fire only when ImageCapture.getImageCaptureCapabilities(cameraInfo) reports
+   * support.
+   */
+  suspend fun captureWithProgress(
+      imageCapture: ImageCapture,
+      outputOptions: ImageCapture.OutputFileOptions,
+      onProgress: (percent: Int) -> Unit,
+      onPostview: (Bitmap) -> Unit,
+  ) {
+      try {
+          val result = imageCapture.takePicture(
+              outputOptions,
+              onCaptureProcessProgressed = onProgress,
+              onPostviewBitmapAvailable = onPostview,
+          )
+          Log.d("CameraX", "Saved ${result.savedUri}")
+      } catch (e: ImageCaptureException) {
+          Log.e("CameraX", "Capture failed", e)
+      }
   }
   ```
 
@@ -78,8 +117,35 @@ auto-exposure algorithm.
 - **Implementation** :
 
   ```kotlin
-  // Enable Low Light Boost (LLB) natively in CameraX 1.4+
-  camera.cameraControl.enableLowLightBoostAsync(true)
+  /**
+   * Enables AE-mode Low Light Boost. Requires CameraX 1.5.0 or higher,
+   * Android 15 (API level 35) or higher, and device support.
+   */
+  fun enableLowLightBoost(
+      camera: Camera,
+      lifecycleOwner: LifecycleOwner,
+      executor: Executor,
+  ): Boolean {
+      // lowLightBoostState is always OFF on unsupported devices, so it can't
+      // be used as the availability check.
+      if (!camera.cameraInfo.isLowLightBoostSupported) return false
+
+      val future = camera.cameraControl.enableLowLightBoostAsync(true)
+      future.addListener({
+          try {
+              future.get()
+          } catch (e: ExecutionException) {
+              // IllegalStateException: unsupported or a settings conflict.
+              Log.w("CameraX", "Low Light Boost not enabled", e.cause)
+          }
+      }, executor)
+
+      camera.cameraInfo.lowLightBoostState.observe(lifecycleOwner) { state ->
+          val isBoosting = state == LowLightBoostState.ACTIVE
+          Log.d("CameraX", "Low Light Boost active: $isBoosting")
+      }
+      return true
+  }
   ```
 - **Monitoring** : Observe `CameraInfo.lowLightBoostState` to track when the hardware actively applies the enhancement.
 
@@ -100,18 +166,34 @@ To implement Google Play services LLB, follow these core steps:
 3. **Wire using `CameraEffect`** :
 
    ```kotlin
-   val effect = SimpleCameraEffect(
+   /** CameraEffect's constructors are protected, so subclass it. */
+   class LowLightBoostEffect(
+       surfaceProcessor: SurfaceProcessor,
+       executor: Executor,
+       onError: Consumer<Throwable>,
+   ) : CameraEffect(
        CameraEffect.PREVIEW or CameraEffect.VIDEO_CAPTURE,
        executor,
-       llbSurfaceProcessor
-   ) { throw it }
+       surfaceProcessor,
+       onError,
+   )
 
-   // Add to UseCaseGroup
-   val useCaseGroup = UseCaseGroup.Builder()
-       .addUseCase(preview)
-       .addUseCase(videoCapture)
-       .addEffect(effect)
-       .build()
+   fun buildLowLightBoostUseCaseGroup(
+       preview: Preview,
+       videoCapture: VideoCapture<Recorder>,
+       llbSurfaceProcessor: SurfaceProcessor,
+       executor: Executor,
+   ): UseCaseGroup {
+       val effect = LowLightBoostEffect(llbSurfaceProcessor, executor) { error ->
+           Log.e("CameraX", "Low Light Boost effect failed", error)
+       }
+       // Bind the group with cameraProvider.bindToLifecycle(owner, selector, group).
+       return UseCaseGroup.Builder()
+           .addUseCase(preview)
+           .addUseCase(videoCapture)
+           .addEffect(effect)
+           .build()
+   }
    ```
 4. **Scene detection** : Use `session.setSceneDetectorCallback` to receive `boostStrength` updates for real-time UI indicators.
 

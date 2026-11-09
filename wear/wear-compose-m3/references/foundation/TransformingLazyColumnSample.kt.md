@@ -41,7 +41,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
@@ -209,6 +211,57 @@ fun TransformingLazyColumnMinimumVerticalContentPaddingSample() {
             ) {
                 Text(text = "Item $index")
             }
+        }
+    }
+}
+
+@Sampled
+@Preview
+@Composable
+fun TransformingLazyColumnSnapSegmentThresholdSample() {
+    val state = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+    // Half of the screen height.
+    val halfScreenHeightPx = LocalWindowInfo.current.containerSize.height / 2
+    TransformingLazyColumn(
+        state = state,
+        rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+        flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+        contentPadding = PaddingValues(horizontal = 10.dp),
+    ) {
+        items(count = 3) { index ->
+            TitleCard(
+                onClick = {},
+                modifier =
+                    Modifier.minimumVerticalContentPadding(
+                            CardDefaults.minimumVerticalListContentPadding
+                        )
+                        .fillMaxWidth()
+                        .transformedHeight(this, transformationSpec)
+                        .then(
+                            when (index) {
+                                // Split into segments of at most half of the screen height.
+                                0 -> Modifier.snapSegmentThreshold { _, _ -> halfScreenHeightPx }
+                                // Kept whole, with a single snap point at its center.
+                                1 ->
+                                    Modifier.snapSegmentThreshold { _, measuredHeight ->
+                                        measuredHeight
+                                    }
+                                // Split with the default snap segment threshold.
+                                else -> Modifier
+                            }
+                        ),
+                transformation = SurfaceTransformation(transformationSpec),
+                title = { Text(listOf("Half screen", "Kept whole", "Default")[index]) },
+                // The card kept whole fits the screen; the others are taller than it.
+                subtitle = {
+                    Text(
+                        remember(index) {
+                            LoremIpsum(words = if (index == 1) 22 else 80).values.first()
+                        }
+                    )
+                },
+            )
         }
     }
 }

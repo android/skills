@@ -22,9 +22,30 @@ manually.
 
 
 ```kotlin
-val transform = previewView.viewPort?.let { viewPort ->
-    // Use CameraX's built-in coordinate mapper
-    viewPort.getTransformationMatrix(imageProxy.imageInfo.rotationDegrees)
+fun startBarcodeScanning(
+    context: Context,
+    lifecycleOwner: LifecycleOwner,
+    previewView: PreviewView,
+    onBarcodes: (List<Barcode>) -> Unit,
+) {
+    val scanner = BarcodeScanning.getClient()
+    val executor = ContextCompat.getMainExecutor(context)
+    val controller = LifecycleCameraController(context)
+
+    // COORDINATE_SYSTEM_VIEW_REFERENCED: MlKitAnalyzer maps every result to
+    // PreviewView coordinates, including rotation, crop, and mirroring.
+    controller.setImageAnalysisAnalyzer(
+        executor,
+        MlKitAnalyzer(
+            listOf(scanner),
+            ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
+            executor,
+        ) { result ->
+            onBarcodes(result.getValue(scanner).orEmpty())
+        },
+    )
+    controller.bindToLifecycle(lifecycleOwner)
+    previewView.controller = controller
 }
 ```
 
@@ -49,9 +70,20 @@ specific screen button?", use **normalized coordinates from 0.0 to 1.0**.
 
 
 ```kotlin
-// Example: Converting a Pose landmark to a Screen Coordinate
-val screenX = landmark.position.x / analysisWidth * screenWidth
-val screenY = landmark.position.y / analysisHeight * screenHeight
+/** Converts a landmark position in the analysis frame to screen pixels. */
+fun toScreenPoint(
+    landmarkX: Float,
+    landmarkY: Float,
+    analysisWidth: Int,
+    analysisHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+): Pair<Float, Float> {
+    // Normalize to 0.0-1.0 first, then scale to the screen.
+    val normalizedX = landmarkX / analysisWidth
+    val normalizedY = landmarkY / analysisHeight
+    return normalizedX * screenWidth to normalizedY * screenHeight
+}
 ```
 
 <br />
