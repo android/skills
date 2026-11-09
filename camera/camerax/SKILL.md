@@ -7,7 +7,7 @@ description: Provide technical guidance for Android camera development with Came
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-08'
+  last-updated: '2026-11-08'
   keywords:
   - recipe
   - Android

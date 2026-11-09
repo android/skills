@@ -144,7 +144,7 @@ repositories or use cases using standard `@Inject internal lateinit var`:
 abstract class BaseAppFunctionServiceHeader : AppFunctionService() {
     @Inject internal lateinit var messageRepository: MessageRepository
 
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     internal suspend fun send(
         name: String,
         endpointValue: String,
@@ -181,7 +181,7 @@ abstract class BaseAppFunctionServiceLocator : AppFunctionService() {
     // Or with Koin / alternative DI locators:
     // private val messageRepository: MessageRepository by inject()
 
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     internal suspend fun send(
         name: String,
         endpointValue: String,
@@ -271,7 +271,7 @@ abstract class BaseTaskAppFunctionService : AppFunctionService() {
      *
      * @param createTaskParams The parameter to describe how to create the task.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun createTask(
         createTaskParams: CreateTaskParams,
     ): Task = withContext(Dispatchers.IO) {

@@ -293,6 +293,53 @@ fun OneHandedGestureTransformingLazyColumnSample() {
 
 @Sampled
 @Composable
+fun OneHandedGestureTransformingLazyColumnScrollFractionSample() {
+    val scrollState = rememberTransformingLazyColumnState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val scrollGestureConfig =
+        rememberOneHandedGestureConfiguration(
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Scrollable,
+        )
+    val scrollIndicatorState =
+        remember(scrollGestureConfig) { OneHandedGestureScrollIndicatorState() }
+
+    ScreenScaffold(
+        scrollState = scrollState,
+        scrollIndicator = {
+            OneHandedGestureScrollIndicator(
+                gestureConfiguration = scrollGestureConfig,
+                indicatorState = scrollIndicatorState,
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
+        },
+    ) { contentPadding ->
+        TransformingLazyColumn(
+            state = scrollState,
+            contentPadding = contentPadding,
+            modifier =
+                Modifier.fillMaxSize()
+                    .oneHandedGesture(
+                        gestureConfiguration = scrollGestureConfig,
+                        onGestureLabel = "scroll",
+                        onGestureAvailable = {
+                            coroutineScope.launch { scrollIndicatorState.showIndicator() }
+                        },
+                        onGesture = {
+                            // Scroll by 80% of the viewport height on each gesture.
+                            OneHandedGestureDefaults.scrollDown(scrollState, scrollFraction = 0.8f)
+                        },
+                    ),
+        ) {
+            items(20) { Text("Item $it") }
+        }
+    }
+}
+
+@Sampled
+@Composable
 fun OneHandedGestureScalingLazyColumnSample() {
     val backDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val onClick =

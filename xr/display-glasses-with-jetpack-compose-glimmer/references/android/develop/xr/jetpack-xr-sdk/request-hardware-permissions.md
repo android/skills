@@ -39,7 +39,7 @@ permissions.
 ## Permission scenarios
 
 There are different scenarios you might encounter when requesting [dangerous
-runtime permissions](https://developer.android.com/guide/topics/permissions/requesting#normal-dangerous) on audio and display glasses:
+runtime permissions](https://developer.android.com/guide/topics/permissions/overview#runtime) on audio and display glasses:
 
 - Request runtime permissions from a projected activity
 - Request runtime permissions from a phone activity

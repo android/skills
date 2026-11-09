@@ -285,7 +285,7 @@ from the [capture image example](https://developer.android.com/develop/xr/jetpac
 [`ImageAnalysis`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageAnalysis) components and change the capture logic.
 
 For more information about these APIs how to use them, see the [CameraX video
-capture](https://developer.android.com/media/camera/camerax/video-capture#using-videocapture-api) and [CameraX iamge analysis](https://developer.android.com/media/camera/camerax/analyze) documentation.
+capture](https://developer.android.com/media/camera/camerax/video-capture#using-videocapture-api) and [CameraX image analysis](https://developer.android.com/media/camera/camerax/analyze) documentation.
 
 ### Choose a resolution and frame rate
 
@@ -398,6 +398,9 @@ Keep the following system behaviors in mind while working with capture streams:
 - **Unsupported resolutions are rejected**: If you request a size that isn't in the list, Camera2 rejects the configuration before the stream opens.
 - **Requesting frame rates above the maximum**: If you request a minimum frame rate above the maximum supported for your resolution, the session still opens, but the target frame rate from the glasses is clamped to that supported maximum while the upper bound continues to act as the catch-up rate limit. For example, requesting \[30,60\] at 640 x 480 clamps the target frame rate to 24 FPS (behaving like \[24,60\]).
 - **Thermal throttling**: When the glasses get warm, the frame rate drops but the resolution stays the same. Build your app to handle lower or uneven frame rates, for example by checking frame timestamps rather than assuming a fixed rate.
+
+> [!NOTE]
+> **Note:** There's a known issue where the camera stream is interrupted without the phone camera permissions. Request the phone camera permissions in addition to the glasses' permissions to avoid this issue.
 
 ## Access a phone's hardware from a projected activity
 

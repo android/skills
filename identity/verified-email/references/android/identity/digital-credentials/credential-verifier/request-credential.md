@@ -240,14 +240,14 @@ no credentials on the device or if the user cancels the operation:
             is NoCredentialException -> {
                 // No credential was available.
             }
-            is CreateCredentialUnknownException -> {
+            is GetCredentialUnknownException -> {
                 // An unknown, usually unexpected, error has occurred. Check the
                 // message error for any additional debugging information.
             }
-            is CreateCredentialCustomException -> {
+            is GetCredentialCustomException -> {
                 // You have encountered a custom error thrown by the wallet.
                 // If you made the API call with a request object that's a
-                // subclass of CreateCustomCredentialRequest using a 3rd-party SDK,
+                // subclass of GetCustomCredentialOption using a 3rd-party SDK,
                 // then you should check for any custom exception type constants
                 // within that SDK to match with e.type. Otherwise, drop or log the
                 // exception.

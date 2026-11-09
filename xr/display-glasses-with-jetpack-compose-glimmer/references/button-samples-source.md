@@ -132,7 +132,7 @@ private fun LargeButtonWithLeadingAndTrailingIconSample() {
 fun CustomFocusedColorButtonSample() {
     Button(
         onClick = {},
-        focusedColor = ButtonDefaults.focusedColor(Color(0xFF34E0A1)),
+        focusedColor = ButtonDefaults.calculateFocusedColor(Color(0xFF34E0A1)),
     ) {
         Text("Button with custom colors")
     }

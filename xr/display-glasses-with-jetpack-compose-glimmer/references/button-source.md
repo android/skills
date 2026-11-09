@@ -82,8 +82,8 @@ import androidx.compose.ui.unit.dp
  *   border
  * @param color background color of this button
  * @param focusedColor background color of this button when focused. When providing a custom color,
- *   ensure it is suitable for a focused button background or use [ButtonDefaults.focusedColor] to
- *   adapt it.
+ *   ensure it is suitable for a focused button background or use
+ *   [ButtonDefaults.calculateFocusedColor] to adapt it.
  * @param contentColor content color used by components inside [content], [leadingIcon], and
  *   [trailingIcon].
  * @param focusedContentColor content color used by components inside [content], [leadingIcon], and
@@ -106,7 +106,7 @@ public fun Button(
     trailingIcon: @Composable (() -> Unit)? = null,
     shape: Shape = GlimmerTheme.shapes.large,
     color: Color = GlimmerTheme.colors.surface,
-    focusedColor: Color = ButtonDefaults.focusedColor(color),
+    focusedColor: Color = ButtonDefaults.calculateFocusedColor(color),
     contentColor: Color = calculateContentColor(color),
     focusedContentColor: Color = calculateContentColor(focusedColor),
     contentPadding: PaddingValues = ButtonDefaults.contentPadding(buttonSize),
@@ -193,17 +193,14 @@ public object ButtonDefaults {
     }
 
     /**
-     * Returns the focused background [Color] for a button derived from the provided [baseColor].
+     * Derives a color suitable for use as the focused background color of a [Button] from the
+     * provided [seedColor].
      *
-     * Adjusts the provided [baseColor] so that it is suitable for use as a focused button
-     * background.
-     *
-     * @param baseColor the base [Color] of the button
-     * @return the focused button background [Color], adjusted to improve content contrast
+     * @param seedColor the base [Color] from which the focused background color will be derived
+     * @return a color to be used as the focused background [Color]
      */
-    @Composable
-    public fun focusedColor(baseColor: Color = GlimmerTheme.colors.surface): Color =
-        SurfaceDefaults.calculateFocusedColor(baseColor)
+    public fun calculateFocusedColor(seedColor: Color): Color =
+        SurfaceDefaults.calculateFocusedColor(seedColor)
 
     /** Default minimum height for [Button] and [ToggleButton] with the specified [buttonSize]. */
     internal fun minimumHeight(buttonSize: ButtonSize): Dp {
