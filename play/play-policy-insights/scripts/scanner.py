@@ -91,25 +91,33 @@ def collect_target_files(target_dir):
       file_path = os.path.join(root, file)
       categorized["all_files"].append((file, file_path, root))
 
+      normalized_path = file_path.replace("\\", "/")
+      normalized_path_lower = normalized_path.lower()
+
       # Surgical filter for XMLs to avoid scanning thousands of low-signal
       # assets.
       if file.endswith(".xml"):
         # Exclude test-bleed XMLs
         if not any(
-            x in file_path.lower()
-            for x in ["/debug/", "/test/", "/androidtest/", "/testfixtures/"]
+            segment in normalized_path_lower
+            for segment in [
+                "/debug/",
+                "/test/",
+                "/androidtest/",
+                "/testfixtures/",
+            ]
         ):
           if file == "AndroidManifest.xml":
             categorized["manifests"].append(file_path)
           else:
-            path_parts = file_path.split(os.sep)
+            path_parts = normalized_path.split("/")
             is_valuable_xml = False
             for i, part in enumerate(path_parts):
               if part in ["res", "resources"] and i + 1 < len(path_parts):
                 next_part = path_parts[i + 1]
                 if any(
-                    next_part.startswith(d)
-                    for d in ["layout", "values", "xml", "navigation"]
+                    next_part.startswith(prefix)
+                    for prefix in ["layout", "values", "xml", "navigation"]
                 ):
                   is_valuable_xml = True
                   break
@@ -127,8 +135,8 @@ def collect_target_files(target_dir):
         file_lower = file.lower()
         is_test_or_debug = (
             any(
-                x in file_path.lower()
-                for x in [
+                segment in normalized_path_lower
+                for segment in [
                     "/debug/",
                     "/test/",
                     "/androidtest/",
