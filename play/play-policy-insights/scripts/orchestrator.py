@@ -416,6 +416,16 @@ def determine_primary_identity(
       primary_sdk = mod["target_sdk"]
       primary_label = mod["app_label"]
       break
+  if primary_sdk is None:
+    for mod in app_modules:
+      if mod.get("target_sdk") is not None:
+        primary_sdk = mod["target_sdk"]
+        break
+  if not primary_label:
+    for mod in app_modules:
+      if mod.get("app_label"):
+        primary_label = mod["app_label"]
+        break
 
   # 2. Fallback to global Gradle properties
   if not primary_id:
@@ -450,23 +460,24 @@ def determine_primary_identity(
         pass
 
   # 4. Cross-Platform Framework Detection
-  if not primary_id or not primary_sdk:
+  if not primary_id or primary_sdk is None:
     # Check for Flutter (pubspec.yaml)
     pubspec_path = os.path.join(app_dir, "pubspec.yaml")
     if os.path.exists(pubspec_path):
       try:
         with open(pubspec_path, "r", encoding="utf-8") as f:
           for line in f:
-            if line.startswith("name:"):
+            if line.startswith("name:") and not primary_id:
               primary_id = line.split(":")[1].strip()
               break
-        primary_sdk = FRAMEWORK_DEFAULTS.get("flutter.targetSdkVersion")
+        if primary_sdk is None:
+          primary_sdk = FRAMEWORK_DEFAULTS.get("flutter.targetSdkVersion")
       except Exception:  # pylint: disable=broad-exception-caught
         pass
 
     # Check for React Native (package.json)
     pkg_json_path = os.path.join(app_dir, "package.json")
-    if os.path.exists(pkg_json_path):
+    if os.path.exists(pkg_json_path) and not primary_id:
       try:
         with open(pkg_json_path, "r", encoding="utf-8") as f:
           data = json.load(f)
