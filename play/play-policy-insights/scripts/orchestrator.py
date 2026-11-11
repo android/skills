@@ -830,7 +830,9 @@ def write_agent_prompts(env_data, goal_map, output_data):
 
     if not chunks:
       # Single pass for small goals
-      if _save_goal_instance(goal_name, base_context, template_content):
+      goal_context = base_context.copy()
+      goal_context["GOAL_NAME"] = goal_name
+      if _save_goal_instance(goal_name, goal_context, template_content):
         activated_goals.append(goal_name)
     else:
       # Multipass for large data safety sets
