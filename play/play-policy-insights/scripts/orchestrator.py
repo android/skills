@@ -34,26 +34,45 @@ from template_engine import render_template
 
 # Constants for Gradle parsing
 GRADLE_APP_ID_PATTERN = (
-    r'applicationId\s*(?:[:=]|\.set\(?)\s*[\'"]?([a-zA-Z0-9._]+)[\'"]?\)?'
+    r"\bapplicationId(?:\s*(?:[:=]|\.set\s*\(|\()|\s+)\s*"
+    r"['\"]([a-zA-Z0-9._]+)['\"]\s*\)?"
 )
 GRADLE_APP_ID_PROP_PATTERN = (
-    r'applicationId\s*[:=]?\s*project\.property\(\s*[\'"]([^\'"]+)[\'"]\s*\)'
+    r"\bapplicationId(?:\s*(?:[:=]|\.set\s*\(|\()|\s+)?\s*"
+    r'project\.property\(\s*[\'"]([^\'"]+)[\'"]\s*\)'
 )
 GRADLE_NAMESPACE_PATTERN = (
-    r'namespace\s*(?:[:=]|\.set\(?)\s*[\'"]?([a-zA-Z0-9._]+)[\'"]?\)?'
+    r"\bnamespace(?:\s*(?:[:=]|\.set\s*\(|\()|\s+)\s*"
+    r"['\"]([a-zA-Z0-9._]+)['\"]\s*\)?"
 )
 GRADLE_NAMESPACE_PROP_PATTERN = (
-    r'namespace\s*[:=]?\s*project\.property\(\s*[\'"]([^\'"]+)[\'"]\s*\)'
+    r"\bnamespace(?:\s*(?:[:=]|\.set\s*\(|\()|\s+)?\s*"
+    r'project\.property\(\s*[\'"]([^\'"]+)[\'"]\s*\)'
 )
 GRADLE_GROUP_PATTERN = (
-    r'group(?:Id)?\s*(?:[:=]|\.set\(?)\s*[\'"]?([a-zA-Z0-9._]+)[\'"]?\)?'
+    r"\bgroup(?:Id)?(?:\s*(?:[:=]|\.set\s*\(|\()|\s+)\s*"
+    r"['\"]([a-zA-Z0-9._]+)['\"]\s*\)?"
 )
 GRADLE_GROUP_PROP_PATTERN = (
-    r'group(?:Id)?\s*[:=]?\s*project\.property\(\s*[\'"]([^\'"]+)[\'"]\s*\)'
+    r"\bgroup(?:Id)?(?:\s*(?:[:=]|\.set\s*\(|\()|\s+)?\s*"
+    r'project\.property\(\s*[\'"]([^\'"]+)[\'"]\s*\)'
 )
 GRADLE_TARGET_SDK_PATTERN = (
-    r"targetSdk(?:Version)?(?:\.set\(?)?\s*[:="
-    r" (]*\s*([\'\"]?[\w\d_\.]+[\'\"]?)\)?"
+    r"\btargetSdk(?:Version)?(?:\s*\.set\s*\(|\s*[:=\(]|\s+)\s*"
+    r"([\'\"]?[\w\d_\.]+[\'\"]?)\)?"
+)
+GRADLE_APP_PLUGIN_PATTERN = (
+    r"(?:id\s*\(\s*[\x27\x22]com\.android\.application[\x27\x22]\s*\)|"
+    r"id\s+[\x27\x22]com\.android\.application[\x27\x22]|"
+    r"alias\s*\([^)]*android\.application[^)]*\)|"
+    r"alias\s*\([^)]*android\.app[^)]*\)|"
+    r"apply\s*\(\s*(?:plugin\s*[:=]\s*)?[\x27\x22]com\.android\.application"
+    r"[\x27\x22]\s*\)|"
+    r"apply\s+(?:plugin\s*[:=]\s*)?[\x27\x22]com\.android\.application"
+    r"[\x27\x22])"
+    r"(?!(?:\s*(?:\.\s*)?version\s*\(?\s*[\x27\x22][^\x27\x22]+[\x27\x22]"
+    r"(?:\s*\))?)?"
+    r"\s*(?:(?:\.\s*)?apply\s*\(?\s*false(?:\s*\))?|apply\s*=\s*false))"
 )
 
 # Well-known framework defaults for unresolved dynamic variables (e.g. Flutter)
@@ -123,32 +142,52 @@ def _strip_inline_comment(line, support_quotes=True):
   return line
 
 
+def _candidate_project_roots(target_dir):
+  """Returns target_dir and its parent directory (for submodule scans)."""
+  if not target_dir:
+    return []
+  norm_target = os.path.normpath(target_dir)
+  roots = [norm_target]
+  parent = os.path.dirname(norm_target)
+  if parent and parent != norm_target:
+    roots.append(parent)
+  return roots
+
+
 def load_gradle_properties(target_dir):
   """Loads properties from gradle.properties and local.properties."""
   properties = {}
-  for filename in ["gradle.properties", "local.properties"]:
-    path = os.path.join(target_dir, filename)
-    if os.path.exists(path):
-      try:
-        with open(path, "r", encoding="utf-8", errors="ignore") as f:
-          for line in f:
-            line = _strip_inline_comment(line, support_quotes=False).strip()
-            if line and not line.startswith("#") and "=" in line:
-              key, val = line.split("=", 1)
-              properties[key.strip()] = val.strip()
-      except Exception as e:  # pylint: disable=broad-exception-caught
-        print(
-            f"Warning: Failed to load properties from {path}: {e}",
-            file=sys.stderr,
-        )
+  # Check parent first so module-local properties override root properties
+  for root in reversed(_candidate_project_roots(target_dir)):
+    for filename in ["gradle.properties", "local.properties"]:
+      path = os.path.join(root, filename)
+      if os.path.exists(path):
+        try:
+          with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+              line = _strip_inline_comment(line, support_quotes=False).strip()
+              if line and not line.startswith("#") and "=" in line:
+                key, val = line.split("=", 1)
+                properties[key.strip()] = val.strip()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+          print(
+              f"Warning: Failed to load properties from {path}: {e}",
+              file=sys.stderr,
+          )
   return properties
 
 
 def load_version_catalog(target_dir):
   """Loads versions from gradle/libs.versions.toml if it exists."""
   catalog = {}
-  toml_path = os.path.join(target_dir, "gradle", "libs.versions.toml")
-  if os.path.exists(toml_path):
+  toml_path = None
+  for root in _candidate_project_roots(target_dir):
+    candidate = os.path.join(root, "gradle", "libs.versions.toml")
+    if os.path.exists(candidate):
+      toml_path = candidate
+      break
+
+  if toml_path:
     try:
       with open(toml_path, "r", encoding="utf-8", errors="ignore") as f:
         current_section = None
@@ -171,6 +210,79 @@ def load_version_catalog(target_dir):
   return catalog
 
 
+# Matches a [plugins] entry in *.versions.toml whose plugin id is
+# com.android.application. Handles both table form
+#   android-application = { id = "com.android.application", ... }
+# and shorthand string form
+#   android-application = "com.android.application:8.2.0"
+_CATALOG_APP_PLUGIN_ENTRY_PATTERN = re.compile(
+    r"^([A-Za-z0-9_.-]+)\s*=\s*(?:"
+    r"\{[^}]*\bid\s*=\s*[\x27\x22]com\.android\.application[\x27\x22][^}]*\}"
+    r"|[\x27\x22]com\.android\.application(?::[^\x27\x22]*)?[\x27\x22]"
+    r")"
+)
+
+
+def load_app_plugin_aliases(target_dir):
+  """Returns version-catalog plugin aliases that map to com.android.application.
+
+  Scans every `gradle/*.versions.toml` file under `target_dir` (and its parent
+  directory when `target_dir` is a submodule) for `[plugins]` entries whose id
+  is `com.android.application` and returns the normalized dot-separated accessor
+  paths (e.g. `android-application` in `libs.versions.toml` ->
+  `libs.plugins.android.application`, or `androidApplication` ->
+  `libs.plugins.androidApplication`).
+  """
+  aliases = []
+  toml_files = []
+  for root in _candidate_project_roots(target_dir):
+    gradle_dir = os.path.join(root, "gradle")
+    if os.path.isdir(gradle_dir):
+      found = sorted(glob.glob(os.path.join(gradle_dir, "*.versions.toml")))
+      if found:
+        toml_files.extend(found)
+        break
+
+  for toml_path in toml_files:
+    stem = os.path.basename(toml_path)[: -len(".versions.toml")]
+    if not stem:
+      continue
+    try:
+      with open(toml_path, "r", encoding="utf-8", errors="ignore") as f:
+        current_section = None
+        for raw_line in f:
+          line = _strip_inline_comment(raw_line).strip()
+          if not line or line.startswith("#"):
+            continue
+          if line.startswith("[") and line.endswith("]"):
+            current_section = line[1:-1].strip()
+            continue
+          if current_section == "plugins":
+            m = _CATALOG_APP_PLUGIN_ENTRY_PATTERN.match(line)
+            if m:
+              raw_alias = m.group(1)
+              accessor = re.sub(r"[-_]+", ".", raw_alias)
+              aliases.append(f"{stem}.plugins.{accessor}")
+    except OSError as e:
+      print(
+          f"Warning: Failed to parse plugins from {toml_path}: {e}",
+          file=sys.stderr,
+      )
+  return aliases
+
+
+def _build_app_plugin_alias_pattern(aliases):
+  """Builds a regex matching `alias(...)` for any of the given catalog paths."""
+  if not aliases:
+    return None
+  alternatives = [re.escape(a) for a in aliases]
+  return (
+      r"\balias\s*\(\s*(?:"
+      + "|".join(alternatives)
+      + r")\s*\)(?!\s*(?:\.?apply\s*\(?\s*false\s*\)?|apply\s*=\s*false))"
+  )
+
+
 def load_custom_gradle_versions(target_dir, file_inventory=None):
   """Loads versions from shared Gradle files and project configuration."""
   versions = {}
@@ -182,10 +294,7 @@ def load_custom_gradle_versions(target_dir, file_inventory=None):
 
   # Leaking Strategy: If target_dir is a sub-module, leak up to find the root
   # e.g. /path/to/project/app -> check /path/to/project for root build files
-  search_roots = [target_dir]
-  parent = os.path.dirname(os.path.normpath(target_dir))
-  if parent and parent != target_dir:
-    search_roots.append(parent)
+  search_roots = _candidate_project_roots(target_dir)
 
   for s_root in search_roots:
     for f in ["build.gradle", "build.gradle.kts"]:
@@ -324,6 +433,7 @@ def parse_application_modules(
     gradle_properties,
     version_catalog,
     custom_gradle_versions=None,
+    app_plugin_aliases=None,
 ):
   """Identifies distinct application modules in the project."""
   modules = []
@@ -332,13 +442,32 @@ def parse_application_modules(
       "catalog": version_catalog,
       "custom": custom_gradle_versions or {},
   }
+  if not app_plugin_aliases:
+    discovered_aliases = []
+    seen_dirs = set()
+    for g_file in gradle_files:
+      g_dir = os.path.dirname(os.path.abspath(g_file))
+      if g_dir not in seen_dirs:
+        seen_dirs.add(g_dir)
+        for alias in load_app_plugin_aliases(g_dir):
+          if alias not in discovered_aliases:
+            discovered_aliases.append(alias)
+    app_plugin_aliases = discovered_aliases
+  alias_pattern = _build_app_plugin_alias_pattern(app_plugin_aliases)
 
   # First, check Gradle files for the application plugin
   for g_file in gradle_files:
     try:
       with open(g_file, "r", encoding="utf-8", errors="ignore") as f:
-        content = f.read()
-        if re.search(GRADLE_APP_PLUGIN_PATTERN, content):
+        raw_content = f.read()
+        content = scanner.COMMENT_STRIP_PATTERN.sub(
+            lambda match: match.group(1) if match.group(1) else "", raw_content
+        )
+        is_app_module = bool(
+            re.search(GRADLE_APP_PLUGIN_PATTERN, content)
+            or (alias_pattern and re.search(alias_pattern, content))
+        )
+        if is_app_module:
           # Found an app module!
           mod_dir = os.path.dirname(g_file)
           mod_name = os.path.basename(mod_dir)
@@ -356,9 +485,11 @@ def parse_application_modules(
             if prop_match:
               app_id = lookups["properties"].get(prop_match.group(1))
 
-          sdk_match = re.search(GRADLE_TARGET_SDK_PATTERN, content)
-          if sdk_match:
-            target_sdk = _resolve_to_int(sdk_match.group(1), lookups)
+          for sdk_match in re.finditer(GRADLE_TARGET_SDK_PATTERN, content):
+            resolved_sdk = _resolve_to_int(sdk_match.group(1), lookups)
+            if resolved_sdk is not None:
+              target_sdk = resolved_sdk
+              break
 
           # Fallback to namespace if applicationId is missing
           if not app_id:
@@ -433,9 +564,16 @@ def determine_primary_identity(
         {"properties": gradle_properties, "catalog": version_catalog},
     )
 
-  # 3. Fallback to scanning manifests if still missing
+  # 3. Fallback to scanning manifests (deprioritize benchmark manifests)
   if not primary_id or not primary_sdk:
-    for m_file in manifest_files:
+    prioritized_manifests = sorted(
+        manifest_files,
+        key=lambda p: any(
+            seg in "/" + p.replace("\\", "/").lower().lstrip("/")
+            for seg in ("/benchmark/", "/macrobenchmark/", "/microbenchmark/")
+        ),
+    )
+    for m_file in prioritized_manifests:
       try:
         with open(m_file, "r", encoding="utf-8-sig") as f:
           content = f.read()
@@ -946,15 +1084,6 @@ def run_aggregation(temp_dir, repo_root):
   return len(chunks)
 
 
-GRADLE_APP_PLUGIN_PATTERN = (
-    r"(?:id\s*\(?\s*[\x27\x22]com\.android\.application[\x27\x22]\s*\)?|"
-    r"alias\s*\([^)]*android\.application[^)]*\)|"
-    r"alias\s*\([^)]*android\.app[^)]*\)|"
-    r"apply\s*\(?\s*(?:plugin:\s*)?[\x27\x22]com\.android\.application"
-    r"[\x27\x22]\s*\)?)(?!\s*(?:\.?apply\s*\(?\s*false\s*\)?|apply\s*=\s*false))"
-)
-
-
 def _resolve_to_int(val, lookups, visited=None):
   """Recursively resolves a variable name to an integer value."""
   if visited is None:
@@ -1146,12 +1275,14 @@ def main():
     )
 
     # 2. Extract Application Modules and Primary Identity
+    app_plugin_aliases = load_app_plugin_aliases(app_dir)
     app_modules = parse_application_modules(
         codebase_map.get("key_files", {}).get("gradles", []),
         codebase_map.get("key_files", {}).get("manifests", []),
         gradle_properties,
         version_catalog,
         custom_gradle_versions=custom_gradle_versions,
+        app_plugin_aliases=app_plugin_aliases,
     )
     primary_app_id, primary_target_sdk, primary_app_label = (
         determine_primary_identity(
