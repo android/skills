@@ -103,7 +103,9 @@ While doing this, the new interfaces are also available, and you can still
 update your own build logic to the new API. To opt out, include this line in
 your `gradle.properties` file:
 
-    android.newDsl=false
+```properties
+android.newDsl=false
+```
 
 Alternatively, for a more gradual migration, AGP 9.4 lets you opt out individual
 modules. To learn how, see [Variant API module opt-out](https://developer.android.com/build/releases/agp-9-4-0-release-notes#new-dsl-opt-out).
@@ -274,27 +276,31 @@ Android Gradle plugin 9.0 has the following breaking DSL changes:
 
   **AGP 8.13**
 
-      val commonExtension: CommonExtension<*, *, *, *, *, *> =
-              extensions.getByType(CommonExtension::class)
-      commonExtension.apply {
-          defaultConfig {
-              minSdk {
-                  version = release(28)
-              }
+  ```kotlin
+  val commonExtension: CommonExtension<*, *, *, *, *, *> =
+          extensions.getByType(CommonExtension::class)
+  commonExtension.apply {
+      defaultConfig {
+          minSdk {
+              version = release(28)
           }
       }
+  }
+  ```
 
   **AGP 9.0**
 
-      val commonExtension: CommonExtension =
-              extensions.getByType(CommonExtension::class)
-      commonExtension.apply {
-          defaultConfig.apply {
-              minSdk {
-                  version = release(28)
-              }
+  ```kotlin
+  val commonExtension: CommonExtension =
+          extensions.getByType(CommonExtension::class)
+  commonExtension.apply {
+      defaultConfig.apply {
+          minSdk {
+              version = release(28)
           }
       }
+  }
+  ```
 
   For plugins which target a range of AGP versions, using the getter directly
   is binary compatible with AGP versions lower than 9.0.

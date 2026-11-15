@@ -12,7 +12,7 @@ description: Builds autonomous on-device agentic workflows in Android apps using
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-24'
+  last-updated: '2026-11-10'
   keywords:
   - Android
   - ML Kit
@@ -37,15 +37,16 @@ in Android apps.
 
 ### Gradle dependencies
 
-    // app/build.gradle.kts
-    dependencies {
-        // Core ML Kit GenAI Agent API
-        implementation("com.google.mlkit:genai-agent:1.0.0-alpha1")
+```kotlin
+// app/build.gradle.kts
+dependencies {
+    // Core ML Kit GenAI Agent API
+    implementation("com.google.mlkit:genai-agent:1.0.0-alpha1")
 
-        // Android AppFunctions dependency for on-device tool declarations
-        implementation("androidx.appfunctions:appfunctions:1.0.0-alpha13")
-    }
-
+    // Android AppFunctions dependency for on-device tool declarations
+    implementation("androidx.appfunctions:appfunctions:1.0.0-alpha13")
+}
+```
 > \[!IMPORTANT\] Always use official SDK interfaces from
 > `com.google.mlkit.genai.agent.*`, `androidx.appfunctions.*`,
 > `com.google.mlkit.genai.prompt.*`, and `com.google.mlkit.genai.common.*`.
@@ -57,15 +58,17 @@ in Android apps.
 
 Configure an `Agent` with `Agent.builder` and wrap execution in `AgentRunner`:
 
-    import com.google.mlkit.genai.agent.Agent
-    import com.google.mlkit.genai.agent.AgentRunner
+```kotlin
+import com.google.mlkit.genai.agent.Agent
+import com.google.mlkit.genai.agent.AgentRunner
 
-    val agent = Agent.builder()
-        .setName("OnDeviceAssistant")
-        .setInstructions("You are a helpful on-device assistant.")
-        .build()
+val agent = Agent.builder()
+    .setName("OnDeviceAssistant")
+    .setInstructions("You are a helpful on-device assistant.")
+    .build()
 
-    val runner = AgentRunner(agent)
+val runner = AgentRunner(agent)
+```
 
 - `Agent.builder` defaults to `maxTurns = 10` automatically to prevent infinite tool loops.
 - `AgentRunner` defaults to greedy decoding (`temperature = 0.0f`) for deterministic tool selection and schema compliance.
@@ -84,61 +87,63 @@ When executing single-turn ephemeral queries, managing concurrent
 multi-sessions, or requiring explicit RAM cleanup, you must follow the
 guidelines in [Session lifecycle](references/session_lifecycle.md).
 
-    package com.example.app
+```kotlin
+package com.example.app
 
-    import androidx.lifecycle.ViewModel
-    import androidx.lifecycle.viewModelScope
-    import com.google.mlkit.genai.agent.Agent
-    import com.google.mlkit.genai.agent.AgentRunner
-    import com.google.mlkit.genai.agent.AgentSession
-    import com.google.mlkit.genai.agent.textTokens
-    import com.google.mlkit.genai.common.GenAiException
-    import com.google.mlkit.genai.prompt.Content
-    import kotlinx.coroutines.flow.MutableStateFlow
-    import kotlinx.coroutines.flow.StateFlow
-    import kotlinx.coroutines.flow.asStateFlow
-    import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.mlkit.genai.agent.Agent
+import com.google.mlkit.genai.agent.AgentRunner
+import com.google.mlkit.genai.agent.AgentSession
+import com.google.mlkit.genai.agent.textTokens
+import com.google.mlkit.genai.common.GenAiException
+import com.google.mlkit.genai.prompt.Content
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-    class ChatViewModel : ViewModel() {
-        private val agent = Agent.builder()
-            .setInstructions("You are a helpful on-device assistant.")
-            .build()
-        private val runner = AgentRunner(agent)
-        private val session: AgentSession =
-            runner.getOrCreateSession("chat_session")
+class ChatViewModel : ViewModel() {
+    private val agent = Agent.builder()
+        .setInstructions("You are a helpful on-device assistant.")
+        .build()
+    private val runner = AgentRunner(agent)
+    private val session: AgentSession =
+        runner.getOrCreateSession("chat_session")
 
-        private val _uiState = MutableStateFlow<ChatUiState>(ChatUiState.Idle)
-        val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<ChatUiState>(ChatUiState.Idle)
+    val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
-        fun sendMessage(prompt: String) {
-            viewModelScope.launch {
-                _uiState.value = ChatUiState.Loading("")
-                try {
-                    // Content.builder() required; runAsync takes Content
-                    val content = Content.builder().text(prompt).build()
-                    var fullResponse = ""
-                    session.runAsync(content)
-                        // Extension function requiring textTokens import
-                        .textTokens()
-                        .collect { token ->
-                            fullResponse += token
-                            _uiState.value = ChatUiState.Loading(fullResponse)
-                        }
-                    _uiState.value = ChatUiState.Success(fullResponse)
-                } catch (e: GenAiException) {
-                    // Catch GenAiException to prevent app crashes on AI errors
-                    val err = e.localizedMessage ?: "AI error (${e.errorCode})"
-                    _uiState.value = ChatUiState.Error(err)
-                }
+    fun sendMessage(prompt: String) {
+        viewModelScope.launch {
+            _uiState.value = ChatUiState.Loading("")
+            try {
+                // Content.builder() required; runAsync takes Content
+                val content = Content.builder().text(prompt).build()
+                var fullResponse = ""
+                session.runAsync(content)
+                    // Extension function requiring textTokens import
+                    .textTokens()
+                    .collect { token ->
+                        fullResponse += token
+                        _uiState.value = ChatUiState.Loading(fullResponse)
+                    }
+                _uiState.value = ChatUiState.Success(fullResponse)
+            } catch (e: GenAiException) {
+                // Catch GenAiException to prevent app crashes on AI errors
+                val err = e.localizedMessage ?: "AI error (${e.errorCode})"
+                _uiState.value = ChatUiState.Error(err)
             }
         }
-
-        override fun onCleared() {
-            super.onCleared()
-            // Evict conversation session from RAM when ViewModel is destroyed
-            session.close()
-        }
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Evict conversation session from RAM when ViewModel is destroyed
+        session.close()
+    }
+}
+```
 
 ### Essential lifecycle and coroutine rules
 
@@ -150,28 +155,30 @@ guidelines in [Session lifecycle](references/session_lifecycle.md).
    com.google.mlkit.genai.agent.AgentEvent`. Match against `AgentEvent.TextMessage(text, isPartial)`, `AgentEvent.FunctionCall(name, args)`, and `AgentEvent.FunctionResponse(name, response)`, and always include an `else
    -> {}` branch in `when (event)` expressions (`AgentEvent` is non-exhaustive for forward compatibility):
 
-    import com.google.mlkit.genai.agent.AgentEvent
+```kotlin
+import com.google.mlkit.genai.agent.AgentEvent
 
-    session.runAsync(content).collect { event ->
-        when (event) {
-            is AgentEvent.FunctionCall -> {
-                _uiState.update {
-                    it.copy(activeToolStatus = "Tool started: ${event.name}")
-                }
+session.runAsync(content).collect { event ->
+    when (event) {
+        is AgentEvent.FunctionCall -> {
+            _uiState.update {
+                it.copy(activeToolStatus = "Tool started: ${event.name}")
             }
-            is AgentEvent.FunctionResponse -> {
-                _uiState.update {
-                    it.copy(activeToolStatus = "Tool completed: ${event.name}")
-                }
-            }
-            is AgentEvent.TextMessage -> {
-                _uiState.update {
-                    it.copy(responseText = it.responseText + event.text)
-                }
-            }
-            else -> {} // Required: AgentEvent is non-exhaustive for forward compat
         }
+        is AgentEvent.FunctionResponse -> {
+            _uiState.update {
+                it.copy(activeToolStatus = "Tool completed: ${event.name}")
+            }
+        }
+        is AgentEvent.TextMessage -> {
+            _uiState.update {
+                it.copy(responseText = it.responseText + event.text)
+            }
+        }
+        else -> {} // Required: AgentEvent is non-exhaustive for forward compat
     }
+}
+```
 
 *** ** * ** ***
 
@@ -190,50 +197,54 @@ you must consult [Tools and functions](references/tools_and_functions.md).
 
 Define tools declaratively in your app using AndroidX AppFunctions:
 
-    package com.example.app.tools
+```kotlin
+package com.example.app.tools
 
-    import androidx.appfunctions.AppFunctionDeclaration
-    import androidx.appfunctions.AppFunctionSerializable
+import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionSerializable
 
-    @AppFunctionSerializable
-    data class CalendarEvents(val date: String, val events: List<String>)
+@AppFunctionSerializable
+data class CalendarEvents(val date: String, val events: List<String>)
 
-    class CalendarTools {
-        /**
-         * Fetches scheduled calendar appointments for a specific date in
-         * YYYY-MM-DD format.
-         *
-         * @param date Date string in YYYY-MM-DD format
-         */
-        @AppFunctionDeclaration(isDescribedByKDoc = true)
-        fun fetch_calendar(
-            date: String
-        ): CalendarEvents {
-            return CalendarEvents(
-                date = date,
-                events = listOf(
-                    "Team Standup at 10:00 AM",
-                    "Product Review at 2:00 PM"
-                )
+class CalendarTools {
+    /**
+     * Fetches scheduled calendar appointments for a specific date in
+     * YYYY-MM-DD format.
+     *
+     * @param date Date string in YYYY-MM-DD format
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    fun fetch_calendar(
+        date: String
+    ): CalendarEvents {
+        return CalendarEvents(
+            date = date,
+            events = listOf(
+                "Team Standup at 10:00 AM",
+                "Product Review at 2:00 PM"
             )
-        }
+        )
     }
+}
+```
 
 Enable AppFunctions on `Agent.Builder` and initialize `AgentRunner`:
 
-    import com.google.mlkit.genai.agent.Agent
-    import com.google.mlkit.genai.agent.AgentRunner
+```kotlin
+import com.google.mlkit.genai.agent.Agent
+import com.google.mlkit.genai.agent.AgentRunner
 
-    val agent = Agent.builder()
-        .setName("CalendarAssistant")
-        .setInstructions("You assist with calendar queries.")
-        // Automatically discovers AppFunctions in your app package
-        .enableAppFunctions(true)
-        // Optional: scope to specific function IDs or method names
-        .addAppFunctionIds("fetch_calendar")
-        .build()
+val agent = Agent.builder()
+    .setName("CalendarAssistant")
+    .setInstructions("You assist with calendar queries.")
+    // Automatically discovers AppFunctions in your app package
+    .enableAppFunctions(true)
+    // Optional: scope to specific function IDs or method names
+    .addAppFunctionIds("fetch_calendar")
+    .build()
 
-    val runner = AgentRunner(agent)
+val runner = AgentRunner(agent)
+```
 
 - **AppFunction Contract** : Tool methods take domain parameters directly (no framework context parameter required). Returns must be primitives or `@AppFunctionSerializable` data classes (`Map<String, Any?>` isn't supported for AppFunctions).
 - **Restricting Callers with `ACCESS_LEVEL_SELF`** : AppFunctions don't have to be public to external callers. To restrict execution strictly to your app's internal agent (blocking external system assistants and IPC callers), annotate with `@OptIn(ExperimentalAppFunctionsApi::class)` and `@AppFunctionAccessLevel(level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
@@ -245,40 +256,41 @@ For inspecting, filtering, or decorating discovered AppFunctions (such as
 Human-in-the-Loop confirmation wrappers using `AgentTool(delegate)`) before
 registering with the agent:
 
-    import com.google.mlkit.genai.agent.Agent
-    import com.google.mlkit.genai.agent.AgentRunner
-    import com.google.mlkit.genai.agent.AgentTool
-    import com.google.mlkit.genai.agent.AppFunctionAgentTools
+```kotlin
+import com.google.mlkit.genai.agent.Agent
+import com.google.mlkit.genai.agent.AgentRunner
+import com.google.mlkit.genai.agent.AgentTool
+import com.google.mlkit.genai.agent.AppFunctionAgentTools
 
-    // Discover tools (optionally scoped to function IDs)
-    val discoveredTools = AppFunctionAgentTools.discover(
-        enabledAppFunctionIds = listOf("fetch_calendar")
-    )
+// Discover tools (optionally scoped to function IDs)
+val discoveredTools = AppFunctionAgentTools.discover(
+    enabledAppFunctionIds = listOf("fetch_calendar")
+)
 
-    // Optional: Wrap sensitive tools using AgentTool(delegate) decorator
-    class HitlConfirmationTool(
-        delegate: AgentTool,
-        private val onConfirm: suspend (
-            toolName: String,
-            args: Map<String, Any>
-        ) -> Boolean
-    ) : AgentTool(delegate) {
-        override suspend fun execute(args: Map<String, Any>): Map<String, Any?> {
-            if (!onConfirm(name, args)) {
-                return mapOf("status" to "CANCELLED_BY_USER")
-            }
-            return checkNotNull(delegate).execute(args)
+// Optional: Wrap sensitive tools using AgentTool(delegate) decorator
+class HitlConfirmationTool(
+    delegate: AgentTool,
+    private val onConfirm: suspend (
+        toolName: String,
+        args: Map<String, Any>
+    ) -> Boolean
+) : AgentTool(delegate) {
+    override suspend fun execute(args: Map<String, Any>): Map<String, Any?> {
+        if (!onConfirm(name, args)) {
+            return mapOf("status" to "CANCELLED_BY_USER")
         }
+        return checkNotNull(delegate).execute(args)
     }
+}
 
-    val agent = Agent.builder()
-        .setName("CalendarAssistant")
-        .setInstructions("You assist with calendar queries.")
-        .addTools(discoveredTools)
-        .build()
+val agent = Agent.builder()
+    .setName("CalendarAssistant")
+    .setInstructions("You assist with calendar queries.")
+    .addTools(discoveredTools)
+    .build()
 
-    val runner = AgentRunner(agent)
-
+val runner = AgentRunner(agent)
+```
 > \[!WARNING\] **Mutual exclusivity** : Configure AppFunctions using either the
 > declarative path (`enableAppFunctions(true)` on `Agent.Builder`) or the
 > advanced path (`AppFunctionAgentTools.discover` passed to `addTools`), but
@@ -303,16 +315,18 @@ For one-off tasks where conversation history isn't needed (such as summarizing
 text, formatting data, or answering standalone questions), invoke
 `runner.runSingleTurnAsync(content)` directly:
 
-    import com.google.mlkit.genai.agent.AgentRunner
-    import com.google.mlkit.genai.agent.textTokens
-    import com.google.mlkit.genai.prompt.Content
-    import kotlinx.coroutines.flow.Flow
+```kotlin
+import com.google.mlkit.genai.agent.AgentRunner
+import com.google.mlkit.genai.agent.textTokens
+import com.google.mlkit.genai.prompt.Content
+import kotlinx.coroutines.flow.Flow
 
-    // Executes a single-turn query ephemerally without session persistence:
-    fun askQuickQuestion(runner: AgentRunner, question: String): Flow<String> {
-        val content = Content.builder().text(question).build()
-        return runner.runSingleTurnAsync(content).textTokens()
-    }
+// Executes a single-turn query ephemerally without session persistence:
+fun askQuickQuestion(runner: AgentRunner, question: String): Flow<String> {
+    val content = Content.builder().text(question).build()
+    return runner.runSingleTurnAsync(content).textTokens()
+}
+```
 
 - `runner.runSingleTurnAsync(content)` automatically creates and evicts an ephemeral session upon Flow completion.
 - **Cleanup reference** :
@@ -326,7 +340,9 @@ text, formatting data, or answering standalone questions), invoke
 Runtime failures during on-device execution (such as model unavailability or
 exceeding maximum turn limits) are emitted or thrown as `GenAiException`:
 
-    import com.google.mlkit.genai.common.GenAiException
+```kotlin
+import com.google.mlkit.genai.common.GenAiException
+```
 
 ### Key error codes
 

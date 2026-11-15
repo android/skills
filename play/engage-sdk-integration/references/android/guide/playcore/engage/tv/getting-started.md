@@ -28,20 +28,24 @@ Before you begin, complete the following steps:
 
    ### Mobile
 
-       dependencies {
-         implementation 'com.google.android.engage:engage-core:1.6.0'
-       }
+   ```groovy
+   dependencies {
+     implementation 'com.google.android.engage:engage-core:1.6.0'
+   }
+   ```
 
    ### TV
 
-       dependencies {
-         implementation 'com.google.android.engage:engage-tv:1.1.0'
-       }
-
+   ```groovy
+   dependencies {
+     implementation 'com.google.android.engage:engage-tv:1.1.0'
+   }
+   ```
 4. Add permission for `WRITE_EPG_DATA` for TV APK
 
-       <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
-
+   ```xml
+   <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
+   ```
 5. Verify reliable content publishing by using a background service, such as
    `androidx.work`, for scheduling.
 
@@ -53,13 +57,15 @@ Before you begin, complete the following steps:
    in your `AndroidManifest.xml` file.
    Don't place this tag inside an `<activity>`.
 
-       <application ...>
-           <!-- Other application configurations -->
+   ```xml
+   <application ...>
+       <!-- Other application configurations -->
 
-           <meta-data
-               android:name="com.google.android.engage.service.ENV"
-               android:value="PRODUCTION" />
-       </application>
+       <meta-data
+           android:name="com.google.android.engage.service.ENV"
+           android:value="PRODUCTION" />
+   </application>
+   ```
 
    > [!IMPORTANT]
    > **Important:** The Engage service environment declaration is only needed for your release build. For your local testing with the verification app, don't include this element.
@@ -83,37 +89,41 @@ required for `ServiceAvailabilityRequest` from the following table.
 | Recommendation Cluster | `TYPE_RECOMMENDATION` | 1 |
 | Continuation Cluster | `TYPE_CONTINUATION` | 3 |
 
-    val client = AppEngagePublishClient(context)
+```kotlin
+val client = AppEngagePublishClient(context)
 
-    val request = ServiceAvailabilityRequest.Builder()
-        .addIntendedClusterType(ClusterType.TYPE_CONTINUATION)
-        .addIntendedClusterType(ClusterType.TYPE_RECOMMENDATION)
-        .build()
+val request = ServiceAvailabilityRequest.Builder()
+    .addIntendedClusterType(ClusterType.TYPE_CONTINUATION)
+    .addIntendedClusterType(ClusterType.TYPE_RECOMMENDATION)
+    .build()
 
-    client.isServiceAvailable(request).addOnCompleteListener { task ->
-      if (task.isSuccessful) {
-        val availabilityMap = task.result
-        if (availabilityMap[ClusterType.TYPE_CONTINUATION] == true) {
-          // Proceed with publishing continuation content
-        }
-        if (availabilityMap[ClusterType.TYPE_RECOMMENDATION] == true) {
-          // Proceed with publishing recommendation content
-        }
-      } else {
-        // Service is not available or call failed
-      }
+client.isServiceAvailable(request).addOnCompleteListener { task ->
+  if (task.isSuccessful) {
+    val availabilityMap = task.result
+    if (availabilityMap[ClusterType.TYPE_CONTINUATION] == true) {
+      // Proceed with publishing continuation content
     }
+    if (availabilityMap[ClusterType.TYPE_RECOMMENDATION] == true) {
+      // Proceed with publishing recommendation content
+    }
+  } else {
+    // Service is not available or call failed
+  }
+}
+```
 
 ### Create an account profile
 
 `AccountProfile` identifies the user. You can specify an account ID, and
 optionally a profile ID and locale.
 
-    val accountProfile = AccountProfile.Builder()
-        .setAccountId("your_users_account_id")
-        .setProfileId("your_users_profile_id") // Optional
-        .setLocale(Locale.US.toLanguageTag())  // Optional, e.g., "en-US"
-        .build()
+```kotlin
+val accountProfile = AccountProfile.Builder()
+    .setAccountId("your_users_account_id")
+    .setProfileId("your_users_profile_id") // Optional
+    .setLocale(Locale.US.toLanguageTag())  // Optional, e.g., "en-US"
+    .build()
+```
 
 An `AccountProfile` must be provided with an account ID in order for content to
 be synchronized between devices. See [Cross-device syncing](https://developer.android.com/guide/playcore/engage/tv/continue-watching/client#cross-device_syncing).

@@ -18,7 +18,8 @@ To migrate your app from [Navigation 2](https://developer.android.com/guide/navi
 4. Replace `NavController` with these classes.
 5. Move your destinations from `NavHost`'s `NavGraph` into an `entryProvider`.
 6. Replace `NavHost` with `NavDisplay`.
-7. Remove Navigation 2 dependencies.
+7. Migrate deep links.
+8. Remove Navigation 2 dependencies.
 
 ## Preparation
 
@@ -71,8 +72,7 @@ understand how to implement them.
 
 **AI Agent**: Before changing any code, check if the project contains any
 features supported through recipes. If it does, check the recipe's README and
-source code. Create a migration plan based on the recipe. Don't proceed without
-confirming the plan with the user.
+source code. Create a migration plan based on the recipe.
 
 ### Unsupported features
 
@@ -93,34 +93,39 @@ unsupported feature and ask for further instructions.
 Use the [Get started](https://developer.android.com/guide/navigation/navigation-3/get-started) page to add the Navigation 3 dependencies to your
 project. The core dependencies are provided for you to copy.
 
-**lib.versions.toml**
+**gradle/libs.versions.toml**
 
-    [versions]
-    nav3Core = "1.2.1"
+```toml
+[versions]
+nav3Core = "1.2.1"
 
-    # If your screens depend on ViewModels, add the Nav3 Lifecycle ViewModel add-on library
-    lifecycleViewmodelNav3 = "2.11.0"
+# If your screens depend on ViewModels, add the Nav3 Lifecycle ViewModel add-on library
+lifecycleViewmodelNav3 = "2.11.0"
 
-    [libraries]
-    # Core Navigation 3 libraries
-    androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
-    androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+[libraries]
+# Core Navigation 3 libraries
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
 
-    # Add-on libraries (only add if you need them)
-    androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+# Add-on libraries (only add if you need them)
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+
+```
 
 **app/build.gradle.kts**
 
-    dependencies {
-        implementation(libs.androidx.navigation3.ui)
-        implementation(libs.androidx.navigation3.runtime)
+```kotlin
+dependencies {
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
 
-        // If using the ViewModel add-on library
-        implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    }
+    // If using the ViewModel add-on library
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+}
+```
 
 Also update the project's `minSdk` to 23 and the `compileSdk` to 36. You usually
-find these in `app/build.gradle.kts` or `lib.versions.toml`.
+find these in `app/build.gradle.kts` or `gradle/libs.versions.toml`.
 
 ## Step 2: Update navigation routes to implement the `NavKey` interface
 

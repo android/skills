@@ -7,7 +7,7 @@ description: Audits Android codebases for ANR risks and diagnoses ANR stack dump
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-16'
+  last-updated: '2026-11-10'
   keywords:
   - Android
   - ANR

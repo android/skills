@@ -68,35 +68,39 @@ in your app's `build.gradle` file as follows:
 
 ### Kotlin (build.gradle.kts)
 
-    dependencies {
-       val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
-       implementation(composeBom)
+```kotlin
+dependencies {
+   val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
+   implementation(composeBom)
 
-       // General compose dependencies.
-       implementation("androidx.activity:activity-compose:1.13.0")
+   // General compose dependencies.
+   implementation("androidx.activity:activity-compose:1.13.0")
 
-       implementation("androidx.compose.ui:ui-tooling-preview")
-       debugImplementation("androidx.compose.ui:ui-tooling")
+   implementation("androidx.compose.ui:ui-tooling-preview")
+   debugImplementation("androidx.compose.ui:ui-tooling")
 
-       // Compose for TV dependencies.
-       implementation("androidx.tv:tv-material:1.0.0")
-    }
+   // Compose for TV dependencies.
+   implementation("androidx.tv:tv-material:1.0.0")
+}
+```
 
 ### Groovy (build.gradle)
 
-    dependencies {
-       def composeBom = platform('androidx.compose:compose-bom:2026.09.00')
-       implementation composeBom
+```groovy
+dependencies {
+   def composeBom = platform('androidx.compose:compose-bom:2026.09.00')
+   implementation composeBom
 
-       // General compose dependencies.
-       implementation 'androidx.activity:activity-compose:1.13.0'
+   // General compose dependencies.
+   implementation 'androidx.activity:activity-compose:1.13.0'
 
-       implementation 'androidx.compose.ui:ui-tooling-preview'
-       debugImplementation 'androidx.compose.ui:ui-tooling'
+   implementation 'androidx.compose.ui:ui-tooling-preview'
+   debugImplementation 'androidx.compose.ui:ui-tooling'
 
-       // Compose for TV dependencies.
-       implementation 'androidx.tv:tv-material:1.0.0'
-    }
+   // Compose for TV dependencies.
+   implementation 'androidx.tv:tv-material:1.0.0'
+}
+```
 
 ## What's different
 

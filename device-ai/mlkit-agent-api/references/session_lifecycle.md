@@ -11,30 +11,32 @@ Multi-turn conversation history resides in RAM indexed by `sessionId`:
 - Store `sessionId` in `SavedStateHandle` to preserve multi-turn context across Android configuration changes (for example, screen rotation).
 - Calling `session.runAsync(content)` automatically continues the conversation thread.
 
-    import com.google.mlkit.genai.prompt.Content
+```kotlin
+import com.google.mlkit.genai.prompt.Content
 
-    class ChatViewModel(
-        private val runner: AgentRunner,
-        savedStateHandle: SavedStateHandle
-    ) : ViewModel() {
-        private val KEY_SESSION = "session_id"
-        val sessionId: String =
-            savedStateHandle[KEY_SESSION] ?: UUID.randomUUID().toString().also {
-                savedStateHandle[KEY_SESSION] = it
-            }
-        val session: AgentSession = runner.getOrCreateSession(sessionId)
-
-        fun sendMessage(prompt: String): Flow<AgentEvent> {
-            val content = Content.builder().text(prompt).build()
-            return session.runAsync(content)
+class ChatViewModel(
+    private val runner: AgentRunner,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    private val KEY_SESSION = "session_id"
+    val sessionId: String =
+        savedStateHandle[KEY_SESSION] ?: UUID.randomUUID().toString().also {
+            savedStateHandle[KEY_SESSION] = it
         }
+    val session: AgentSession = runner.getOrCreateSession(sessionId)
 
-        override fun onCleared() {
-            super.onCleared()
-            // Evict specific session when user exits chat
-            session.close() // or runner.deleteSession(sessionId)
-        }
+    fun sendMessage(prompt: String): Flow<AgentEvent> {
+        val content = Content.builder().text(prompt).build()
+        return session.runAsync(content)
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Evict specific session when user exits chat
+        session.close() // or runner.deleteSession(sessionId)
+    }
+}
+```
 
 *** ** * ** ***
 
@@ -44,12 +46,14 @@ For tasks where conversation history isn't needed (for example, photo editing
 macros, one-off text summaries), invoke `runner.runSingleTurnAsync(content)`
 directly:
 
-    val content = Content.builder().text("Summarize this document: ...").build()
-    runner.runSingleTurnAsync(content)
-        .textTokens()
-        .collect { token ->
-            showSummary(token)
-        }
+```kotlin
+val content = Content.builder().text("Summarize this document: ...").build()
+runner.runSingleTurnAsync(content)
+    .textTokens()
+    .collect { token ->
+        showSummary(token)
+    }
+```
 
 When executing in single-turn mode using `runner.runSingleTurnAsync(content)`,
 `AgentRunner` allocates an ephemeral session ID internally and evicts it from

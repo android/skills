@@ -20,17 +20,21 @@ dependencies to the `build.gradle` file of your app module.
 
 ### Kotlin
 
-    implementation("androidx.media3:media3-exoplayer:1.11.1")
-    implementation("androidx.media3:media3-ui:1.11.1")
-    implementation("androidx.media3:media3-session:1.11.1")
-    implementation("androidx.media3:media3-cast:1.11.1")
+```kotlin
+implementation("androidx.media3:media3-exoplayer:1.11.1")
+implementation("androidx.media3:media3-ui:1.11.1")
+implementation("androidx.media3:media3-session:1.11.1")
+implementation("androidx.media3:media3-cast:1.11.1")
+```
 
 ### Groovy
 
-    implementation "androidx.media3:media3-exoplayer:1.11.1"
-    implementation "androidx.media3:media3-ui:1.11.1"
-    implementation "androidx.media3:media3-session:1.11.1"
-    implementation "androidx.media3:media3-cast:1.11.1"
+```groovy
+implementation "androidx.media3:media3-exoplayer:1.11.1"
+implementation "androidx.media3:media3-ui:1.11.1"
+implementation "androidx.media3:media3-session:1.11.1"
+implementation "androidx.media3:media3-cast:1.11.1"
+```
 
 ## Configure your CastPlayer
 
@@ -44,13 +48,15 @@ basic setup, you can use the [`DefaultCastOptionsProvider`](https://developer.an
 `AndroidManifest.xml` file. This uses default settings, including the default
 receiver application.
 
-    <application>
-      ...
-      <meta-data
-        android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-        android:value="androidx.media3.cast.DefaultCastOptionsProvider" />
-      ...
-    </application>
+```xml
+<application>
+  ...
+  <meta-data
+    android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+    android:value="androidx.media3.cast.DefaultCastOptionsProvider" />
+  ...
+</application>
+```
 
 To customize the configuration, implement your own custom `OptionsProvider`. See
 the [CastOptions](https://developer.android.com/media/media3/cast/customize-castoptions) guide to learn how.
@@ -62,11 +68,13 @@ discover Cast-enabled devices on the network and reroute media without opening
 the app activity. For example, a user can change the device playing your app's
 media from the [media notification](https://developer.android.com/media/implement/surfaces/mobile).
 
-    <application>
-      ...
-      <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver" />
-      ...
-    </application>
+```xml
+<application>
+  ...
+  <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver" />
+  ...
+</application>
+```
 
 ## Build a CastPlayer
 
@@ -216,13 +224,15 @@ public void onStart() {
 To set up a [`MediaRouteButton`](https://developer.android.com/reference/androidx/mediarouter/app/MediaRouteButton) in the app bar menu, create an XML menu and
 override `onCreateOptionsMenu` in your `Activity`.
 
-    <menu xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto">
-      <item android:id="@+id/media_route_menu_item"
-        android:title="@string/media_route_menu_title"
-        app:showAsAction="always"
-        app:actionProviderClass="androidx.mediarouter.app.MediaRouteActionProvider"/>
-    </menu>
+```xml
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+         xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item android:id="@+id/media_route_menu_item"
+    android:title="@string/media_route_menu_title"
+    app:showAsAction="always"
+    app:actionProviderClass="androidx.mediarouter.app.MediaRouteActionProvider"/>
+</menu>
+```
 
 
 ### Kotlin
@@ -285,11 +295,13 @@ public boolean onCreateOptionsMenu(Menu menu) {
 
 You can set up a [`MediaRouteButton`](https://developer.android.com/reference/androidx/mediarouter/app/MediaRouteButton) in your activity layout.xml.
 
-      <androidx.mediarouter.app.MediaRouteButton
-          android:id="@+id/media_route_button"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          app:mediaRouteButtonTint="@android:color/white" />
+```xml
+  <androidx.mediarouter.app.MediaRouteButton
+      android:id="@+id/media_route_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:mediaRouteButtonTint="@android:color/white" />
+```
 
 To complete the setup for the [`MediaRouteButton`](https://developer.android.com/reference/androidx/mediarouter/app/MediaRouteButton), use the Media3 Cast
 `MediaRouteButtonFactory` in your `Activity` code.

@@ -48,9 +48,11 @@ You might want a composable to opt out of strong skipping. That is, you might
 want a restartable but non-skippable composable. In this case, use the
 `@NonSkippableComposable` annotation.
 
-    @NonSkippableComposable
-    @Composable
-    fun MyNonSkippableComposable {}
+```kotlin
+@NonSkippableComposable
+@Composable
+fun MyNonSkippableComposable {}
+```
 
 ### Annotate classes as stable
 
@@ -78,26 +80,30 @@ captures of the lambda.
 
 Consider a case where you have a lambda as in the following example:
 
-    @Composable
-    fun MyComposable(unstableObject: Unstable, stableObject: Stable) {
-        val lambda = {
-            use(unstableObject)
-            use(stableObject)
-        }
+```kotlin
+@Composable
+fun MyComposable(unstableObject: Unstable, stableObject: Stable) {
+    val lambda = {
+        use(unstableObject)
+        use(stableObject)
     }
+}
+```
 
 With strong skipping enabled, the compiler memoizes the lambda by wrapping it in
 a `remember` call:
 
-    @Composable
-    fun MyComposable(unstableObject: Unstable, stableObject: Stable) {
-        val lambda = remember(unstableObject, stableObject) {
-            {
-                use(unstableObject)
-                use(stableObject)
-            }
+```kotlin
+@Composable
+fun MyComposable(unstableObject: Unstable, stableObject: Stable) {
+    val lambda = remember(unstableObject, stableObject) {
+        {
+            use(unstableObject)
+            use(stableObject)
         }
     }
+}
+```
 
 The keys follow the same comparison rules as composable functions. The runtime
 compares unstable keys using instance equality. It compares stable keys using

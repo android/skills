@@ -23,23 +23,27 @@ M3 has a separate package and version to M2.5:
 
 ### M2.5
 
-    implementation("androidx.wear.compose:compose-material:1.4.0")
+```groovy
+implementation("androidx.wear.compose:compose-material:1.4.0")
+```
 
 ### M3
 
-    implementation("androidx.wear.compose:compose-material3:1.8.0-alpha03")
+```groovy
+implementation("androidx.wear.compose:compose-material3:1.7.1")
+```
 
 See the latest M3 versions on the [Wear Compose releases page](https://developer.android.com/jetpack/androidx/releases/wear-compose).
 
-Wear Compose Foundation library version 1.8.0-alpha03 introduced
+Wear Compose Foundation library version 1.7.1 introduced
 some new components that are designed to work with Material 3 components.
 Similarly, `SwipeDismissableNavHost` from Wear Compose Navigation library has an
 updated animation when running on Wear OS 6 (API level 36) or higher. When
 updating to Wear Compose Material 3 version, we suggest to also update the Wear
 Compose Foundation and Navigation libraries:
 
-    implementation("androidx.wear.compose:compose-foundation:1.8.0-alpha03")
-    implementation("androidx.wear.compose:compose-navigation:1.8.0-alpha03")
+    implementation("androidx.wear.compose:compose-foundation:1.7.1")
+    implementation("androidx.wear.compose:compose-navigation:1.7.1")
 
 ## Theme
 
@@ -50,14 +54,16 @@ transitions.
 
 ### M2.5
 
-    import androidx.wear.compose.material.MaterialTheme
+```kotlin
+import androidx.wear.compose.material.MaterialTheme
 
-    MaterialTheme(
-        colors = AppColors,
-        typography = AppTypography,
-        shapes = AppShapes,
-        content = content
-    )
+MaterialTheme(
+    colors = AppColors,
+    typography = AppTypography,
+    shapes = AppShapes,
+    content = content
+)
+```
 
 ### M3
 
@@ -85,11 +91,13 @@ M3 components. In Compose, this applies to the M2.5 [`Colors`](https://developer
 
 ### M2.5
 
-    import androidx.wear.compose.material.Colors
+```kotlin
+import androidx.wear.compose.material.Colors
 
-    val appColorScheme: Colors = Colors(
-       // M2.5 Color parameters
-    )
+val appColorScheme: Colors = Colors(
+   // M2.5 Color parameters
+)
+```
 
 ### M3
 
@@ -146,11 +154,13 @@ the following features:
 
 ### M2.5
 
-    import androidx.wear.compose.material.Typography
+```kotlin
+import androidx.wear.compose.material.Typography
 
-    val Typography = Typography(
-       // M2.5 TextStyle parameters
-    )
+val Typography = Typography(
+   // M2.5 TextStyle parameters
+)
+```
 
 ### M3
 
@@ -201,11 +211,13 @@ In Compose, this applies to the M2.5 [`Shapes`](https://developer.android.com/re
 
 ### M2.5
 
-    import androidx.wear.compose.material.Shapes
+```kotlin
+import androidx.wear.compose.material.Shapes
 
-    val Shapes = Shapes(
-       // M2.5 Shapes parameters
-    )
+val Shapes = Shapes(
+   // M2.5 Shapes parameters
+)
+```
 
 ### M3
 
@@ -263,8 +275,8 @@ mappings are recommended as a starting point:
 | [androidx.wear.compose.material.LocalContentAlpha()](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#LocalContentAlpha()) | Has been removed as not used by `Text` or `Icon` in Material 3 |
 | [androidx.wear.compose.material.PositionIndicator](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#PositionIndicator(androidx.compose.foundation.lazy.LazyListState,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.animation.core.AnimationSpec,androidx.compose.animation.core.AnimationSpec,androidx.compose.animation.core.AnimationSpec)) | [androidx.wear.compose.material3.ScrollIndicator](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#ScrollIndicator(androidx.compose.foundation.lazy.LazyListState,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.animation.core.AnimationSpec)) |
 | [androidx.wear.compose.material.RadioButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#RadioButton(kotlin.Boolean,androidx.compose.ui.Modifier,androidx.wear.compose.material.RadioButtonColors,kotlin.Boolean,kotlin.Function0,androidx.compose.foundation.interaction.MutableInteractionSource)) | No M3 equivalent, migrate to [androidx.wear.compose.material3.RadioButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#RadioButton(kotlin.Boolean,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.RadioButtonColors,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.wear.compose.material3.SurfaceTransformation,kotlin.Function1,kotlin.Function1,kotlin.Function1)) or [androidx.wear.compose.material3.SplitRadioButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SplitRadioButton(kotlin.Boolean,kotlin.Function0,kotlin.String,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.SplitRadioButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.wear.compose.material3.SurfaceTransformation,kotlin.String,androidx.compose.foundation.layout.PaddingValues,kotlin.Function1,kotlin.Function1)) |
-| [androidx.wear.compose.material.SwipeToRevealCard](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#Stepper(kotlin.Int,kotlin.Function1,kotlin.ranges.IntProgression,kotlin.Function0,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.wear.compose.material3.StepperColors,kotlin.Function1)) | [androidx.wear.compose.material3.SwipeToReveal](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SwipeToReveal(kotlin.Function1,androidx.compose.ui.Modifier,androidx.wear.compose.foundation.RevealState,androidx.compose.ui.unit.Dp,kotlin.Function0)) |
-| [androidx.wear.compose.material.SwipeToRevealChip](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#SwipeToRevealChip(kotlin.Function1,androidx.wear.compose.foundation.RevealState,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1,kotlin.Function1,androidx.wear.compose.material.SwipeToRevealActionColors,androidx.compose.ui.graphics.Shape,kotlin.Function0)) | [androidx.wear.compose.material3.SwipeToReveal](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SwipeToReveal(kotlin.Function1,androidx.compose.ui.Modifier,androidx.wear.compose.foundation.RevealState,androidx.compose.ui.unit.Dp,kotlin.Function0)) |
+| [androidx.wear.compose.material.SwipeToRevealCard](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/SwipeToRevealCard.composable#SwipeToRevealCard(kotlin.Function0,androidx.wear.compose.material.RevealState,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function0,kotlin.Function0,kotlin.Function0,androidx.wear.compose.material.SwipeToRevealActionColors,androidx.compose.ui.graphics.Shape,kotlin.Function0)) | [androidx.wear.compose.material3.SwipeToReveal](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/SwipeToReveal.composable#SwipeToReveal(kotlin.Function1,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1,kotlin.Function1,androidx.wear.compose.material3.RevealState,androidx.wear.compose.material3.RevealDirection,kotlin.Boolean,androidx.wear.compose.foundation.GestureInclusion,androidx.compose.ui.unit.Dp,kotlin.Function0)) |
+| [androidx.wear.compose.material.SwipeToRevealChip](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/SwipeToRevealChip.composable#SwipeToRevealChip(kotlin.Function0,androidx.wear.compose.material.RevealState,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function0,kotlin.Function0,kotlin.Function0,androidx.wear.compose.material.SwipeToRevealActionColors,androidx.compose.ui.graphics.Shape,kotlin.Function0)) | [androidx.wear.compose.material3.SwipeToReveal](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/SwipeToReveal.composable#SwipeToReveal(kotlin.Function1,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1,kotlin.Function1,androidx.wear.compose.material3.RevealState,androidx.wear.compose.material3.RevealDirection,kotlin.Boolean,androidx.wear.compose.foundation.GestureInclusion,androidx.compose.ui.unit.Dp,kotlin.Function0)) |
 | [androidx.wear.compose.material.Scaffold](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#Scaffold(androidx.compose.ui.Modifier,kotlin.Function0,kotlin.Function0,kotlin.Function0,kotlin.Function0,kotlin.Function0)) | [androidx.wear.compose.material3.AppScaffold](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#AppScaffold(androidx.compose.ui.Modifier,kotlin.Function0,kotlin.Function1)) and [androidx.wear.compose.material3.ScreenScaffold](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#ScreenScaffold(androidx.compose.ui.Modifier,kotlin.Function0,androidx.wear.compose.foundation.ScrollInfoProvider,kotlin.Function1,kotlin.Function1)) |
 | [androidx.wear.compose.material.SplitToggleChip](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#SplitToggleChip(kotlin.Boolean,kotlin.Function1,kotlin.Function1,kotlin.Function0,kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Function1,androidx.wear.compose.material.SplitToggleChipColors,kotlin.Boolean,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.layout.PaddingValues,androidx.compose.ui.graphics.Shape)) | No M3 equivalent, migrate to [androidx.wear.compose.material3.SplitCheckboxButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SplitCheckboxButton(kotlin.Boolean,kotlin.Function1,kotlin.String,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.SplitCheckboxButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.String,androidx.compose.foundation.layout.PaddingValues,kotlin.Function1,kotlin.Function1)), [androidx.wear.compose.material3.SplitSwitchButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SplitSwitchButton(kotlin.Boolean,kotlin.Function1,kotlin.String,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.SplitSwitchButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.wear.compose.material3.SurfaceTransformation,kotlin.String,androidx.compose.foundation.layout.PaddingValues,kotlin.Function1,kotlin.Function1)), or [androidx.wear.compose.material3.SplitRadioButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SplitRadioButton(kotlin.Boolean,kotlin.Function0,kotlin.String,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.SplitRadioButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.wear.compose.material3.SurfaceTransformation,kotlin.String,androidx.compose.foundation.layout.PaddingValues,kotlin.Function1,kotlin.Function1)) |
 | [androidx.wear.compose.material.Switch](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#Switch(kotlin.Boolean,androidx.compose.ui.Modifier,androidx.wear.compose.material.SwitchColors,kotlin.Boolean,kotlin.Function1,androidx.compose.foundation.interaction.MutableInteractionSource)) | No M3 equivalent, migrate to [androidx.wear.compose.material3.SwitchButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SwitchButton(kotlin.Boolean,kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.SwitchButtonColors,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1,kotlin.Function1,kotlin.Function1)) or [androidx.wear.compose.material3.SplitSwitchButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SplitSwitchButton(kotlin.Boolean,kotlin.Function1,kotlin.String,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.SplitSwitchButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.String,androidx.compose.foundation.layout.PaddingValues,kotlin.Function1,kotlin.Function1)) |
@@ -319,7 +331,7 @@ equivalents:
 | [androidx.wear.compose.material3.SplitSwitchButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SplitSwitchButton(kotlin.Boolean,kotlin.Function1,kotlin.String,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.SplitSwitchButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.wear.compose.material3.SurfaceTransformation,kotlin.String,androidx.compose.foundation.layout.PaddingValues,kotlin.Function1,kotlin.Function1)) | [androidx.wear.compose.material.SplitToggleChip](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#SplitToggleChip(kotlin.Boolean,kotlin.Function1,kotlin.Function1,kotlin.Function0,kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Function1,androidx.wear.compose.material.SplitToggleChipColors,kotlin.Boolean,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.layout.PaddingValues,androidx.compose.ui.graphics.Shape)) |
 | [androidx.wear.compose.material3.Stepper](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#Stepper(kotlin.Int,kotlin.Function1,kotlin.ranges.IntProgression,kotlin.Function0,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.wear.compose.material3.StepperColors,kotlin.Function1)) | [androidx.wear.compose.material.Stepper](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#Stepper(kotlin.Int,kotlin.Function1,kotlin.ranges.IntProgression,kotlin.Function0,kotlin.Function0,androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Color,androidx.compose.ui.graphics.Color,androidx.compose.ui.graphics.Color,kotlin.Boolean,kotlin.Function1)) |
 | [androidx.wear.compose.material3.SwipeToDismissBox](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SwipeToDismissBox(androidx.wear.compose.foundation.SwipeToDismissBoxState,androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Color,androidx.compose.ui.graphics.Color,kotlin.Any,kotlin.Any,kotlin.Boolean,kotlin.Function2)) | [androidx.wear.compose.material.SwipeToDismissBox](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#SwipeToDismissBox(androidx.wear.compose.foundation.SwipeToDismissBoxState,androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Color,androidx.compose.ui.graphics.Color,kotlin.Any,kotlin.Any,kotlin.Boolean,kotlin.Function2)) |
-| [androidx.wear.compose.material3.SwipeToReveal](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SwipeToReveal(kotlin.Function1,androidx.compose.ui.Modifier,androidx.wear.compose.foundation.RevealState,androidx.compose.ui.unit.Dp,kotlin.Function0)) | [androidx.wear.compose.material.SwipeToRevealCard](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#Stepper(kotlin.Int,kotlin.Function1,kotlin.ranges.IntProgression,kotlin.Function0,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.wear.compose.material3.StepperColors,kotlin.Function1)) and [androidx.wear.compose.material.SwipeToRevealChip](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#SwipeToRevealChip(kotlin.Function1,androidx.wear.compose.foundation.RevealState,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1,kotlin.Function1,androidx.wear.compose.material.SwipeToRevealActionColors,androidx.compose.ui.graphics.Shape,kotlin.Function0)) |
+| [androidx.wear.compose.material3.SwipeToReveal](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/SwipeToReveal.composable#SwipeToReveal(kotlin.Function1,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1,kotlin.Function1,androidx.wear.compose.material3.RevealState,androidx.wear.compose.material3.RevealDirection,kotlin.Boolean,androidx.wear.compose.foundation.GestureInclusion,androidx.compose.ui.unit.Dp,kotlin.Function0)) | [androidx.wear.compose.material.SwipeToRevealCard](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/SwipeToRevealCard.composable#SwipeToRevealCard(kotlin.Function0,androidx.wear.compose.material.RevealState,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function0,kotlin.Function0,kotlin.Function0,androidx.wear.compose.material.SwipeToRevealActionColors,androidx.compose.ui.graphics.Shape,kotlin.Function0)) and [androidx.wear.compose.material.SwipeToRevealChip](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/SwipeToRevealChip.composable#SwipeToRevealChip(kotlin.Function0,androidx.wear.compose.material.RevealState,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function0,kotlin.Function0,kotlin.Function0,androidx.wear.compose.material.SwipeToRevealActionColors,androidx.compose.ui.graphics.Shape,kotlin.Function0)) |
 | [androidx.wear.compose.material3.SwitchButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#SwitchButton(kotlin.Boolean,kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material3.SwitchButtonColors,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1,kotlin.Function1,kotlin.Function1)) | [androidx.wear.compose.material.ToggleChip](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#ToggleChip(kotlin.Boolean,kotlin.Function1,kotlin.Function1,kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1,androidx.wear.compose.material.ToggleChipColors,kotlin.Boolean,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.foundation.layout.PaddingValues,androidx.compose.ui.graphics.Shape)) with a switch toggle control |
 | [androidx.wear.compose.material3.Text](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#Text(kotlin.String,androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Color,androidx.compose.ui.unit.TextUnit,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontFamily,androidx.compose.ui.unit.TextUnit,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.unit.TextUnit,androidx.compose.ui.text.style.TextOverflow,kotlin.Boolean,kotlin.Int,kotlin.Int,kotlin.Function1,androidx.compose.ui.text.TextStyle)) | [androidx.wear.compose.material.Text](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#Text(kotlin.String,androidx.compose.ui.Modifier,androidx.compose.ui.graphics.Color,androidx.compose.ui.unit.TextUnit,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontFamily,androidx.compose.ui.unit.TextUnit,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.unit.TextUnit,androidx.compose.ui.text.style.TextOverflow,kotlin.Boolean,kotlin.Int,kotlin.Int,kotlin.Function1,androidx.compose.ui.text.TextStyle)) |
 | [androidx.wear.compose.material3.TextButton](https://developer.android.com/reference/kotlin/androidx/wear/compose/material3/package-summary#TextButton(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Function0,kotlin.String,kotlin.Boolean,androidx.wear.compose.material3.TextButtonShapes,androidx.wear.compose.material3.TextButtonColors,androidx.compose.foundation.BorderStroke,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Function1)) | [androidx.wear.compose.material.Button](https://developer.android.com/reference/kotlin/androidx/wear/compose/material/package-summary#Button(kotlin.Function0,androidx.compose.ui.Modifier,kotlin.Boolean,androidx.wear.compose.material.ButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.ui.graphics.Shape,androidx.wear.compose.material.ButtonBorder,kotlin.Function1)) |
@@ -330,7 +342,7 @@ equivalents:
 And finally a list of some relevant components from Wear Compose Foundation
 library:
 
-| Wear Compose Foundation 1.8.0-alpha03 |   |
+| Wear Compose Foundation 1.7.1 |   |
 |---|---|
 | [androidx.wear.compose.foundation.hierarchicalFocusGroup](https://developer.android.com/reference/kotlin/androidx/wear/compose/foundation/package-summary#(androidx.compose.ui.Modifier).hierarchicalFocusGroup(kotlin.Boolean)) | Used to annotate composables in an application, to keep track of the active part of the composition and coordinate focus. |
 | [androidx.wear.compose.foundation.pager.HorizontalPager](https://developer.android.com/reference/kotlin/androidx/wear/compose/foundation/pager/package-summary#HorizontalPager(androidx.wear.compose.foundation.pager.PagerState,androidx.compose.ui.Modifier,androidx.compose.foundation.layout.PaddingValues,kotlin.Int,androidx.compose.foundation.gestures.TargetedFlingBehavior,kotlin.Boolean,androidx.wear.compose.foundation.GestureInclusion,kotlin.Boolean,kotlin.Function1,androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior,kotlin.Function2)) | A horizontally scrolling pager, built on the Compose Foundation components with Wear-specific enhancements to improve performance and adherence to Wear OS guidelines. |
@@ -347,12 +359,14 @@ element.
 
 ### M2.5
 
-    import androidx.wear.compose.material.Chip
+```kotlin
+import androidx.wear.compose.material.Chip
 
-    //M2.5 Buttons
-    Chip(...)
-    CompactChip(...)
-    Button(...)
+//M2.5 Buttons
+Chip(...)
+CompactChip(...)
+Button(...)
+```
 
 ### M3
 
@@ -429,9 +443,11 @@ override it if you want to customize it by using the `timeText` parameter.
 
 ### M2.5
 
-    import androidx.wear.compose.material.Scaffold
+```kotlin
+import androidx.wear.compose.material.Scaffold
 
-    Scaffold {...}
+Scaffold {...}
+```
 
 ### M3
 

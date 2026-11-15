@@ -65,9 +65,11 @@ dependencies {
 
 Use your app or activity context to create a `CredentialManager` object.
 
-    // Use your app or activity context to instantiate a client instance of
-    // CredentialManager.
-    private val credentialManager = CredentialManager.create(context)
+```kotlin
+// Use your app or activity context to instantiate a client instance of
+// CredentialManager.
+private val credentialManager = CredentialManager.create(context)
+```
 
 ## Get credential creation options from your app server
 
@@ -92,36 +94,38 @@ separately.
 The following snippet shows the structure the public key creation options sent
 by the app server:
 
+```json
+{
+  "challenge": "<base64url-encoded challenge>",
+  "rp": {
+    "name": "<relying party name>",
+    "id": "<relying party host name>"
+  },
+  "user": {
+    "id": "<base64url-encoded user ID>",
+    "name": "<user name>",
+    "displayName": "<user display name>"
+  },
+  "pubKeyCredParams": [
     {
-      "challenge": "<base64url-encoded challenge>",
-      "rp": {
-        "name": "<relying party name>",
-        "id": "<relying party host name>"
-      },
-      "user": {
-        "id": "<base64url-encoded user ID>",
-        "name": "<user name>",
-        "displayName": "<user display name>"
-      },
-      "pubKeyCredParams": [
-        {
-          "type": "public-key",
-          "alg": -7
-        }
-      ],
-      "attestation": "none",
-      "excludeCredentials": [
-        {
-            "id": "<base64url-encoded credential ID to exclude>", 
-            "type": "public-key"
-        }
-      ],
-      "authenticatorSelection": {
-        "requireResidentKey": true,
-        "residentKey": "required",
-        "userVerification": "required"
-      }
+      "type": "public-key",
+      "alg": -7
     }
+  ],
+  "attestation": "none",
+  "excludeCredentials": [
+    {
+        "id": "<base64url-encoded credential ID to exclude>", 
+        "type": "public-key"
+    }
+  ],
+  "authenticatorSelection": {
+    "requireResidentKey": true,
+    "residentKey": "required",
+    "userVerification": "required"
+  }
+}
+```
 
 Key fields in the public key creation options include:
 
@@ -194,50 +198,54 @@ The response after you successfully call `createCredential()` is a
 
 The `PublicKeyCredential` looks as follows:
 
-    {
-      "id": "<identifier>",
-      "type": "public-key",
-      "rawId": "<identifier>",
-      "response": {
-        "clientDataJSON": "<ArrayBuffer encoded object with the origin and signed challenge>",
-        "attestationObject": "<ArrayBuffer encoded object with the public key and other information.>"
-      },
-      "authenticatorAttachment": "platform"
-    }
+```json
+{
+  "id": "<identifier>",
+  "type": "public-key",
+  "rawId": "<identifier>",
+  "response": {
+    "clientDataJSON": "<ArrayBuffer encoded object with the origin and signed challenge>",
+    "attestationObject": "<ArrayBuffer encoded object with the public key and other information.>"
+  },
+  "authenticatorAttachment": "platform"
+}
+```
 
 In the client app, serialize the object and send it to the app server.
 
 Add code to handle failures as shown in the following snippet:
 
-    fun handleFailure(e: CreateCredentialException) {
-        when (e) {
-            is CreatePublicKeyCredentialDomException -> {
-                // Handle the passkey DOM errors thrown according to the
-                // WebAuthn spec.
-            }
-            is CreateCredentialCancellationException -> {
-                // The user intentionally canceled the operation and chose not
-                // to register the credential.
-            }
-            is CreateCredentialInterruptedException -> {
-                // Retry-able error. Consider retrying the call.
-            }
-            is CreateCredentialProviderConfigurationException -> {
-                // Your app is missing the provider configuration dependency.
-                // Most likely, you're missing the
-                // "credentials-play-services-auth" module.
-            }
-            is CreateCredentialCustomException -> {
-                // You have encountered an error from a 3rd-party SDK. If you
-                // make the API call with a request object that's a subclass of
-                // CreateCustomCredentialRequest using a 3rd-party SDK, then you
-                // should check for any custom exception type constants within
-                // that SDK to match with e.type. Otherwise, drop or log the
-                // exception.
-            }
-            else -> Log.w(TAG, "Unexpected exception type ${e::class.java.name}")
+```kotlin
+fun handleFailure(e: CreateCredentialException) {
+    when (e) {
+        is CreatePublicKeyCredentialDomException -> {
+            // Handle the passkey DOM errors thrown according to the
+            // WebAuthn spec.
         }
+        is CreateCredentialCancellationException -> {
+            // The user intentionally canceled the operation and chose not
+            // to register the credential.
+        }
+        is CreateCredentialInterruptedException -> {
+            // Retry-able error. Consider retrying the call.
+        }
+        is CreateCredentialProviderConfigurationException -> {
+            // Your app is missing the provider configuration dependency.
+            // Most likely, you're missing the
+            // "credentials-play-services-auth" module.
+        }
+        is CreateCredentialCustomException -> {
+            // You have encountered an error from a 3rd-party SDK. If you
+            // make the API call with a request object that's a subclass of
+            // CreateCustomCredentialRequest using a 3rd-party SDK, then you
+            // should check for any custom exception type constants within
+            // that SDK to match with e.type. Otherwise, drop or log the
+            // exception.
+        }
+        else -> Log.w(TAG, "Unexpected exception type ${e::class.java.name}")
     }
+}
+```
 
 ## Verify and save the public key on the app server
 
@@ -262,11 +270,12 @@ To obtain the app's SHA 256 fingerprint:
 2. Encode the SHA256 fingerprint with base64url encoding. This Python example
    demonstrates how to properly encode the fingerprint:
 
-       import binascii
-       import base64
-       fingerprint = '<SHA256 finerprint>' # your app's SHA256 fingerprint
-       print(base64.urlsafe_b64encode(binascii.a2b_hex(fingerprint.replace(':', ''))).decode('utf8').replace('=', ''))
-
+   ```python
+   import binascii
+   import base64
+   fingerprint = '<SHA256 finerprint>' # your app's SHA256 fingerprint
+   print(base64.urlsafe_b64encode(binascii.a2b_hex(fingerprint.replace(':', ''))).decode('utf8').replace('=', ''))
+   ```
 3. Append `android:apk-key-hash`: to the start of the output from the previous
    step so that you get something that is similar to the following:
 
@@ -315,10 +324,12 @@ The `isCredential` attribute is supported on Android 14 and higher.
 The following example demonstrates how you can add the `isCredential` attribute
 to the relevant username and password fields in the relevant views for your app:
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-    android:isCredential="true" /\>
+```xml
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+android:isCredential="true" /\>
+```
 
 ## Next steps
 

@@ -44,21 +44,25 @@ files like `build.gradle.kts` and version catalog like `libs.versions.toml`. In
 version `1.0.0-alpha10`, all core service capabilities are consolidated directly
 within the main `appfunctions` artifact.
 
-    // build.gradle.kts
-    dependencies {
-        implementation(libs.androidx.appfunctions)
-    -   implementation(libs.androidx.appfunctions.service)
-        ksp(libs.androidx.appfunctions.compiler)
-    }
+```kotlin
+// build.gradle.kts
+dependencies {
+    implementation(libs.androidx.appfunctions)
+-   implementation(libs.androidx.appfunctions.service)
+    ksp(libs.androidx.appfunctions.compiler)
+}
+```
 
-    # libs.versions.toml
-    [versions]
-    appfunctions = "1.0.0-beta01"
+```toml
+# libs.versions.toml
+[versions]
+appfunctions = "1.0.0-beta01"
 
-    [libraries]
-    androidx-appfunctions = { module = "androidx.appfunctions:appfunctions", version.ref = "appfunctions" }
-    -   androidx-appfunctions-service = { module = "androidx.appfunctions:appfunctions-service", version.ref = "appfunctions" }
-    androidx-appfunctions-compiler = { module = "androidx.appfunctions:appfunctions-compiler", version.ref = "appfunctions" }
+[libraries]
+androidx-appfunctions = { module = "androidx.appfunctions:appfunctions", version.ref = "appfunctions" }
+-   androidx-appfunctions-service = { module = "androidx.appfunctions:appfunctions-service", version.ref = "appfunctions" }
+androidx-appfunctions-compiler = { module = "androidx.appfunctions:appfunctions-compiler", version.ref = "appfunctions" }
+```
 
 > [!NOTE]
 > **Note:** If another dependency in your project uses snapshot builds like `1.0.0-SNAPSHOT` or custom snapshot repositories from `https://androidx.dev/snapshots/...`, preserve your custom snapshot repository configuration in `settings.gradle.kts`. Otherwise, standard Google Maven repositories resolve `1.0.0-beta01` directly.
@@ -150,8 +154,10 @@ method requires an Android `Context`, for example when constructing a
 `PendingIntent`, access `this` directly from your `AppFunctionService` wrapper
 because the wrapper inherently extends `android.content.Context`.
 
-    -   suspend fun makeCall(appFunctionContext: AppFunctionContext, contactName: String?): PendingIntent
-    +   suspend fun makeCall(contactName: String?): PendingIntent
+```diff
+-   suspend fun makeCall(appFunctionContext: AppFunctionContext, contactName: String?): PendingIntent
++   suspend fun makeCall(contactName: String?): PendingIntent
+```
 
 *** ** * ** ***
 
@@ -160,8 +166,10 @@ because the wrapper inherently extends `android.content.Context`.
 Update your `Application` class by removing
 `AppFunctionConfiguration.Provider` and its associated builder entry points:
 
-    -   abstract class BaseChatApplication : Application(), AppFunctionConfiguration.Provider { ... }
-    +   abstract class BaseChatApplication : Application()
+```diff
+-   abstract class BaseChatApplication : Application(), AppFunctionConfiguration.Provider { ... }
++   abstract class BaseChatApplication : Application()
+```
 
 *** ** * ** ***
 

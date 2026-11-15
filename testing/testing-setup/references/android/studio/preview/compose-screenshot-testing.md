@@ -10,7 +10,7 @@ is designed to be as straightforward to use as composable previews.
 
 ## Android skills
 
-[View on GitHub](https://github.com/android/skills/blob/main/testing/testing-setup)
+[View on GitHub](https://github.com/android/skills/tree/main/testing/testing-setup)
 
 ### Create screenshot tests
 
@@ -97,10 +97,11 @@ Preview Screenshot Testing plugin. To set up the plugin, follow these steps:
 2. In the `android {}` block of your module-level `build.gradle.kts` file,
    enable the experimental flag to use the `screenshotTest` source set.
 
-       android {
-           experimentalProperties["android.experimental.enableScreenshotTest"] = true
-       }
-
+   ```kotlin
+   android {
+       experimentalProperties["android.experimental.enableScreenshotTest"] = true
+   }
+   ```
 3. Add the `com.android.compose.screenshot` plugin, version `0.0.1-alpha16` to
    your project.
 
@@ -117,10 +118,11 @@ Preview Screenshot Testing plugin. To set up the plugin, follow these steps:
    2. In your module-level `build.gradle.kts` file, add the plugin in the
       `plugins {}` block:
 
-          plugins {
-              alias(libs.plugins.screenshot)
-          }
-
+      ```kotlin
+      plugins {
+          alias(libs.plugins.screenshot)
+      }
+      ```
 4. Add the [`screenshot-validation-api`](https://maven.google.com/web/index.html?q=screenshot-validation-api#com.android.tools.screenshot:screenshot-validation-api)
    and [`ui-tooling`](https://maven.google.com/web/index.html?q=tooling#androidx.compose.ui:ui-tooling)
    dependencies.
@@ -133,10 +135,12 @@ Preview Screenshot Testing plugin. To set up the plugin, follow these steps:
 
    2. Add them to your module-level `build.gradle.kts` file:
 
-          dependencies {
-            screenshotTestImplementation(libs.screenshot.validation.api)
-            screenshotTestImplementation(libs.androidx.ui.tooling)
-          }
+      ```kotlin
+      dependencies {
+        screenshotTestImplementation(libs.screenshot.validation.api)
+        screenshotTestImplementation(libs.androidx.ui.tooling)
+      }
+      ```
 
 ## Designate composable previews to use for screenshot tests
 
@@ -150,21 +154,23 @@ the new `screenshotTest` source set, for example:
 You can add more composables or previews, including multi-previews, in
 this file or other files created in the same source set.
 
-    package com.example.yourapp
+```kotlin
+package com.example.yourapp
 
-    import androidx.compose.runtime.Composable
-    import androidx.compose.ui.tooling.preview.Preview
-    import com.android.tools.screenshot.PreviewTest
-    import com.example.yourapp.ui.theme.MyApplicationTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import com.android.tools.screenshot.PreviewTest
+import com.example.yourapp.ui.theme.MyApplicationTheme
 
-    @PreviewTest
-    @Preview(showBackground = true)
-    @Composable
-    fun GreetingPreview() {
-        MyApplicationTheme {
-            Greeting("Android!")
-        }
+@PreviewTest
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    MyApplicationTheme {
+        Greeting("Android!")
     }
+}
+```
 
 ## Generate reference images
 

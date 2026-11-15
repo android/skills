@@ -12,7 +12,7 @@ syntax:
     ```
 
 contained in:
-:   `https://developer.android.com/guide/topics/manifest/manifest-element`
+:   `<manifest>`
 
 description:
 :   Declares a security permission used to
@@ -48,7 +48,7 @@ attributes:
     `android:name`
     :   The name to be used in
         code to refer to the permission, such as in a
-        `https://developer.android.com/guide/topics/manifest/uses-permission-element` element or the
+        `<uses-permission>` element or the
         `permission` attributes of application components.
 
 
@@ -70,7 +70,7 @@ attributes:
     `android:permissionGroup`
     :   Assigns this permission to a group. The value of this attribute is
         the name of the group, which is declared with the
-        `https://developer.android.com/guide/topics/manifest/permission-group-element` element in this
+        `<permission-group>` element in this
         or another application. If this attribute isn't set, the permission
         doesn't belong to a group.
 
@@ -90,7 +90,7 @@ attributes:
 
 
         The following table shows all base permission types. For a list of flags, see
-        `https://developer.android.com/reference/android/R.attr#protectionLevel`.
+        `protectionLevel`.
 
         | Value | Meaning |
         |---|---|
@@ -104,8 +104,8 @@ introduced in:
 :   API level 1
 
 see also:
-:   `https://developer.android.com/guide/topics/manifest/uses-permission-element`
+:   `<uses-permission>`
 
-    `https://developer.android.com/guide/topics/manifest/permission-tree-element`
+    `<permission-tree>`
 
-    `https://developer.android.com/guide/topics/manifest/permission-group-element`
+    `<permission-group>`

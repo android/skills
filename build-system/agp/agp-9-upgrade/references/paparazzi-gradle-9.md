@@ -17,14 +17,18 @@ must apply one of these two workarounds.
 
 Kotlin DSL:
 
-    tasks.withType<Test>().configureEach {
-      // https://github.com/cashapp/paparazzi/issues/2111
-      reports.html.required = false
-    }
+```kotlin
+tasks.withType<Test>().configureEach {
+  // https://github.com/cashapp/paparazzi/issues/2111
+  reports.html.required = false
+}
+```
 
 Groovy DSL:
 
-    tasks.withType(Test).configureEach {
-      // https://github.com/cashapp/paparazzi/issues/2111
-      reports.html.required = false
-    }
+```groovy
+tasks.withType(Test).configureEach {
+  // https://github.com/cashapp/paparazzi/issues/2111
+  reports.html.required = false
+}
+```

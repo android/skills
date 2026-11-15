@@ -34,6 +34,7 @@
     "./jetpack-compose/jetpack-compose-performance",
     "./jetpack-compose/migration/migrate-xml-views-to-jetpack-compose",
     "./media/media3-cast-integration",
+    "./migration/ios-to-android",
     "./navigation/navigation-3",
     "./navigation/navigation-event",
     "./performance/anr-audit-and-fix",

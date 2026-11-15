@@ -12,7 +12,7 @@ description: Create, migrate, update, and verify Wear OS widgets using Glance We
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-16'
+  last-updated: '2026-11-10'
   keywords:
   - Wear OS
   - Widgets
@@ -32,16 +32,18 @@ They serialize declarative UI and state documents to the watch host process.
    - Otherwise, fetch the latest version from Google Maven metadata ([Glance Wear metadata](https://dl.google.com/dl/android/maven2/androidx/glance/wear/wear/maven-metadata.xml), [Compose Remote metadata](https://dl.google.com/dl/android/maven2/androidx/compose/remote/remote-creation-compose/maven-metadata.xml), [Wear Compose Remote metadata](https://dl.google.com/dl/android/maven2/androidx/wear/compose/remote/remote-material3/maven-metadata.xml)).
 2. **SDK and Compose compiler requirements** : Ask permission before modifying repo-wide Gradle files unless the user requested widget creation, tile migration, or dependency setup. Set `compileSdk = 37` or higher and enable `buildFeatures { compose = true }`. Keep the project's existing Android and Kotlin Gradle plugin declarations intact.
 
-    dependencies {
-        implementation("androidx.glance.wear:wear:{GLANCE_WEAR_VERSION}")
-        implementation("androidx.glance.wear:wear-core:{GLANCE_WEAR_VERSION}")
-        implementation("androidx.glance.wear:wear-tooling-preview:{GLANCE_WEAR_VERSION}")
-        implementation("androidx.compose.remote:remote-creation-compose:{COMPOSE_REMOTE_VERSION}")
-        implementation("androidx.compose.remote:remote-creation:{COMPOSE_REMOTE_VERSION}")
-        implementation("androidx.compose.remote:remote-core:{COMPOSE_REMOTE_VERSION}")
-        implementation("androidx.compose.remote:remote-tooling-preview:{COMPOSE_REMOTE_VERSION}")
-        implementation("androidx.wear.compose.remote:remote-material3:{WEAR_COMPOSE_REMOTE_VERSION}")
-    }
+```kotlin
+dependencies {
+    implementation("androidx.glance.wear:wear:{GLANCE_WEAR_VERSION}")
+    implementation("androidx.glance.wear:wear-core:{GLANCE_WEAR_VERSION}")
+    implementation("androidx.glance.wear:wear-tooling-preview:{GLANCE_WEAR_VERSION}")
+    implementation("androidx.compose.remote:remote-creation-compose:{COMPOSE_REMOTE_VERSION}")
+    implementation("androidx.compose.remote:remote-creation:{COMPOSE_REMOTE_VERSION}")
+    implementation("androidx.compose.remote:remote-core:{COMPOSE_REMOTE_VERSION}")
+    implementation("androidx.compose.remote:remote-tooling-preview:{COMPOSE_REMOTE_VERSION}")
+    implementation("androidx.wear.compose.remote:remote-material3:{WEAR_COMPOSE_REMOTE_VERSION}")
+}
+```
 
 ## Codebase exploration
 

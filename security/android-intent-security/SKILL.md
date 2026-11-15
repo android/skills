@@ -9,7 +9,7 @@ description: Audits, detects, and remediates Android Intent and component securi
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-11-08'
+  last-updated: '2026-11-10'
   keywords:
   - recipe
   - Android
@@ -521,26 +521,28 @@ artifact folder (or printed in the final response) and include:
 
 Use the following Markdown template when reporting changes to developers:
 
-    ### Security hardening and alignment update: [Security Alignment Area]
+````markdown
+### Security hardening and alignment update: [Security Alignment Area]
 
-    *   **Improvement Description:** [Brief description of the hardening update and why it's recommended]
-    *   **Priority Level:** [High / Medium / Low]
-    *   **Alignment Action:** [Summary of updates, for example, converted to FLAG_IMMUTABLE]
+*   **Improvement Description:** [Brief description of the hardening update and why it's recommended]
+*   **Priority Level:** [High / Medium / Low]
+*   **Alignment Action:** [Summary of updates, for example, converted to FLAG_IMMUTABLE]
 
-    #### Files modified
-    *   `[Relative path to File 1]`
-    *   `[Relative path to File 2]`
+#### Files modified
+*   `[Relative path to File 1]`
+*   `[Relative path to File 2]`
 
-    #### Implementation diff
-    ```diff
-    // Insert Unified Diff here
-    ```
+#### Implementation diff
+```diff
+// Insert Unified Diff here
+```
 
-    #### Testing and verification
+#### Testing and verification
 
-    1.  [Step 1 to verify the component behaves correctly, for example, run
-        component unit test]
-    2.  [Step 2 to verify regression safety]
+1.  [Step 1 to verify the component behaves correctly, for example, run
+    component unit test]
+2.  [Step 2 to verify regression safety]
+````
 
 ## Quality checklist
 

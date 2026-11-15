@@ -16,39 +16,40 @@ Annotate public methods with
 `@androidx.appfunctions.AppFunctionDeclaration(isDescribedByKDoc = true)`. Tool
 parameter descriptions are extracted automatically from KDoc `@param` tags:
 
-    package com.example.ai.agent.tools
+```kotlin
+package com.example.ai.agent.tools
 
-    import androidx.appfunctions.AppFunctionDeclaration
-    import androidx.appfunctions.AppFunctionSerializable
+import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionSerializable
 
-    @AppFunctionSerializable
-    data class CalendarEvents(
-        val date: String,
-        val events: List<String>,
-    )
+@AppFunctionSerializable
+data class CalendarEvents(
+    val date: String,
+    val events: List<String>,
+)
 
-    class CalendarTools {
+class CalendarTools {
 
-        /**
-         * Fetches scheduled calendar events for a specific date in
-         * YYYY-MM-DD format.
-         *
-         * @param date Date string in YYYY-MM-DD format (for example, "2026-10-15")
-         */
-        @AppFunctionDeclaration(isDescribedByKDoc = true)
-        fun fetch_calendar(
-            date: String
-        ): CalendarEvents {
-            return CalendarEvents(
-                date = date,
-                events = listOf(
-                    "Team Sync at 10:00 AM",
-                    "Product Review at 2:00 PM"
-                )
+    /**
+     * Fetches scheduled calendar events for a specific date in
+     * YYYY-MM-DD format.
+     *
+     * @param date Date string in YYYY-MM-DD format (for example, "2026-10-15")
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    fun fetch_calendar(
+        date: String
+    ): CalendarEvents {
+        return CalendarEvents(
+            date = date,
+            events = listOf(
+                "Team Sync at 10:00 AM",
+                "Product Review at 2:00 PM"
             )
-        }
+        )
     }
-
+}
+```
 > \[!NOTE\] **AppFunction Parameter and Return Rules** : 1. **Parameters** : Tool
 > methods take domain parameters directly (such as `date`). You don't need a
 > framework context parameter. 2. **Return Types** : AppFunctions must return
@@ -61,21 +62,23 @@ parameter descriptions are extracted automatically from KDoc `@param` tags:
 For apps where all or specific AppFunctions must execute automatically
 when the model calls them:
 
-    import com.google.mlkit.genai.agent.Agent
-    import com.google.mlkit.genai.agent.AgentRunner
+```kotlin
+import com.google.mlkit.genai.agent.Agent
+import com.google.mlkit.genai.agent.AgentRunner
 
-    // 1. Configure the Agent with AppFunctions enabled
-    val agent = Agent.builder()
-        .setName("CalendarAssistant")
-        .setInstructions("You assist with calendar queries.")
-        // Automatically discovers AppFunctions in your app package
-        .enableAppFunctions(true)
-        // Optional: scope to specific function IDs or method names
-        .addAppFunctionIds("fetch_calendar")
-        .build()
+// 1. Configure the Agent with AppFunctions enabled
+val agent = Agent.builder()
+    .setName("CalendarAssistant")
+    .setInstructions("You assist with calendar queries.")
+    // Automatically discovers AppFunctions in your app package
+    .enableAppFunctions(true)
+    // Optional: scope to specific function IDs or method names
+    .addAppFunctionIds("fetch_calendar")
+    .build()
 
-    // 2. Initialize the Runner
-    val runner = AgentRunner(agent)
+// 2. Initialize the Runner
+val runner = AgentRunner(agent)
+```
 
 - **Scoping to Specific Functions** : Use `.addAppFunctionId(id)` or `.addAppFunctionIds(listOf(...))` to restrict the agent's available functions. Supply either the full identifier (`"com.example.MyApp#createNote"`) or the short method name (`"createNote"`).
 - **Context Resolution** : `AgentRunner(agent)` automatically resolves the application context using `MlKitContext.getInstance().applicationContext`. An explicit `AgentRunner(context, agent)` overload is available for headless tests or custom context scopes.
@@ -86,29 +89,30 @@ When your app needs to inspect discovered AppFunctions, filter them, or decorate
 them (for example, adding Human-in-the-Loop confirmation dialogs) before
 registering them with the agent:
 
-    import com.google.mlkit.genai.agent.Agent
-    import com.google.mlkit.genai.agent.AgentRunner
-    import com.google.mlkit.genai.agent.AgentTool
-    import com.google.mlkit.genai.agent.AppFunctionAgentTools
+```kotlin
+import com.google.mlkit.genai.agent.Agent
+import com.google.mlkit.genai.agent.AgentRunner
+import com.google.mlkit.genai.agent.AgentTool
+import com.google.mlkit.genai.agent.AppFunctionAgentTools
 
-    // Suspending discovery scoped to calling app package on Dispatchers.IO:
-    // Overloads:
-    // - AppFunctionAgentTools.discover() (uses applicationContext)
-    // - AppFunctionAgentTools.discover(context)
-    // - AppFunctionAgentTools.discover(enabledAppFunctionIds)
-    // - AppFunctionAgentTools.discover(context, enabledAppFunctionIds)
-    val discoveredTools: List<AgentTool> = AppFunctionAgentTools.discover(
-        enabledAppFunctionIds = listOf("fetch_calendar")
-    )
+// Suspending discovery scoped to calling app package on Dispatchers.IO:
+// Overloads:
+// - AppFunctionAgentTools.discover() (uses applicationContext)
+// - AppFunctionAgentTools.discover(context)
+// - AppFunctionAgentTools.discover(enabledAppFunctionIds)
+// - AppFunctionAgentTools.discover(context, enabledAppFunctionIds)
+val discoveredTools: List<AgentTool> = AppFunctionAgentTools.discover(
+    enabledAppFunctionIds = listOf("fetch_calendar")
+)
 
-    val agent = Agent.builder()
-        .setName("CalendarAssistant")
-        .setInstructions("You assist with calendar queries.")
-        .addTools(discoveredTools)
-        .build()
+val agent = Agent.builder()
+    .setName("CalendarAssistant")
+    .setInstructions("You assist with calendar queries.")
+    .addTools(discoveredTools)
+    .build()
 
-    val runner = AgentRunner(agent)
-
+val runner = AgentRunner(agent)
+```
 > \[!WARNING\] **Mutual exclusivity guard** : Use either the declarative path
 > (`enableAppFunctions(true)` or `addAppFunctionIds` on `Agent.Builder`) or the
 > advanced path (`AppFunctionAgentTools.discover` passed to `addTools`), but
@@ -129,31 +133,33 @@ app's internal agent (for example, querying private local databases, modifying
 user preferences, or invoking transactional APIs), restrict caller access
 using `ACCESS_LEVEL_SELF`:
 
-    import androidx.appfunctions.AppFunctionAccessLevel
-    import androidx.appfunctions.AppFunctionDeclaration
-    import androidx.appfunctions.ExperimentalAppFunctionsApi
-    import androidx.appfunctions.metadata.AppFunctionMetadata
+```kotlin
+import androidx.appfunctions.AppFunctionAccessLevel
+import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.metadata.AppFunctionMetadata
 
-    class SecureAccountTools {
+class SecureAccountTools {
 
-        /**
-         * Updates an internal account setting. Restricted strictly to this app's
-         * agent.
-         */
-        @OptIn(ExperimentalAppFunctionsApi::class)
-        @AppFunctionDeclaration(isDescribedByKDoc = true)
-        @AppFunctionAccessLevel(
-            level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
-            isCompatEnforcementEnabled = true,
-        )
-        fun update_preference(
-            key: String,
-            value: String
-        ): Boolean {
-            // Only your app's in-process agent invokes this function
-            return true
-        }
+    /**
+     * Updates an internal account setting. Restricted strictly to this app's
+     * agent.
+     */
+    @OptIn(ExperimentalAppFunctionsApi::class)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    @AppFunctionAccessLevel(
+        level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+        isCompatEnforcementEnabled = true,
+    )
+    fun update_preference(
+        key: String,
+        value: String
+    ): Boolean {
+        // Only your app's in-process agent invokes this function
+        return true
     }
+}
+```
 
 #### Access level hierarchy
 
@@ -190,54 +196,58 @@ decorator wrapping one).
 
 ### 2.2 Implementing a confirmation wrapper
 
-    import com.google.mlkit.genai.agent.AgentTool
+```kotlin
+import com.google.mlkit.genai.agent.AgentTool
 
-    /**
-     * Decorator tool that intercepts execution to prompt for user confirmation.
-     */
-    class HitlConfirmationTool(
-        delegate: AgentTool,
-        private val onConfirm: suspend (
-            toolName: String,
-            args: Map<String, Any>
-        ) -> Boolean
-    ) : AgentTool(delegate) {
+/**
+ * Decorator tool that intercepts execution to prompt for user confirmation.
+ */
+class HitlConfirmationTool(
+    delegate: AgentTool,
+    private val onConfirm: suspend (
+        toolName: String,
+        args: Map<String, Any>
+    ) -> Boolean
+) : AgentTool(delegate) {
 
-        override suspend fun execute(args: Map<String, Any>): Map<String, Any?> {
-            // 1. Request user confirmation before invoking the sensitive tool
-            val confirmed = onConfirm(name, args)
-            if (!confirmed) {
-                return mapOf(
-                    "status" to "CANCELLED_BY_USER",
-                    "message" to "The user declined to confirm this action."
-                )
-            }
-
-            // 2. Delegate to the underlying tool execution
-            return checkNotNull(delegate).execute(args)
+    override suspend fun execute(args: Map<String, Any>): Map<String, Any?> {
+        // 1. Request user confirmation before invoking the sensitive tool
+        val confirmed = onConfirm(name, args)
+        if (!confirmed) {
+            return mapOf(
+                "status" to "CANCELLED_BY_USER",
+                "message" to "The user declined to confirm this action."
+            )
         }
+
+        // 2. Delegate to the underlying tool execution
+        return checkNotNull(delegate).execute(args)
     }
+}
+```
 
 ### 2.3 Wrapping discovered AppFunctions
 
-    val allTools = AppFunctionAgentTools.discover(context)
+```kotlin
+val allTools = AppFunctionAgentTools.discover(context)
 
-    val configuredTools = allTools.map { tool ->
-        if (tool.name == "deleteCalendarEvent" || tool.name == "sendInvites") {
-            HitlConfirmationTool(tool) { name, args ->
-                showUserConfirmationDialog(name, args)
-            }
-        } else {
-            tool
+val configuredTools = allTools.map { tool ->
+    if (tool.name == "deleteCalendarEvent" || tool.name == "sendInvites") {
+        HitlConfirmationTool(tool) { name, args ->
+            showUserConfirmationDialog(name, args)
         }
+    } else {
+        tool
     }
+}
 
-    val agent = Agent.builder()
-        .setName("SafeAssistant")
-        .addTools(configuredTools)
-        .build()
+val agent = Agent.builder()
+    .setName("SafeAssistant")
+    .addTools(configuredTools)
+    .build()
 
-    val runner = AgentRunner(agent)
+val runner = AgentRunner(agent)
+```
 
 *** ** * ** ***
 
@@ -253,18 +263,20 @@ loop internally:
 4. `AgentRunner` emits `AgentEvent.FunctionResponse(name, response)`.
 5. `AgentRunner` feeds the response back into inference until the model emits `AgentEvent.TextMessage(text, isPartial)` or `maxTurns` is reached.
 
-    import com.google.mlkit.genai.agent.AgentEvent
+```kotlin
+import com.google.mlkit.genai.agent.AgentEvent
 
-    session.runAsync(content).collect { event ->
-        when (event) {
-            is AgentEvent.TextMessage -> appendText(event.text)
-            is AgentEvent.FunctionCall ->
-                showToolProgress("Running ${event.name}...")
-            is AgentEvent.FunctionResponse ->
-                showToolProgress("Completed ${event.name}")
-            else -> {} // Required: AgentEvent is non-exhaustive for forward compat
-        }
+session.runAsync(content).collect { event ->
+    when (event) {
+        is AgentEvent.TextMessage -> appendText(event.text)
+        is AgentEvent.FunctionCall ->
+            showToolProgress("Running ${event.name}...")
+        is AgentEvent.FunctionResponse ->
+            showToolProgress("Completed ${event.name}")
+        else -> {} // Required: AgentEvent is non-exhaustive for forward compat
     }
+}
+```
 
 *** ** * ** ***
 

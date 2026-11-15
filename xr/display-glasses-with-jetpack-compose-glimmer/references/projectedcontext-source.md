@@ -38,6 +38,7 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
@@ -175,9 +176,12 @@ public object ProjectedContext {
             val lock = Any()
             fun checkAndSend() {
                 synchronized(lock) {
-                    // TODO: b/568039612 - Investigate handling the ChannelResult returned by
-                    // trySend().
-                    trySend(isProjectedDisplayAvailable(hostContext))
+                    val sendResult = trySend(isProjectedDisplayAvailable(hostContext))
+                    check(sendResult.isSuccess || sendResult.isClosed) {
+                        "Failed to send projected device connectivity state; the channel is" +
+                            " conflated so sends should always succeed unless the channel is" +
+                            " closed."
+                    }
                 }
             }
 
@@ -236,6 +240,11 @@ public object ProjectedContext {
                 displayManager.unregisterDisplayListener(displayListener)
             }
         }
+            // Place .conflate() immediately after callbackFlow so callbackFlow's own channel drops
+            // older uncollected values instead of failing trySend() when the collector is slow.
+            // Placing .distinctUntilChanged() first would leave callbackFlow with its default
+            // bounded buffer.
+            .conflate()
             .distinctUntilChanged()
     }
 

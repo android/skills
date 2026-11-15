@@ -18,37 +18,43 @@ missing, and do **not** recommend switching back to `isMinifyEnabled` or
 
 **Kotlin DSL --- AGP 9.3 and higher (`build.gradle.kts`)**:
 
-    buildTypes {
-       release {
-           optimization {
-               enable = true
-           }
-           proguardFiles("proguard-rules.pro")
+```kotlin
+buildTypes {
+   release {
+       optimization {
+           enable = true
        }
-    }
+       proguardFiles("proguard-rules.pro")
+   }
+}
+```
 
 **Kotlin DSL --- Legacy or Pre-AGP 9.3 (`build.gradle.kts`)**:
 
-    buildTypes {
-       release {
-           isMinifyEnabled = true
-           isShrinkResources = true
-           proguardFiles(
-               getDefaultProguardFile("proguard-android-optimize.txt"),
-               "proguard-rules.pro"
-           )
-       }
-    }
+```kotlin
+buildTypes {
+   release {
+       isMinifyEnabled = true
+       isShrinkResources = true
+       proguardFiles(
+           getDefaultProguardFile("proguard-android-optimize.txt"),
+           "proguard-rules.pro"
+       )
+   }
+}
+```
 
 **Groovy DSL (`build.gradle`)**:
 
-    buildTypes {
-       release {
-           minifyEnabled = true
-           shrinkResources = true
-           proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-       }
-    }
+```groovy
+buildTypes {
+   release {
+       minifyEnabled = true
+       shrinkResources = true
+       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+   }
+}
+```
 
 ## 2. `gradle.properties` flags
 
@@ -61,4 +67,6 @@ missing, and do **not** recommend switching back to `isMinifyEnabled` or
 `android.r8.optimizedResourceShrinking=true` is set in `gradle.properties`.
 From AGP 9.0 it's on by default.
 
-    android.r8.optimizedResourceShrinking=true
+```properties
+android.r8.optimizedResourceShrinking=true
+```

@@ -53,7 +53,7 @@ The system sets the widget bitmap memory budget at `6 * width * height` bytes
 higher, this calculation includes both of the following:
 
 - In-memory [`Bitmap`](https://developer.android.com/reference/android/graphics/Bitmap) and bitmap-backed [`Icon`](https://developer.android.com/reference/android/graphics/drawable/Icon) objects (`Icon.TYPE_BITMAP` and `Icon.TYPE_ADAPTIVE_BITMAP`) stored in `RemoteViews.mBitmapCache` (such as calls to `setImageViewBitmap`, `Icon.createWithBitmap`, `Icon.createWithAdaptiveBitmap`, or Jetpack Glance `ImageProvider(bitmap)`). Each unique `Bitmap` or bitmap-backed `Icon` instance in `mBitmapCache` is counted once per `RemoteViews` hierarchy.
-- URI-backed images (`Icon.createWithContentUri`, `setImageViewUri`, or Glance `ImageProvider(uri)`) don't count toward the `RemoteViews` IPC byte cap in `system_server`, but the widget host process decodes the referenced `content://` file at full resolution into its own heap. Always write a downsampled image into `context.cacheDir` before exposing it through a `FileProvider` URI.
+- URI-backed images (`Icon.createWithContentUri`, `setImageViewUri`, or Glance `ImageProvider(uri)`) don't count toward the `RemoteViews` IPC byte cap in `system_server`, but the widget host process decodes the referenced `content://` file at full resolution into its own heap. Prefer passing a downsampled `Bitmap` directly in memory (`androidx.glance.ImageProvider(bitmap)` or `setImageViewBitmap`), as `FileProvider` URI permission grants fail when a work-profile widget is placed on a personal home screen. If your widget must use a `FileProvider` URI, always write a downsampled image into `context.cacheDir` first.
 
 #### Mitigation steps
 
@@ -68,19 +68,20 @@ and foldables, do the following:
    widget image budget at `6L * bounds.width() * bounds.height()`
    as shown in the following example:
 
-       private const val FALLBACK_MAX_BYTES = 15_000_000L
+   ```kotlin
+   private const val FALLBACK_MAX_BYTES = 15_000_000L
 
-       fun calculateWidgetMemoryCapBytes(context: Context): Long {
-           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-               val wm = context.getSystemService(WindowManager::class.java)
-                   ?: return FALLBACK_MAX_BYTES
-               val bounds = wm.currentWindowMetrics.bounds
-               return 6L * bounds.width().toLong() * bounds.height().toLong()
-           }
-           val dm = context.resources.displayMetrics
-           return 6L * dm.widthPixels.toLong() * dm.heightPixels.toLong()
+   fun calculateWidgetMemoryCapBytes(context: Context): Long {
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+           val wm = context.getSystemService(WindowManager::class.java)
+               ?: return FALLBACK_MAX_BYTES
+           val bounds = wm.currentWindowMetrics.bounds
+           return 6L * bounds.width().toLong() * bounds.height().toLong()
        }
-
+       val dm = context.resources.displayMetrics
+       return 6L * dm.widthPixels.toLong() * dm.heightPixels.toLong()
+   }
+   ```
 2. **Downsample images to the widget's viewable dimensions and use `RGB_565`:**
    Decode bitmaps with power-of-two `BitmapFactory.Options.inSampleSize` values
    sized to the widget's maximum display dimensions (`maxWidthDp` by
@@ -108,7 +109,9 @@ and foldables, do the following:
 You can inspect your widget's current serialized bitmap memory usage on a
 connected device by running the following:
 
-    adb shell dumpsys appwidget
+```bash
+adb shell dumpsys appwidget
+```
 
 ## Core functionality
 
@@ -348,17 +351,21 @@ in the following example:
 
 ### Kotlin
 
-    window.setFlags(
-        WindowManager.LayoutParams.FLAG_SECURE,
-        WindowManager.LayoutParams.FLAG_SECURE
-    )
+```kotlin
+window.setFlags(
+    WindowManager.LayoutParams.FLAG_SECURE,
+    WindowManager.LayoutParams.FLAG_SECURE
+)
+```
 
 ### Java
 
-    getWindow().setFlags(
-        WindowManager.LayoutParams.FLAG_SECURE,
-        WindowManager.LayoutParams.FLAG_SECURE
-    );
+```java
+getWindow().setFlags(
+    WindowManager.LayoutParams.FLAG_SECURE,
+    WindowManager.LayoutParams.FLAG_SECURE
+);
+```
 
 For more details, see the
 [`WindowManager.LayoutParams.FLAG_SECURE`](https://developer.android.com/reference/android/view/WindowManager.LayoutParams#FLAG_SECURE) reference

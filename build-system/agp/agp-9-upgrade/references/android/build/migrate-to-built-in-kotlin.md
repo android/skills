@@ -29,13 +29,17 @@ After you upgrade your project from an older AGP version to AGP 9.0 or after
 you manually [enable built-in Kotlin](https://developer.android.com/build/migrate-to-built-in-kotlin#enable-built-in-kotlin), you might see the following error
 message:
 
-    Failed to apply plugin 'org.jetbrains.kotlin.android'.
-    > Cannot add extension with name 'kotlin', as there is an extension already registered with that name.
+```console
+Failed to apply plugin 'org.jetbrains.kotlin.android'.
+> Cannot add extension with name 'kotlin', as there is an extension already registered with that name.
+```
 
 ...or
 
-    Failed to apply plugin 'com.jetbrains.kotlin.android'
-    > The 'org.jetbrains.kotlin.android' plugin is no longer required for Kotlin support since AGP 9.0.
+```console
+Failed to apply plugin 'com.jetbrains.kotlin.android'
+> The 'org.jetbrains.kotlin.android' plugin is no longer required for Kotlin support since AGP 9.0.
+```
 
 This error occurs because built-in Kotlin requires some changes to your project.
 To resolve this error, follow these steps:

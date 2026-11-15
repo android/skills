@@ -20,16 +20,18 @@ Parsing a trace is the expensive part (tens of seconds for a multi-GB
 trace); the session pays it once, and every real analysis runs more than
 one query.
 
-    # 1. Load the trace into a background session --- once per trace.
-    #    Pick a descriptive session name (e.g. derived from the trace file).
-    trace_processor server unix --name mysession --daemonize TRACE_FILE
+```bash
+# 1. Load the trace into a background session --- once per trace.
+#    Pick a descriptive session name (e.g. derived from the trace file).
+trace_processor server unix --name mysession --daemonize TRACE_FILE
 
-    # 2. Run queries against the warm session: instant, no reparse.
-    trace_processor query --remote mysession \
-      "SELECT ts, dur, name FROM slice WHERE dur > 5e8 LIMIT 5"
+# 2. Run queries against the warm session: instant, no reparse.
+trace_processor query --remote mysession \
+  "SELECT ts, dur, name FROM slice WHERE dur > 5e8 LIMIT 5"
 
-    # 3. When you are completely done with the trace:
-    trace_processor server kill mysession
+# 3. When you are completely done with the trace:
+trace_processor server kill mysession
+```
 
 Multiple statements separated by `;` are supported in one invocation.
 
@@ -69,31 +71,33 @@ table, view, or query result before drafting your query.
 > **don't bake `__intrinsic_*` names into committed scripts, dashboards,
 > or stdlib modules** --- they can change without notice.
 
-    -- Search every documented stdlib object. Start with one precise phrase or
-    -- API-like term. In a regexp, `|` means alternatives: prefer
-    -- `breadth.first|bfs`, not a broad expression such as `breadth|graph|search`.
-    WITH search(pattern) AS (VALUES ('precise phrase|api_term'))
-    SELECT o.qualified_name, o.object_type, o.short_description
-    FROM __intrinsic_stdlib_objects AS o, search AS s
-    WHERE o.exposed = 1
-      AND regexp(s.pattern, o.summary, 'i')
-    ORDER BY regexp(s.pattern, o.qualified_name, 'i') DESC,
-             o.qualified_name
-    LIMIT 10;
+```sql
+-- Search every documented stdlib object. Start with one precise phrase or
+-- API-like term. In a regexp, `|` means alternatives: prefer
+-- `breadth.first|bfs`, not a broad expression such as `breadth|graph|search`.
+WITH search(pattern) AS (VALUES ('precise phrase|api_term'))
+SELECT o.qualified_name, o.object_type, o.short_description
+FROM __intrinsic_stdlib_objects AS o, search AS s
+WHERE o.exposed = 1
+  AND regexp(s.pattern, o.summary, 'i')
+ORDER BY regexp(s.pattern, o.qualified_name, 'i') DESC,
+         o.qualified_name
+LIMIT 10;
 
-    -- Once a candidate is found, read one human-friendly document containing its
-    -- identity, description, arguments, return value, and result columns.
-    SELECT o.summary
-    FROM __intrinsic_stdlib_objects AS o
-    WHERE o.qualified_name =
-      'intervals.overlap.intervals_overlap_count_by_group';
+-- Once a candidate is found, read one human-friendly document containing its
+-- identity, description, arguments, return value, and result columns.
+SELECT o.summary
+FROM __intrinsic_stdlib_objects AS o
+WHERE o.qualified_name =
+  'intervals.overlap.intervals_overlap_count_by_group';
 
-    -- Read the runtime schema of any table, view, or query. LIMIT 0 returns the
-    -- result header with no row scan.
-    SELECT * FROM slice LIMIT 0;
-    INCLUDE PERFETTO MODULE slices.with_context;
-    SELECT * FROM thread_or_process_slice LIMIT 0;
-    SELECT * FROM (SELECT ts, dur, name FROM slice WHERE dur > 0) LIMIT 0;
+-- Read the runtime schema of any table, view, or query. LIMIT 0 returns the
+-- result header with no row scan.
+SELECT * FROM slice LIMIT 0;
+INCLUDE PERFETTO MODULE slices.with_context;
+SELECT * FROM thread_or_process_slice LIMIT 0;
+SELECT * FROM (SELECT ts, dur, name FROM slice WHERE dur > 0) LIMIT 0;
+```
 
 Useful starting points for any trace:
 
@@ -119,13 +123,15 @@ instead of joining raw tables yourself. Generated stdlib reference:
 Include a module before referencing the views, tables or macros it
 defines:
 
-    INCLUDE PERFETTO MODULE slices.with_context;
+```sql
+INCLUDE PERFETTO MODULE slices.with_context;
 
-    SELECT name, dur, thread_name, process_name
-    FROM thread_or_process_slice
-    WHERE dur > 1e9                     -- slices longer than 1s
-    ORDER BY dur DESC
-    LIMIT 20;
+SELECT name, dur, thread_name, process_name
+FROM thread_or_process_slice
+WHERE dur > 1e9                     -- slices longer than 1s
+ORDER BY dur DESC
+LIMIT 20;
+```
 
 A few commonly used modules to know:
 

@@ -7,7 +7,7 @@ description: Audits, detects gaps, and remediates Android permissions and IPC co
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-11-08'
+  last-updated: '2026-11-10'
   keywords:
   - recipe
   - Android

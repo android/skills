@@ -40,11 +40,13 @@ options](https://developers.google.com/identity/passkeys/developer-guides/server
 
 The options look similar to the following:
 
-    {
-      "challenge": "<your app challenge>",
-      "allowCredentials": [],
-      "rpId": "<your app server domain>"
-    }
+```json
+{
+  "challenge": "<your app challenge>",
+  "allowCredentials": [],
+  "rpId": "<your app server domain>"
+}
+```
 
 To learn more about the fields, see the blogpost about [signing in with a
 passkey](https://web.dev/articles/passkey-form-autofill#fetch_information_from_the_backend).
@@ -58,23 +60,27 @@ In your app, use the options to create a `GetPublicKeyCredentialOption` object.
 In the following example, `requestJson` represents the options sent by the
 server.
 
-    // Get password logins from the credential provider on the user's device.
-    val getPasswordOption = GetPasswordOption()
+```kotlin
+// Get password logins from the credential provider on the user's device.
+val getPasswordOption = GetPasswordOption()
 
-    // Get passkeys from the credential provider on the user's device.
-    val getPublicKeyCredentialOption = GetPublicKeyCredentialOption(
-        requestJson = requestJson
-    )
+// Get passkeys from the credential provider on the user's device.
+val getPublicKeyCredentialOption = GetPublicKeyCredentialOption(
+    requestJson = requestJson
+)
+```
 
 Then, wrap `GetPublicKeyCredentialOption` in a `GetCredentialRequest` object.
 
-    val credentialRequest = GetCredentialRequest(
-        // Include all the sign-in options that your app supports.
-        listOf(getPasswordOption, getPublicKeyCredentialOption),
-        // Defines whether you prefer to use only immediately available
-        // credentials or hybrid credentials.
-        preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
-    )
+```kotlin
+val credentialRequest = GetCredentialRequest(
+    // Include all the sign-in options that your app supports.
+    listOf(getPasswordOption, getPublicKeyCredentialOption),
+    // Defines whether you prefer to use only immediately available
+    // credentials or hybrid credentials.
+    preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
+)
+```
 
 > [!NOTE]
 > **Note:** [`GetCredentialRequest`](https://developer.android.com/reference/androidx/credentials/GetCredentialRequest#GetCredentialRequest) can include an `origin` field. However, `origin` is automatically set for Android apps, and hence should be left as null. For browsers and similarly privileged apps that need to set `origin`, see [Make Credential Manager calls on behalf of other parties for privileged
@@ -91,17 +97,19 @@ The `prepareGetCredential()` method returns a
 `getCredential()` method in the following step bring up the account selector
 with the cached data.
 
-    coroutineScope {
-        val response = credentialManager.prepareGetCredential(
-            GetCredentialRequest(
-                listOf(
-                    // Include all the sign-in options that your app supports
-                    getPublicKeyCredentialOption, 
-                    getPasswordOption
-                )
+```kotlin
+coroutineScope {
+    val response = credentialManager.prepareGetCredential(
+        GetCredentialRequest(
+            listOf(
+                // Include all the sign-in options that your app supports
+                getPublicKeyCredentialOption, 
+                getPasswordOption
             )
         )
-    }
+    )
+}
+```
 
 ## Launch the sign-in flow
 
@@ -111,21 +119,23 @@ following code snippet as a reference for how to launch the sign-in flow:
 > [!NOTE]
 > **Note:** To avoid a potential memory leak, pass in a `MutableContextWrapper` of your foreground `Activity` to the `getCredential()` call. Credential Manager handles updating the context during `Activity` reconstruction.
 
-    // Use an activity-based context to avoid undefined system UI
-    // launching behavior.
-    val context = MutableContextWrapper(activityContext)
-    coroutineScope {
-        try {
-            result = credentialManager.getCredential(
-                // Use MutableContextWrapper to avoid memory leak during configuration changes
-                context = context,
-                request = credentialRequest
-            )
-            handleSignIn(result)
-        } catch (e: GetCredentialException) {
-            // Handle failure
-        }
+```kotlin
+// Use an activity-based context to avoid undefined system UI
+// launching behavior.
+val context = MutableContextWrapper(activityContext)
+coroutineScope {
+    try {
+        result = credentialManager.getCredential(
+            // Use MutableContextWrapper to avoid memory leak during configuration changes
+            context = context,
+            request = credentialRequest
+        )
+        handleSignIn(result)
+    } catch (e: GetCredentialException) {
+        // Handle failure
     }
+}
+```
 
 > [!NOTE]
 > **Note:** If you call `getCredential()` but the user does not have any credentials available, or if they don't grant consent to using their credentials, a `NoCredentialException` is returned. To learn more about this exception, see the [troubleshooting guide](https://developer.android.com/identity/sign-in/credential-manager-troubleshooting-guide).
@@ -135,64 +145,68 @@ following code snippet as a reference for how to launch the sign-in flow:
 Handle the response, which can contain one of various types of credential
 objects.
 
-    fun handleSignIn(result: GetCredentialResponse) {
-        // Handle the successfully returned credential.
-        val credential = result.credential
+```kotlin
+fun handleSignIn(result: GetCredentialResponse) {
+    // Handle the successfully returned credential.
+    val credential = result.credential
 
-        when (credential) {
-            is PublicKeyCredential -> {
-                val responseJson = credential.authenticationResponseJson
-                // Share responseJson i.e. a GetCredentialResponse on your server to
-                // validate and  authenticate
-            }
+    when (credential) {
+        is PublicKeyCredential -> {
+            val responseJson = credential.authenticationResponseJson
+            // Share responseJson i.e. a GetCredentialResponse on your server to
+            // validate and  authenticate
+        }
 
-            is PasswordCredential -> {
-                val username = credential.id
-                val password = credential.password
-                // Use id and password to send to your server to validate
-                // and authenticate
-            }
+        is PasswordCredential -> {
+            val username = credential.id
+            val password = credential.password
+            // Use id and password to send to your server to validate
+            // and authenticate
+        }
 
-            is CustomCredential -> {
-                // If you are also using any external sign-in libraries, parse them
-                // here with the utility functions provided.
-                if (credential.type == ExampleCustomCredential.TYPE) {
-                    try {
-                        val ExampleCustomCredential =
-                            ExampleCustomCredential.createFrom(credential.data)
-                        // Extract the required credentials and complete the authentication as per
-                        // the federated sign in or any external sign in library flow
-                    } catch (e: ExampleCustomCredential.ExampleCustomCredentialParsingException) {
-                        // Unlikely to happen. If it does, you likely need to update the dependency
-                        // version of your external sign-in library.
-                        Log.e(TAG, "Failed to parse an ExampleCustomCredential", e)
-                    }
-                } else {
-                    // Catch any unrecognized custom credential type here.
-                    Log.e(TAG, "Unexpected type of credential")
+        is CustomCredential -> {
+            // If you are also using any external sign-in libraries, parse them
+            // here with the utility functions provided.
+            if (credential.type == ExampleCustomCredential.TYPE) {
+                try {
+                    val ExampleCustomCredential =
+                        ExampleCustomCredential.createFrom(credential.data)
+                    // Extract the required credentials and complete the authentication as per
+                    // the federated sign in or any external sign in library flow
+                } catch (e: ExampleCustomCredential.ExampleCustomCredentialParsingException) {
+                    // Unlikely to happen. If it does, you likely need to update the dependency
+                    // version of your external sign-in library.
+                    Log.e(TAG, "Failed to parse an ExampleCustomCredential", e)
                 }
-            }
-            else -> {
-                // Catch any unrecognized credential type here.
+            } else {
+                // Catch any unrecognized custom credential type here.
                 Log.e(TAG, "Unexpected type of credential")
             }
         }
+        else -> {
+            // Catch any unrecognized credential type here.
+            Log.e(TAG, "Unexpected type of credential")
+        }
     }
+}
+```
 
 The `PublicKeyCredential` returned from authentication is essentially a signed
 assertion, structured as follows:
 
-    {
-      "id": "<credential ID>",
-      "type": "public-key",
-      "rawId": "<raw credential ID>",
-      "response": {
-        "clientDataJSON": "<signed client data containing challenge>",
-        "authenticatorData": "<authenticator metadata>",
-        "signature": "<digital signature to be verified>",
-        "userHandle": "<user ID from credential registration>"
-      }
-    }
+```json
+{
+  "id": "<credential ID>",
+  "type": "public-key",
+  "rawId": "<raw credential ID>",
+  "response": {
+    "clientDataJSON": "<signed client data containing challenge>",
+    "authenticatorData": "<authenticator metadata>",
+    "signature": "<digital signature to be verified>",
+    "userHandle": "<user ID from credential registration>"
+  }
+}
+```
 
 On the server, you must verify the credential. To learn more, see [Verify and
 sign in the user](https://developers.google.com/identity/passkeys/developer-guides/server-authentication#verify_and_sign_in_the_user).
@@ -202,16 +216,18 @@ sign in the user](https://developers.google.com/identity/passkeys/developer-guid
 You should handle all the subclass exceptions of [`GetCredentialException`](https://developer.android.com/reference/androidx/credentials/exceptions/GetCredentialException).
 To learn how to handle each exception, see the [troubleshooting guide](https://developer.android.com/identity/sign-in/credential-manager-troubleshooting-guide).
 
-    coroutineScope {
-        try {
-            result = credentialManager.getCredential(
-                context = activityContext,
-                request = credentialRequest
-            )
-        } catch (e: GetCredentialException) {
-            Log.e("CredentialManager", "No credential available", e)
-        }
+```kotlin
+coroutineScope {
+    try {
+        result = credentialManager.getCredential(
+            context = activityContext,
+            request = credentialRequest
+        )
+    } catch (e: GetCredentialException) {
+        Log.e("CredentialManager", "No credential available", e)
     }
+}
+```
 
 ## Next steps
 

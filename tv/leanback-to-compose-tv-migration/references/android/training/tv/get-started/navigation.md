@@ -97,7 +97,9 @@ way, you can set up explicit directional navigation for your controls.
 The following code sample shows how to define the next control to receive focus
 for a `TextView` layout object:
 
-    <TextView android:id="@+id/Category1" android:nextFocusDown="@+id/Category2" />
+```xml
+<TextView android:id="@+id/Category1" android:nextFocusDown="@+id/Category2" />
+```
 
 The following table lists all of the available navigation attributes for Android
 user interface widgets:
@@ -153,10 +155,12 @@ a user has navigated to the control and then selected it:
 The following layout XML sample code applies the previous state list drawable to
 a `Button`:
 
-    <Button
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:background="@drawable/button" />
+```xml
+<Button
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:background="@drawable/button" />
+```
 
 Make sure to provide sufficient padding within the focusable and selectable
 controls so that the highlights around them are clearly visible.

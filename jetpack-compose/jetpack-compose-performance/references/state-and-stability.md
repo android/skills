@@ -429,27 +429,29 @@ degrade runtime performance instead of improving it.
 When a composable is made skippable, the Compose compiler generates slot table
 storage and comparison logic for every parameter:
 
-    // What you write
-    @Composable
-    fun ContactCell(contact: Contact) {
+```kotlin
+// What you write
+@Composable
+fun ContactCell(contact: Contact) {
+    /* Your function body */
+}
+
+// What the Compose compiler generates (simplified)
+@Composable
+fun ContactCell(
+    contact: Contact,
+    $composer: Composer?,
+    $changed: Int
+) {
+    val $dirty = $changed or $composer.changed(contact)
+
+    if ($dirty) {
         /* Your function body */
+    } else {
+        $composer.skipToGroupEnd()
     }
-
-    // What the Compose compiler generates (simplified)
-    @Composable
-    fun ContactCell(
-        contact: Contact,
-        $composer: Composer?,
-        $changed: Int
-    ) {
-        val $dirty = $changed or $composer.changed(contact)
-
-        if ($dirty) {
-            /* Your function body */
-        } else {
-            $composer.skipToGroupEnd()
-        }
-    }
+}
+```
 
 Every parameter passed to a composable is effectively stored in the slot table
 as if it were `remember`ed. On every recomposition pass:

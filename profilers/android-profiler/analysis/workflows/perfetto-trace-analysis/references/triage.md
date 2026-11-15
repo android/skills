@@ -48,25 +48,27 @@ Key available metrics for `--run-metrics`: `android_startup`, `android_cpu`,
 
 Output the triage summary in this format:
 
-    ## Trace Metadata
-    - **Device Model:** `[String, e.g., Pixel 7 Pro]`
-    - **Android Build:** `[String, e.g., TQ2A.230505.002]`
+```markdown
+## Trace Metadata
+- **Device Model:** `[String, e.g., Pixel 7 Pro]`
+- **Android Build:** `[String, e.g., TQ2A.230505.002]`
 
-    ## System Vitals Summary
-    - **Status:** `[Nominal | Degraded | Critical]`
-    - **Flags Raised:** *(Only list systemic issues that are actually detected)*
-      - **Metric:** `[String, e.g., thermal_throttling, lmkd, binder_contention]`
-      - **Description:** `[e.g., 'Thermal throttling during symptom window']`
+## System Vitals Summary
+- **Status:** `[Nominal | Degraded | Critical]`
+- **Flags Raised:** *(Only list systemic issues that are actually detected)*
+  - **Metric:** `[String, e.g., thermal_throttling, lmkd, binder_contention]`
+  - **Description:** `[e.g., 'Thermal throttling during symptom window']`
 
-    ## Candidate(s)
-    *(Provide this block for each identified candidate)*
-    - **Issue Classification:** `[String, e.g., Startup, Jank, ANR_Input, Crash]`
-    - **Package Name:** `[String]`
-    - **Process Name:** `[String]`
-    - **Thread Name:** `[String]`
-    - **UPID:** `[Integer]`
-    - **Target UTID:** `[Integer]` *(The primary thread)*
-    - **Render Thread UTID:** `[Integer or N/A]` *(If issue is jank)*
-    - **Symptom Window:** `[Start TS] - [End TS] ([Duration ms])`
-    - **Expanded Window:** `[Expanded Start TS] - [End TS] ([Expanded Duration ms] or "None")`
-    - **Severity Note:** `[String, e.g., '150ms missed frame - worst instance']`
+## Candidate(s)
+*(Provide this block for each identified candidate)*
+- **Issue Classification:** `[String, e.g., Startup, Jank, ANR_Input, Crash]`
+- **Package Name:** `[String]`
+- **Process Name:** `[String]`
+- **Thread Name:** `[String]`
+- **UPID:** `[Integer]`
+- **Target UTID:** `[Integer]` *(The primary thread)*
+- **Render Thread UTID:** `[Integer or N/A]` *(If issue is jank)*
+- **Symptom Window:** `[Start TS] - [End TS] ([Duration ms])`
+- **Expanded Window:** `[Expanded Start TS] - [End TS] ([Expanded Duration ms] or "None")`
+- **Severity Note:** `[String, e.g., '150ms missed frame - worst instance']`
+```

@@ -496,11 +496,13 @@ background location access at runtime. On earlier versions of Android, when your
 app receives foreground location access, it automatically receives background
 location access as well.
 
-    <manifest ... >
-      <!-- Required only when requesting background location access on
-           Android 10 (API level 29) and higher. -->
-      <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    </manifest>
+```xml
+<manifest ... >
+  <!-- Required only when requesting background location access on
+       Android 10 (API level 29) and higher. -->
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+</manifest>
+```
 
 > [!NOTE]
 > **Note:** The Google Play Store has a [location policy](https://support.google.com/googleplay/android-developer/answer/9799150) concerning device location, restricting background location access to apps that need it for their core functionality and meet related policy requirements.

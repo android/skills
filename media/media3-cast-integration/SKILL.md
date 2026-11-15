@@ -8,7 +8,7 @@ description: Implements Google Cast support in Android apps using Jetpack Media3
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-22'
+  last-updated: '2026-11-14'
   keywords:
   - Android
   - Media3
@@ -45,13 +45,15 @@ To complete this step, you **MUST** ensure the following:
 - In the app-level build file, declare the `media3-cast` dependency version
   1.9.0 or higher.
 
-      implementation("androidx.media3:media3-cast:1.11.1")
-
+  ```kotlin
+  implementation("androidx.media3:media3-cast:1.11.1")
+  ```
 - Ensure required Media3 dependencies are present:
 
   - `androidx.media3:media3-exoplayer`
   - `androidx.media3:media3-session`
   - `androidx.media3:media3-ui-compose`
+  - `androidx.media3:media3-ui-compose-material3`
 - If the application uses legacy Views, add `media3-ui`.
 
 - Enforce the same versions across all Media3 dependencies.
@@ -103,48 +105,50 @@ To complete this step, you **MUST** ensure the following:
 - Use `RemoteCastPlayer` only if explicitly requested by user.
 - Initialize `MediaSession` with `localPlayer` and set a `SessionAvailabilityListener` on `RemoteCastPlayer` to transfer playback state on Cast session availability changes:
 
-    class PlaybackService : MediaSessionService() {
-      private var mediaSession: MediaSession? = null
-      private lateinit var localPlayer: ExoPlayer
-      private lateinit var remotePlayer: RemoteCastPlayer
+```kotlin
+class PlaybackService : MediaSessionService() {
+  private var mediaSession: MediaSession? = null
+  private lateinit var localPlayer: ExoPlayer
+  private lateinit var remotePlayer: RemoteCastPlayer
 
-      override fun onCreate() {
-        super.onCreate()
+  override fun onCreate() {
+    super.onCreate()
 
-        localPlayer = ExoPlayer.Builder(this).build()
-        remotePlayer = RemoteCastPlayer.Builder(this).build()
-        mediaSession = MediaSession.Builder(this, localPlayer).build()
+    localPlayer = ExoPlayer.Builder(this).build()
+    remotePlayer = RemoteCastPlayer.Builder(this).build()
+    mediaSession = MediaSession.Builder(this, localPlayer).build()
 
-        remotePlayer.setSessionAvailabilityListener(
-          object : SessionAvailabilityListener {
-            override fun onCastSessionAvailable() {
-              transferPlaybackState(localPlayer, remotePlayer)
-            }
-
-            override fun onCastSessionUnavailable() {
-              transferPlaybackState(remotePlayer, localPlayer)
-            }
-          }
-        )
-      }
-
-      private fun transferPlaybackState(previousPlayer: Player, newPlayer: Player) {
-        if (previousPlayer.mediaItemCount > 0) {
-          val transferStateBuilder = PlayerTransferState.builderFromPlayer(previousPlayer)
-          if (previousPlayer.playbackState == Player.STATE_ENDED ||
-              previousPlayer.currentPosition == C.TIME_END_OF_SOURCE) {
-            transferStateBuilder.setCurrentMediaItemIndex(0)
-            transferStateBuilder.setCurrentPosition(0)
-          }
-          transferStateBuilder.build().setToPlayer(newPlayer)
+    remotePlayer.setSessionAvailabilityListener(
+      object : SessionAvailabilityListener {
+        override fun onCastSessionAvailable() {
+          transferPlaybackState(localPlayer, remotePlayer)
         }
 
-        previousPlayer.stop()
-        previousPlayer.clearMediaItems()
-        newPlayer.prepare()
-        mediaSession?.setPlayer(newPlayer)
+        override fun onCastSessionUnavailable() {
+          transferPlaybackState(remotePlayer, localPlayer)
+        }
       }
+    )
+  }
+
+  private fun transferPlaybackState(previousPlayer: Player, newPlayer: Player) {
+    if (previousPlayer.mediaItemCount > 0) {
+      val transferStateBuilder = PlayerTransferState.builderFromPlayer(previousPlayer)
+      if (previousPlayer.playbackState == Player.STATE_ENDED ||
+          previousPlayer.currentPosition == C.TIME_END_OF_SOURCE) {
+        transferStateBuilder.setCurrentMediaItemIndex(0)
+        transferStateBuilder.setCurrentPosition(0)
+      }
+      transferStateBuilder.build().setToPlayer(newPlayer)
     }
+
+    previousPlayer.stop()
+    previousPlayer.clearMediaItems()
+    newPlayer.prepare()
+    mediaSession?.setPlayer(newPlayer)
+  }
+}
+```
 
 ## Step 4: Set up the UI
 
@@ -161,35 +165,37 @@ To complete this step, you **MUST** ensure the following:
 - Force recomposition on playback location shifts to ensure UI sync. Use key
   constraints on `DeviceInfo` changes:
 
-      @OptIn(UnstableApi::class)
-      @Composable
-      fun MainScreen() {
-         val player = rememberMediaController()
-         val deviceInfo = rememberDeviceInfo(player)
-         player?.let { activePlayer -> key(deviceInfo) { PlayerScreen(player = activePlayer) } }
-      }
+  ```kotlin
+  @OptIn(UnstableApi::class)
+  @Composable
+  fun MainScreen() {
+     val player = rememberMediaController()
+     val deviceInfo = rememberDeviceInfo(player)
+     player?.let { activePlayer -> key(deviceInfo) { PlayerScreen(player = activePlayer) } }
+  }
 
-      @Composable
-      private fun rememberMediaController(): Player? {
-         // Logic to connect MediaController to MediaSession and release it
-      }
+  @Composable
+  private fun rememberMediaController(): Player? {
+     // Logic to connect MediaController to MediaSession and release it
+  }
 
-      @Composable
-      private fun rememberDeviceInfo(player: Player?): DeviceInfo? {
-         var deviceInfo by remember(player) { mutableStateOf(player?.deviceInfo) }
-         DisposableEffect(player) {
-             val activePlayer = player ?: return@DisposableEffect onDispose {}
-             deviceInfo = activePlayer.deviceInfo
-             val listener = object : Player.Listener {
-                 override fun onDeviceInfoChanged(info: DeviceInfo) {
-                     deviceInfo = info
-                 }
+  @Composable
+  private fun rememberDeviceInfo(player: Player?): DeviceInfo? {
+     var deviceInfo by remember(player) { mutableStateOf(player?.deviceInfo) }
+     DisposableEffect(player) {
+         val activePlayer = player ?: return@DisposableEffect onDispose {}
+         deviceInfo = activePlayer.deviceInfo
+         val listener = object : Player.Listener {
+             override fun onDeviceInfoChanged(info: DeviceInfo) {
+                 deviceInfo = info
              }
-            activePlayer.addListener(listener)
-            onDispose { activePlayer.removeListener(listener) }
          }
-         return deviceInfo
-      }
+        activePlayer.addListener(listener)
+        onDispose { activePlayer.removeListener(listener) }
+     }
+     return deviceInfo
+  }
+  ```
 
 ### View-based UI
 
@@ -203,16 +209,17 @@ To complete this step, you **MUST** ensure the following:
 - Rebind `PlayerView.player` references upon `onDeviceInfoChanged` events to
   prevent black screens or UI freezes:
 
-      private val playerListener: Player.Listener =
-        object : Player.Listener {
-          override fun onDeviceInfoChanged(deviceInfo: DeviceInfo) {
-            // Resetting to null bypasses PlayerView.setPlayer()'s instance equality check
-            // (this.player == player), forcing it to re-bind the video surface to the controller.
-            playerView.player = null
-            playerView.player = controller
-          }
-        }
-
+  ```kotlin
+  private val playerListener: Player.Listener =
+    object : Player.Listener {
+      override fun onDeviceInfoChanged(deviceInfo: DeviceInfo) {
+        // Resetting to null bypasses PlayerView.setPlayer()'s instance equality check
+        // (this.player == player), forcing it to re-bind the video surface to the controller.
+        playerView.player = null
+        playerView.player = controller
+      }
+    }
+  ```
 - **Migration to Compose:**
 
   - Don't use `AndroidView` to wrap the legacy `PlayerView`.

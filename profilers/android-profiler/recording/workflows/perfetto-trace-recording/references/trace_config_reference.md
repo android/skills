@@ -11,19 +11,21 @@ A config is a `TraceConfig` protobuf - authoritative schema:
 repo, e.g. `.../ftrace/ftrace_config.proto`) - written in protobuf **text
 format** (conventionally saved as `config.pftxt`):
 
-    buffers {
-      size_kb: 32768            # sizes are in KB, not bytes
-      fill_policy: RING_BUFFER  # keep newest data; DISCARD keeps oldest
-    }
-    duration_ms: 10000          # omit to trace until stopped manually
+```protobuf
+buffers {
+  size_kb: 32768            # sizes are in KB, not bytes
+  fill_policy: RING_BUFFER  # keep newest data; DISCARD keeps oldest
+}
+duration_ms: 10000          # omit to trace until stopped manually
 
-    data_sources {
-      config {
-        name: "linux.ftrace"    # which producer to enable
-        ftrace_config { ... }   # that producer's own options
-      }
-    }
-    # ...more data_sources blocks, one per source...
+data_sources {
+  config {
+    name: "linux.ftrace"    # which producer to enable
+    ftrace_config { ... }   # that producer's own options
+  }
+}
+# ...more data_sources blocks, one per source...
+```
 
 Merging two configs = keep one `buffers` section and concatenate their
 `data_sources` blocks. Each data source may appear at most once (the

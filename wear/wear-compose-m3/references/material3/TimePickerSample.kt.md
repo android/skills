@@ -70,7 +70,9 @@ fun TimePickerSample() {
 
 @Sampled
 @Composable
+@Suppress("DEPRECATION")
 fun TimePickerWithMinutesAndSecondsSample() {
+    // TimePicker with TimePickerType.MinutesSeconds is deprecated, use DurationPicker instead.
     var showTimePicker by remember { mutableStateOf(true) }
     var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
     if (showTimePicker) {

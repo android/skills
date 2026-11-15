@@ -18,7 +18,9 @@ To verify that the Structured Output API is available on the device, use the
 `isStructuredOutputFeatureAvailable()` API. The API returns `true` if the
 Structured Output API is available on the device, and `false` otherwise.
 
-    suspend fun isStructuredOutputFeatureAvailable(): Boolean
+```kotlin
+suspend fun isStructuredOutputFeatureAvailable(): Boolean
+```
 
 The Structured Output API also has the following requirements:
 
@@ -47,18 +49,21 @@ To get started with the Structured Output API, follow these steps:
    KSP plugin version that is compatible with your Kotlin version; we
    recommend KSP version 2.3.6 or higher.
 
-       dependencies {
-           ...
-           classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.6"
-       }
-
+   ```kotlin
+   dependencies {
+       ...
+       classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.6"
+   }
+   ```
 3. Add the structured compiler dependencies to your app-level
    `build.gradle.kts` file:
 
-       dependencies {
-           ...
-           ksp("com.google.mlkit:genai-schema-compiler:1.0.0-alpha1")
-       }
+   ```kotlin
+   dependencies {
+       ...
+       ksp("com.google.mlkit:genai-schema-compiler:1.0.0-alpha1")
+   }
+   ```
 
 ## Define the output structure
 
@@ -71,39 +76,41 @@ structure:
 
 The following example defines a structure for extracting plant information:
 
-    import com.google.mlkit.genai.schema.annotations.Generable
-    import com.google.mlkit.genai.schema.annotations.Guide
+```kotlin
+import com.google.mlkit.genai.schema.annotations.Generable
+import com.google.mlkit.genai.schema.annotations.Guide
 
-    @Generable
-    data class PlantList(
-        @Guide(description = "The list of plants found", minItems = 1, maxItems = 5)
-        val plants: List<Plant>
-    )
+@Generable
+data class PlantList(
+    @Guide(description = "The list of plants found", minItems = 1, maxItems = 5)
+    val plants: List<Plant>
+)
 
-    @Generable("Information about a plant species")
-    data class Plant(
-        @Guide(description = "The common name of the plant")
-        val commonName: String,
-        
-        @Guide(description = "The full latin scientific name of the plant")
-        val scientificName: String,
-        
-        @Guide(
-            description = "The maximum height of the plant in centimeters.",
-            minimum = 1.0,
-            maximum = 10000.0
-        )
-        val maxHeightCm: Int,
-        
-        @Guide(description = "Whether the plant is poisonous or not")
-        val isPoisonous: Boolean?,
-        
-        @Guide(
-            description = "The primary continent where this plant is native to",
-            enumValues = ["Africa", "Antarctica", "Asia", "Australia", "Europe", "North America", "South America"]
-        )
-        val nativeContinent: String
+@Generable("Information about a plant species")
+data class Plant(
+    @Guide(description = "The common name of the plant")
+    val commonName: String,
+    
+    @Guide(description = "The full latin scientific name of the plant")
+    val scientificName: String,
+    
+    @Guide(
+        description = "The maximum height of the plant in centimeters.",
+        minimum = 1.0,
+        maximum = 10000.0
     )
+    val maxHeightCm: Int,
+    
+    @Guide(description = "Whether the plant is poisonous or not")
+    val isPoisonous: Boolean?,
+    
+    @Guide(
+        description = "The primary continent where this plant is native to",
+        enumValues = ["Africa", "Antarctica", "Asia", "Australia", "Europe", "North America", "South America"]
+    )
+    val nativeContinent: String
+)
+```
 
 ### Supported types and constraints
 
@@ -128,53 +135,55 @@ along with their respective `@Guide` constraints:
 To request structured output, use the `generateTypedContentRequest` helper
 function to wrap your standard prompt and specify the target output class.
 
-    // 1. Initialize your GenerativeModel as usual
-    val generativeModel = Generation.getClient()
+```kotlin
+// 1. Initialize your GenerativeModel as usual
+val generativeModel = Generation.getClient()
 
-    // 2. Prepare the prompt text
-    val promptText = "List some common plants found in California."
-    val baseRequest = GenerateContentRequest.Builder(TextPart(promptText)).build()
+// 2. Prepare the prompt text
+val promptText = "List some common plants found in California."
+val baseRequest = GenerateContentRequest.Builder(TextPart(promptText)).build()
 
-    // 3. Create the typed request, specifying the target class (e.g., PlantList)
-    val typedRequest = generateTypedContentRequest(
-        generateContentRequest = baseRequest,
-        outputClass = PlantList::class
-    )
+// 3. Create the typed request, specifying the target class (e.g., PlantList)
+val typedRequest = generateTypedContentRequest(
+    generateContentRequest = baseRequest,
+    outputClass = PlantList::class
+)
 
-    // 4. Run the inference
-    try {
-        val typedResponse = generativeModel.generateContent(typedRequest)
-        
-        // 5. Access the parsed object
-        // The response candidates contain the parsed object of type T (PlantList in this case)
-        val plantList: PlantList? = typedResponse.candidates.firstOrNull()?.response
-        
-        if (plantList != null) {
-            // Process the structured data
-            for (plant in plantList.plants) {
-                Log.d("StructuredOutput", "Found plant: ${plant.commonName} (${plant.scientificName})")
-            }
-        } else {
-            Log.e("StructuredOutput", "Failed to parse response into the desired structure.")
-            
-            // Inspect finish reason for details
-            val finishReason = typedResponse.candidates.firstOrNull()?.finishReason
-            Log.d("StructuredOutput", "Finish reason: $finishReason")
+// 4. Run the inference
+try {
+    val typedResponse = generativeModel.generateContent(typedRequest)
+    
+    // 5. Access the parsed object
+    // The response candidates contain the parsed object of type T (PlantList in this case)
+    val plantList: PlantList? = typedResponse.candidates.firstOrNull()?.response
+    
+    if (plantList != null) {
+        // Process the structured data
+        for (plant in plantList.plants) {
+            Log.d("StructuredOutput", "Found plant: ${plant.commonName} (${plant.scientificName})")
         }
-    } catch (e: GenAiException) {
-        // Handle API errors
-        when (e.errorCode) {
-            GenAiException.STRUCTURED_OUTPUT_INVALID_CLASS -> {
-                Log.e("StructuredOutput", "The class structure is not supported.")
-            }
-            GenAiException.STRUCTURED_OUTPUT_INVALID_VALUE -> {
-                Log.e("StructuredOutput", "The model generated values that violate the schema constraints.")
-            }
-            else -> {
-                Log.e("StructuredOutput", "API error: ${e.message}")
-            }
+    } else {
+        Log.e("StructuredOutput", "Failed to parse response into the desired structure.")
+        
+        // Inspect finish reason for details
+        val finishReason = typedResponse.candidates.firstOrNull()?.finishReason
+        Log.d("StructuredOutput", "Finish reason: $finishReason")
+    }
+} catch (e: GenAiException) {
+    // Handle API errors
+    when (e.errorCode) {
+        GenAiException.STRUCTURED_OUTPUT_INVALID_CLASS -> {
+            Log.e("StructuredOutput", "The class structure is not supported.")
+        }
+        GenAiException.STRUCTURED_OUTPUT_INVALID_VALUE -> {
+            Log.e("StructuredOutput", "The model generated values that violate the schema constraints.")
+        }
+        else -> {
+            Log.e("StructuredOutput", "API error: ${e.message}")
         }
     }
+}
+```
 
 ## Handle finish reasons and errors
 
@@ -216,4 +225,6 @@ count, you must pass the complete `GenerateTypedContentRequest` instance, which
 includes your target class and schema configurations, to the `countTokens()`
 method:
 
-    suspend fun <T : Any> countTokens(request: GenerateTypedContentRequest<T>): CountTokensResponse
+```kotlin
+suspend fun <T : Any> countTokens(request: GenerateTypedContentRequest<T>): CountTokensResponse
+```

@@ -75,27 +75,31 @@ To enable app optimization for AGP 9.3 and higher:
 
 ### Kotlin
 
-    android {
-        buildTypes {
-            release {
-                optimization {
-                    enable = true // Enables code and resource optimizations.
-                }
+```kotlin
+android {
+    buildTypes {
+        release {
+            optimization {
+                enable = true // Enables code and resource optimizations.
             }
         }
     }
+}
+```
 
 ### Groovy
 
-    android {
-        buildTypes {
-            release {
-                optimization {
-                    enable = true // Enables code and resource optimizations.
-                }
+```groovy
+android {
+    buildTypes {
+        release {
+            optimization {
+                enable = true // Enables code and resource optimizations.
             }
         }
     }
+}
+```
 
 ### Legacy DSL for AGP versions lower than 9.3
 
@@ -106,47 +110,51 @@ settings.
 
 ### Legacy DSL (Kotlin)
 
-    android {
-        buildTypes {
-            release {
+```kotlin
+android {
+    buildTypes {
+        release {
 
-                // Enables code optimizations.
-                isMinifyEnabled = true
+            // Enables code optimizations.
+            isMinifyEnabled = true
 
-                // Enables resource shrinking.
-                isShrinkResources = true
+            // Enables resource shrinking.
+            isShrinkResources = true
 
-                proguardFiles(
-                    // Default file with automatically generated optimization rules.
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
+            proguardFiles(
+                // Default file with automatically generated optimization rules.
+                getDefaultProguardFile("proguard-android-optimize.txt"),
 
-                    ...
-                )
                 ...
-            }
+            )
+            ...
         }
-        ...
     }
+    ...
+}
+```
 
 ### Legacy DSL (Groovy)
 
-    android {
-        buildTypes {
-            release {
+```groovy
+android {
+    buildTypes {
+        release {
 
-                // Enables code optimizations.
-                minifyEnabled = true
+            // Enables code optimizations.
+            minifyEnabled = true
 
-                // Enables resource shrinking.
-                shrinkResources = true
+            // Enables resource shrinking.
+            shrinkResources = true
 
-                // Default file with automatically generated optimization rules.
-                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            // Default file with automatically generated optimization rules.
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
 
-                ...
-            }
+            ...
         }
     }
+}
+```
 
 ## Improve R8 optimization
 
@@ -189,7 +197,9 @@ removed.
 To enable the new optimized resource shrinking pipeline for AGP 8.12 or 8.13,
 add the following to your project's `gradle.properties` file:
 
-    android.r8.optimizedResourceShrinking=true
+```bash
+android.r8.optimizedResourceShrinking=true
+```
 
 If you are using AGP 9.0.0 or a newer version, you don't need to set
 `android.r8.optimizedResourceShrinking=true`. Optimized resource shrinking is
@@ -201,7 +211,9 @@ configuration.
 To enable R8 to use its [full optimization capabilities](https://developer.android.com/topic/performance/app-optimization/full-mode), remove the
 following line from your project's `gradle.properties` file, if it exists:
 
-    android.enableR8.fullMode=false
+```bash
+android.enableR8.fullMode=false
+```
 
 Note that enabling app optimization makes stack traces difficult to understand,
 especially if R8 renames class or method names. To get stack traces that

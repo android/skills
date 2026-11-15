@@ -26,19 +26,21 @@ is connected via USB before starting.
 
 Download the helper scripts from the official Perfetto repository:
 
-    TOOLS_URL="https://raw.githubusercontent.com/google/perfetto/main/tools"
+```bash
+TOOLS_URL="https://raw.githubusercontent.com/google/perfetto/main/tools"
 
-    # Java Heap Dump (ART)
-    curl -O "$TOOLS_URL/java_heap_dump" && chmod +x java_heap_dump
+# Java Heap Dump (ART)
+curl -O "$TOOLS_URL/java_heap_dump" && chmod +x java_heap_dump
 
-    # Native Heap Profiling (heapprofd)
-    curl -O "$TOOLS_URL/heap_profile" && chmod +x heap_profile
+# Native Heap Profiling (heapprofd)
+curl -O "$TOOLS_URL/heap_profile" && chmod +x heap_profile
 
-    # CPU Stack Sampling (traced_perf)
-    curl -O "$TOOLS_URL/cpu_profile" && chmod +x cpu_profile
+# CPU Stack Sampling (traced_perf)
+curl -O "$TOOLS_URL/cpu_profile" && chmod +x cpu_profile
 
-    # General Tracing (Ftrace, ATrace, custom configs)
-    curl -O "$TOOLS_URL/record_android_trace" && chmod +x record_android_trace
+# General Tracing (Ftrace, ATrace, custom configs)
+curl -O "$TOOLS_URL/record_android_trace" && chmod +x record_android_trace
+```
 
 *** ** * ** ***
 
@@ -52,19 +54,23 @@ system-wide memory counters.
 Capture a snapshot of all Java objects in a process to investigate memory leaks.
 Reference docs: <https://perfetto.dev/docs/data-sources/java-heap-profiler>.
 
-    # Trigger a Java heap dump for a specific app
-    ./java_heap_dump -n YOUR_APP_PACKAGE_NAME -o ./heap_dump.perfetto-trace
+```bash
+# Trigger a Java heap dump for a specific app
+./java_heap_dump -n YOUR_APP_PACKAGE_NAME -o ./heap_dump.perfetto-trace
+```
 
 ### B. Native C/C++ Heap Profiling (heapprofd)
 
 Track C/C++ memory allocations (malloc/free) to find native leaks. Reference
 docs: <https://perfetto.dev/docs/data-sources/native-heap-profiler>.
 
-    # Profile native allocations for a specific app
-    ./heap_profile -n YOUR_APP_PACKAGE_NAME
+```bash
+# Profile native allocations for a specific app
+./heap_profile -n YOUR_APP_PACKAGE_NAME
 
-    # Profile with custom sampling interval (default is 4096 bytes)
-    ./heap_profile -n YOUR_APP_PACKAGE_NAME -i 2048
+# Profile with custom sampling interval (default is 4096 bytes)
+./heap_profile -n YOUR_APP_PACKAGE_NAME -i 2048
+```
 
 ### C. System-wide Memory Counters
 
@@ -81,11 +87,13 @@ Track RSS, Swap, and process stats over time. Reference docs:
 Identify CPU hotspots in C/C++ or Rust code by periodically sampling callstacks.
 Reference docs: <https://perfetto.dev/docs/data-sources/cpu-profiler>.
 
-    # Profile CPU usage by sampling callstacks at 100Hz (default) for 10 seconds
-    ./cpu_profile -n YOUR_APP_PACKAGE_NAME -d 10000
+```bash
+# Profile CPU usage by sampling callstacks at 100Hz (default) for 10 seconds
+./cpu_profile -n YOUR_APP_PACKAGE_NAME -d 10000
 
-    # Profile at a custom frequency (e.g., 200Hz)
-    ./cpu_profile -n YOUR_APP_PACKAGE_NAME -f 200
+# Profile at a custom frequency (e.g., 200Hz)
+./cpu_profile -n YOUR_APP_PACKAGE_NAME -f 200
+```
 
 *** ** * ** ***
 
@@ -97,8 +105,10 @@ docs: <https://perfetto.dev/docs/data-sources/ftrace>.
 You can specify duration, buffer size, and categories directly on the command
 line:
 
-    # Record scheduling, frequency, and window manager events for 5 seconds
-    ./record_android_trace -t 5s -b 32mb sched gfx wm -a YOUR_APP_PACKAGE_NAME
+```bash
+# Record scheduling, frequency, and window manager events for 5 seconds
+./record_android_trace -t 5s -b 32mb sched gfx wm -a YOUR_APP_PACKAGE_NAME
+```
 
 Common categories: `sched` (CPU scheduling), `freq` (CPU frequency), `gfx`
 (Graphics), `am` (Activity Manager), `wm` (Window Manager), `view` (View
@@ -116,7 +126,9 @@ long traces, per-counter polling), synthesize a config:
 2. **Save the Config:** Write the synthesized text configuration to a local file (e.g., `config.pftxt`).
 3. **Execute the Trace:** Run the trace using the general recorder script `record_android_trace` (specialized scripts do not accept custom configs):
 
-    ./record_android_trace -c config.pftxt -o ./my_trace.perfetto-trace
+```bash
+./record_android_trace -c config.pftxt -o ./my_trace.perfetto-trace
+```
 
 If the config has a typo, this fails fast with a parse error naming the bad
 field - fix the config and retry.

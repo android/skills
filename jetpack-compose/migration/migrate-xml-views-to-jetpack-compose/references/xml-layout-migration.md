@@ -32,15 +32,17 @@ Evaluate if the XML layout serves as a foundation-level design system component
 
 Example before migration:
 
-    <style
-        name="Widget.Rounded.Button"
-        parent="Widget.Button.Borderless">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:minWidth">@dimen/min_width</item>
-        <item name="android:paddingStart">@dimen/padding_2</item>
-        <item name="android:paddingEnd">@dimen/padding_2</item>
-        <item name="cornerRadius">8dp</item>
-    </style>
+```xml
+<style
+    name="Widget.Rounded.Button"
+    parent="Widget.Button.Borderless">
+    <item name="android:fontFamily">sans-serif-medium</item>
+    <item name="android:minWidth">@dimen/min_width</item>
+    <item name="android:paddingStart">@dimen/padding_2</item>
+    <item name="android:paddingEnd">@dimen/padding_2</item>
+    <item name="cornerRadius">8dp</item>
+</style>
+```
 
 Example after migration:
 

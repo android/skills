@@ -84,13 +84,15 @@ for these classes.
 
 **Refined**:
 
-    This app manages tasks for teams: creating and assigning tasks, updating task
-    status, and searching users.
+```text
+This app manages tasks for teams: creating and assigning tasks, updating task
+status, and searching users.
 
-    Operational Patterns:
-    - Always use 'searchUsers' to resolve user handles to internal IDs before calling 'assignTask'.
-    - Prefer 'batchUpdateStatus' when modifying more than three tasks simultaneously to reduce latency.
+Operational Patterns:
+- Always use 'searchUsers' to resolve user handles to internal IDs before calling 'assignTask'.
+- Prefer 'batchUpdateStatus' when modifying more than three tasks simultaneously to reduce latency.
 
-    Constraints:
-    - Task titles are limited to 100 characters.
-    - Attachment uploads are limited to 5 MB.
+Constraints:
+- Task titles are limited to 100 characters.
+- Attachment uploads are limited to 5 MB.
+```

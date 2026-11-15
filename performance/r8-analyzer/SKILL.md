@@ -8,7 +8,7 @@ description: Analyzes Android build files and R8 keep rules to identify redundan
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-24'
+  last-updated: '2026-11-11'
   keywords:
   - R8
   - proguard

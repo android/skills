@@ -11,7 +11,7 @@ description: Adds inking and freehand drawing capabilities to an Android app usi
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-28'
+  last-updated: '2026-11-10'
   keywords:
   - Android
   - Jetpack Ink
@@ -50,82 +50,86 @@ build files.
 
 ### Version catalog (`gradle/libs.versions.toml`)
 
-    [versions]
-    ink = "<latest_version>"
-    inputMotionPrediction = "<latest_version>"
+```toml
+[versions]
+ink = "<latest_version>"
+inputMotionPrediction = "<latest_version>"
 
-    [libraries]
-    # Core Ink modules
-    androidx-ink-authoring         = { module = "androidx.ink:ink-authoring",         version.ref = "ink" }
-    androidx-ink-brush             = { module = "androidx.ink:ink-brush",             version.ref = "ink" }
-    androidx-ink-geometry          = { module = "androidx.ink:ink-geometry",          version.ref = "ink" }
-    androidx-ink-nativeloader      = { module = "androidx.ink:ink-nativeloader",      version.ref = "ink" }
-    androidx-ink-rendering         = { module = "androidx.ink:ink-rendering",         version.ref = "ink" }
-    androidx-ink-strokes           = { module = "androidx.ink:ink-strokes",           version.ref = "ink" }
-    androidx-ink-storage           = { module = "androidx.ink:ink-storage",           version.ref = "ink" }
+[libraries]
+# Core Ink modules
+androidx-ink-authoring         = { module = "androidx.ink:ink-authoring",         version.ref = "ink" }
+androidx-ink-brush             = { module = "androidx.ink:ink-brush",             version.ref = "ink" }
+androidx-ink-geometry          = { module = "androidx.ink:ink-geometry",          version.ref = "ink" }
+androidx-ink-nativeloader      = { module = "androidx.ink:ink-nativeloader",      version.ref = "ink" }
+androidx-ink-rendering         = { module = "androidx.ink:ink-rendering",         version.ref = "ink" }
+androidx-ink-strokes           = { module = "androidx.ink:ink-strokes",           version.ref = "ink" }
+androidx-ink-storage           = { module = "androidx.ink:ink-storage",           version.ref = "ink" }
 
-    # Compose integration modules
-    androidx-ink-authoring-android = { module = "androidx.ink:ink-authoring-android", version.ref = "ink" }
-    androidx-ink-authoring-compose = { module = "androidx.ink:ink-authoring-compose", version.ref = "ink" }
-    androidx-ink-brush-compose     = { module = "androidx.ink:ink-brush-compose",     version.ref = "ink" }
-    androidx-ink-geometry-compose  = { module = "androidx.ink:ink-geometry-compose",  version.ref = "ink" }
+# Compose integration modules
+androidx-ink-authoring-android = { module = "androidx.ink:ink-authoring-android", version.ref = "ink" }
+androidx-ink-authoring-compose = { module = "androidx.ink:ink-authoring-compose", version.ref = "ink" }
+androidx-ink-brush-compose     = { module = "androidx.ink:ink-brush-compose",     version.ref = "ink" }
+androidx-ink-geometry-compose  = { module = "androidx.ink:ink-geometry-compose",  version.ref = "ink" }
 
-    # Motion prediction (required for low-latency stylus tracking)
-    androidx-input-motionprediction = { module = "androidx.input:input-motionprediction", version.ref = "inputMotionPrediction" }
+# Motion prediction (required for low-latency stylus tracking)
+androidx-input-motionprediction = { module = "androidx.input:input-motionprediction", version.ref = "inputMotionPrediction" }
 
-    # Persistence (kotlinx.serialization + Room with KSP)
-    kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
-    androidx-room-runtime      = { module = "androidx.room:room-runtime",  version.ref = "room" }
-    androidx-room-ktx          = { module = "androidx.room:room-ktx",      version.ref = "room" }
-    androidx-room-compiler     = { module = "androidx.room:room-compiler", version.ref = "room" }
+# Persistence (kotlinx.serialization + Room with KSP)
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+androidx-room-runtime      = { module = "androidx.room:room-runtime",  version.ref = "room" }
+androidx-room-ktx          = { module = "androidx.room:room-ktx",      version.ref = "room" }
+androidx-room-compiler     = { module = "androidx.room:room-compiler", version.ref = "room" }
 
-    [plugins]
-    kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-    ksp                  = { id = "com.google.devtools.ksp",                   version.ref = "ksp" }
+[plugins]
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp                  = { id = "com.google.devtools.ksp",                   version.ref = "ksp" }
+```
 
 ### App module configuration (`app/build.gradle.kts`)
 
-    plugins {
-        alias(libs.plugins.android.application)
-        alias(libs.plugins.kotlin.compose)
-        alias(libs.plugins.kotlin.serialization)
-        alias(libs.plugins.ksp) // Mandatory when using Room in Kotlin
+```kotlin
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp) // Mandatory when using Room in Kotlin
+}
+
+android {
+    defaultConfig {
+        minSdk = 26
     }
-
-    android {
-        defaultConfig {
-            minSdk = 26
-        }
-        compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_17
-            targetCompatibility = JavaVersion.VERSION_17
-        }
-        buildFeatures {
-            compose = true
-        }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-
-    dependencies {
-        implementation(libs.androidx.ink.authoring)
-        implementation(libs.androidx.ink.brush)
-        implementation(libs.androidx.ink.geometry)
-        implementation(libs.androidx.ink.nativeloader)
-        implementation(libs.androidx.ink.rendering)
-        implementation(libs.androidx.ink.strokes)
-        implementation(libs.androidx.ink.storage)
-
-        implementation(libs.androidx.ink.authoring.android)
-        implementation(libs.androidx.ink.authoring.compose)
-        implementation(libs.androidx.ink.brush.compose)
-        implementation(libs.androidx.ink.geometry.compose)
-
-        implementation(libs.androidx.input.motionprediction)
-
-        implementation(libs.kotlinx.serialization.json)
-        implementation(libs.androidx.room.runtime)
-        implementation(libs.androidx.room.ktx)
-        ksp(libs.androidx.room.compiler) // NEVER use annotationProcessor in Kotlin
+    buildFeatures {
+        compose = true
     }
+}
+
+dependencies {
+    implementation(libs.androidx.ink.authoring)
+    implementation(libs.androidx.ink.brush)
+    implementation(libs.androidx.ink.geometry)
+    implementation(libs.androidx.ink.nativeloader)
+    implementation(libs.androidx.ink.rendering)
+    implementation(libs.androidx.ink.strokes)
+    implementation(libs.androidx.ink.storage)
+
+    implementation(libs.androidx.ink.authoring.android)
+    implementation(libs.androidx.ink.authoring.compose)
+    implementation(libs.androidx.ink.brush.compose)
+    implementation(libs.androidx.ink.geometry.compose)
+
+    implementation(libs.androidx.input.motionprediction)
+
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler) // NEVER use annotationProcessor in Kotlin
+}
+```
 
 ## Core drawing surface and default brush
 
