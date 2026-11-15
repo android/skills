@@ -19,14 +19,16 @@ same whether the permission is for a phone or a glasses-specific feature, but
 you must still explicitly request it for glasses-specific hardware or
 functionality.
 
-    <manifest ...>
-        <!-- Only declare permissions that your app actually needs. In this example,
-        we declare permissions for the camera. -->
-        <uses-permission android:name="android.permission.CAMERA"/>
-        <application ...>
-            ...
-        </application>
-    </manifest>
+```xml
+<manifest ...>
+    <!-- Only declare permissions that your app actually needs. In this example,
+    we declare permissions for the camera. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <application ...>
+        ...
+    </application>
+</manifest>
+```
 
 ## Before requesting glasses permissions
 

@@ -8,16 +8,19 @@ Before starting the migration, verify that your project meets the following
 requirements:
 
 1. **Navigation version**: Update to Jetpack Navigation 2.8.0 or higher
-2. **Kotlin serialization plugin**:
-3. Add the plugin to `libs.versions.toml`:
+2. **Kotlin serialization plugin**: Add the Kotlin serialization plugin to your project:
 
-    [libraries]
-    kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+   - Add the plugin to `gradle/libs.versions.toml`:
 
-    [plugins]
-    kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+     ```toml
+     [libraries]
+     kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
-- Add the dependencies to your top-level `build.gradle.kts` and module-level `build.gradle.kts`.
+     [plugins]
+     kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+     ```
+   - Add the dependencies to your top-level `build.gradle.kts` and module-level
+     `build.gradle.kts`.
 
 ## Step 1: Define Your Destinations
 
@@ -28,18 +31,24 @@ Replace your constant route strings with `@Serializable` objects and classes.
 
 **Before (string based):**
 
-    const val ROUTE_HOME = "home"
-    const val ROUTE_PROFILE = "profile/{userId}"
+```kotlin
+const val ROUTE_HOME = "home"
+const val ROUTE_PROFILE = "profile/{userId}"
+
+```
 
 **After (type safe):**
 
-    import kotlinx.serialization.Serializable
+```kotlin
+import kotlinx.serialization.Serializable
 
-    @Serializable
-    object Home
+@Serializable
+data object Home
 
-    @Serializable
-    data class Profile(val userId: String)
+@Serializable
+data class Profile(val userId: String)
+
+```
 
 ## Step 2: Update the NavHost Configuration
 
@@ -48,26 +57,32 @@ Update your `NavHost` to use the new generic types in the `composable` and
 
 **Before:**
 
-    NavHost(navController, startDestination = "home") {
-        composable("home") { HomeScreen(...) }
-        composable("profile/{userId}") { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId")
-            ProfileScreen(userId)
-        }
+```kotlin
+NavHost(navController, startDestination = "home") {
+    composable("home") { HomeScreen(...) }
+    composable("profile/{userId}") { backStackEntry ->
+        val userId = backStackEntry.arguments?.getString("userId")
+        ProfileScreen(userId)
     }
+}
+
+```
 
 **After:**
 
-    NavHost(navController, startDestination = Home) {
-        composable<Home> {
-            HomeScreen(...)
-        }
-        composable<Profile> { backStackEntry ->
-            // The library automatically handles argument extraction
-            val profile: Profile = backStackEntry.toRoute()
-            ProfileScreen(profile.userId)
-        }
+```kotlin
+NavHost(navController, startDestination = Home) {
+    composable<Home> {
+        HomeScreen(...)
     }
+    composable<Profile> { backStackEntry ->
+        // The library automatically handles argument extraction
+        val profile: Profile = backStackEntry.toRoute()
+        ProfileScreen(profile.userId)
+    }
+}
+
+```
 
 ## Step 3: Implement Type-Safe Navigation Calls
 
@@ -75,11 +90,17 @@ Replace string-interpolated navigation calls with class instances.
 
 **Before:**
 
-    navController.navigate("profile/user123")
+```kotlin
+navController.navigate("profile/user123")
+
+```
 
 **After:**
 
-    navController.navigate(Profile(userId = "user123"))
+```kotlin
+navController.navigate(Profile(userId = "user123"))
+
+```
 
 ## Step 4: Accessing Arguments in ViewModels
 
@@ -88,13 +109,16 @@ If you use a `ViewModel`, you can now extract the route object directly from the
 
 **Implementation:**
 
-    class ProfileViewModel(
-        savedStateHandle: SavedStateHandle
-    ) : ViewModel() {
-        // Automatically parses arguments into the Profile class
-        private val profile = savedStateHandle.toRoute<Profile>()
-        val userId = profile.userId
-    }
+```kotlin
+class ProfileViewModel(
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    // Automatically parses arguments into the Profile class
+    private val profile = savedStateHandle.toRoute<Profile>()
+    val userId = profile.userId
+}
+
+```
 
 ## Step 5: (Advanced) Handling Custom Types
 

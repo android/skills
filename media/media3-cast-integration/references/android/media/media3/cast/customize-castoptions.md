@@ -7,13 +7,15 @@ manage session lifecycles, and customize media playback behavior.
 For a basic setup that uses the default Cast receiver application, add the
 `DefaultCastOptionsProvider` to your app's `AndroidManifest.xml` file:
 
-    <application>
-      ...
-      <meta-data
-        android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-        android:value="androidx.media3.cast.DefaultCastOptionsProvider" />
-      ...
-    </application>
+```xml
+<application>
+  ...
+  <meta-data
+    android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+    android:value="androidx.media3.cast.DefaultCastOptionsProvider" />
+  ...
+</application>
+```
 
 ## Create a custom options provider
 
@@ -25,13 +27,15 @@ ID, you need to create your own `OptionsProvider`.
 First, declare your custom provider in `AndroidManifest.xml`. Make sure to use
 the fully qualified class name.
 
-    <application>
-      ...
-      <meta-data
-        android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-        android:value="path.to.your.class.MyCustomCastOptionsProvider" />
-      ...
-    </application>
+```xml
+<application>
+  ...
+  <meta-data
+    android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+    android:value="path.to.your.class.MyCustomCastOptionsProvider" />
+  ...
+</application>
+```
 
 ### 2. Implement the OptionsProvider interface
 

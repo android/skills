@@ -87,35 +87,38 @@ Android Studio is not required for the following steps.
    code. Make sure to specify the name of the AI pack and only one delivery
    type:
 
-       // In the AI pack's build.gradle file:
-       plugins {
-         id 'com.android.ai-pack'
-       }
+   ```groovy
+   // In the AI pack's build.gradle file:
+   plugins {
+     id 'com.android.ai-pack'
+   }
 
-       aiPack {
-           packName = "ai-pack-name" // Directory name for the AI pack
-           dynamicDelivery {
-               deliveryType = "[ install-time | fast-follow | on-demand ]"
-           }
+   aiPack {
+       packName = "ai-pack-name" // Directory name for the AI pack
+       dynamicDelivery {
+           deliveryType = "[ install-time | fast-follow | on-demand ]"
        }
-
+   }
+   ```
 3. In the project's app `build.gradle` file, add the name of every AI pack in
    your project as shown below:
 
-       // In the app build.gradle file:
-       android {
-           ...
-           assetPacks = [":ai-pack-name", ":ai-pack2-name"]
-       }
-
+   ```groovy
+   // In the app build.gradle file:
+   android {
+       ...
+       assetPacks = [":ai-pack-name", ":ai-pack2-name"]
+   }
+   ```
 4. In the project's `settings.gradle` file, include all AI packs in your
    project as shown below:
 
-       // In the settings.gradle file:
-       include ':app'
-       include ':ai-pack-name'
-       include ':ai-pack2-name'
-
+   ```groovy
+   // In the settings.gradle file:
+   include ':app'
+   include ':ai-pack-name'
+   include ':ai-pack2-name'
+   ```
 5. Inside your AI pack, create a `src/main/assets/` directory.
 
 6. Place your models in the `src/main/assets` directory. You can create
@@ -168,10 +171,12 @@ Delivery Library.
 In your app's `build.gradle` file, declare a dependency on the Play AI Delivery
 Library:
 
-    dependencies {
-      ...
-      implementation "com.google.android.play:ai-delivery:0.1.1-alpha01"
-    }
+```groovy
+dependencies {
+  ...
+  implementation "com.google.android.play:ai-delivery:0.1.1-alpha01"
+}
+```
 
 #### Check status
 
@@ -496,16 +501,18 @@ The device targeting configuration file is an XML file in which you define your
 custom device groups. For example, you could define a device group called
 `qti_v79` that contains all devices with the Qualcomm SM8750 system on chip:
 
-    <config:device-targeting-config
-        xmlns:config="http://schemas.android.com/apk/config">
+```xml
+<config:device-targeting-config
+    xmlns:config="http://schemas.android.com/apk/config">
 
-        <config:device-group name="qti_v79">
-            <config:device-selector>
-                <config:system-on-chip manufacturer="QTI" model="SM8750"/>
-            </config:device-selector>
-        </config:device-group>
+    <config:device-group name="qti_v79">
+        <config:device-selector>
+            <config:system-on-chip manufacturer="QTI" model="SM8750"/>
+        </config:device-selector>
+    </config:device-group>
 
-    </config:device-targeting-config>
+</config:device-targeting-config>
+```
 
 A **device group** is composed of up to 5 **device selectors**. A device is
 included in a device group if it satisfies any of its device selectors.
@@ -586,31 +593,33 @@ group is automatically generated and shouldn't be defined explicitly.
 
 Here is an example showing all possible device properties:
 
-    <config:device-targeting-config
-        xmlns:config="http://schemas.android.com/apk/config">
+```xml
+<config:device-targeting-config
+    xmlns:config="http://schemas.android.com/apk/config">
 
-        <config:device-group name="myCustomGroup1">
-          <config:device-selector ram-min-bytes="8000000000">
-            <config:included-device-id brand="google" device="redfin"/>
-            <config:included-device-id brand="google" device="sailfish"/>
-            <config:included-device-id brand="good-brand"/>
-            <config:excluded-device-id brand="google" device="caiman"/>
-            <config:system-on-chip manufacturer="Sinclair" model="ZX80"/>
-            <config:system-on-chip manufacturer="Commodore" model="C64"/>
-          </config:device-selector>
-          <config:device-selector ram-min-bytes="16000000000"/>
-        </config:device-group>
+    <config:device-group name="myCustomGroup1">
+      <config:device-selector ram-min-bytes="8000000000">
+        <config:included-device-id brand="google" device="redfin"/>
+        <config:included-device-id brand="google" device="sailfish"/>
+        <config:included-device-id brand="good-brand"/>
+        <config:excluded-device-id brand="google" device="caiman"/>
+        <config:system-on-chip manufacturer="Sinclair" model="ZX80"/>
+        <config:system-on-chip manufacturer="Commodore" model="C64"/>
+      </config:device-selector>
+      <config:device-selector ram-min-bytes="16000000000"/>
+    </config:device-group>
 
-        <config:device-group name="myCustomGroup2">
-          <config:device-selector ram-min-bytes="4000000000" ram-max-bytes="8000000000">
-            <config:required-system-feature name="android.hardware.bluetooth"/>
-            <config:required-system-feature name="android.hardware.location"/>
-            <config:forbidden-system-feature name="android.hardware.camera"/>
-            <config:forbidden-system-feature name="mindcontrol.laser"/>
-          </config:device-selector>
-        </config:device-group>
+    <config:device-group name="myCustomGroup2">
+      <config:device-selector ram-min-bytes="4000000000" ram-max-bytes="8000000000">
+        <config:required-system-feature name="android.hardware.bluetooth"/>
+        <config:required-system-feature name="android.hardware.location"/>
+        <config:forbidden-system-feature name="android.hardware.camera"/>
+        <config:forbidden-system-feature name="mindcontrol.laser"/>
+      </config:device-selector>
+    </config:device-group>
 
-    </config:device-targeting-config>
+</config:device-targeting-config>
+```
 
 #### Official device manufacturer and device model codes
 
@@ -633,17 +642,19 @@ by using the Device Catalog on the Google Play Console, by either:
 
 Add the following to your main module's `build.gradle` file:
 
-    android {
-      ...
-      bundle {
-        deviceTargetingConfig = file('device_targeting_config.xml')
-        deviceGroup {
-          enableSplit = true   // split bundle by #group
-          defaultGroup = "other"  // group used for standalone APKs
-        }
-      }
-      ...
+```groovy
+android {
+  ...
+  bundle {
+    deviceTargetingConfig = file('device_targeting_config.xml')
+    deviceGroup {
+      enableSplit = true   // split bundle by #group
+      defaultGroup = "other"  // group used for standalone APKs
     }
+  }
+  ...
+}
+```
 
 `device_targeting_config.xml` is the path of your configuration file relative to
 the main module. This ensures that your configuration file is packaged with your
@@ -703,23 +714,25 @@ delivered based on device group membership.
 To deliver a feature module to devices that belong to either `myCustomGroup1` or
 `myCustomGroup2`, modify its `AndroidManifest.xml`:
 
-    <manifest ...>
-      ...
-      <dist:module dist:title="...">
-        <dist:delivery>
-          <dist:install-time>
-            <dist:conditions>
-              <dist:device-groups>
-                <dist:device-group dist:name="myCustomGroup1"/>
-                <dist:device-group dist:name="myCustomGroup2"/>
-              </dist:device-groups>
-              ...
-            </dist:conditions>
-          </dist:install-time>
-        </dist:delivery>
-      </dist:module>
-      ...
-    </manifest>
+```xml
+<manifest ...>
+  ...
+  <dist:module dist:title="...">
+    <dist:delivery>
+      <dist:install-time>
+        <dist:conditions>
+          <dist:device-groups>
+            <dist:device-group dist:name="myCustomGroup1"/>
+            <dist:device-group dist:name="myCustomGroup2"/>
+          </dist:device-groups>
+          ...
+        </dist:conditions>
+      </dist:install-time>
+    </dist:delivery>
+  </dist:module>
+  ...
+</manifest>
+```
 
 > [!NOTE]
 > **Note:** Devices that are not targeted won't receive the feature module at all. This is different from [targeting for AI packs](https://developer.android.com/google/play/on-device-ai#targeting-for-ai-packs), where devices that are not targeted receive a default, empty variant of the AI pack.
@@ -779,7 +792,9 @@ The following are limitations of local testing with bundletool:
 Use the following method to ensure only the correct APKs are installed on the
 device
 
-    adb shell pm path {packageName}
+```bash
+adb shell pm path {packageName}
+```
 
 You should see something like:
 

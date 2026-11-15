@@ -5,14 +5,16 @@ the skill. The migrated app ends with the code of Steps 1 to 5 of the skill: the
 
 The code in this file uses these imports:
 
-    import android.content.Context
-    import com.google.ai.edge.litert.Accelerator
-    import com.google.ai.edge.litert.CompiledModel
-    import com.google.ai.edge.litert.TensorBuffer
-    import com.google.ai.edge.litert.support.image.TensorImage
-    import com.google.ai.edge.litert.support.tensorbuffer.TensorBufferFloat
-    import java.io.File
-    import kotlin.math.abs
+```kotlin
+import android.content.Context
+import com.google.ai.edge.litert.Accelerator
+import com.google.ai.edge.litert.CompiledModel
+import com.google.ai.edge.litert.TensorBuffer
+import com.google.ai.edge.litert.support.image.TensorImage
+import com.google.ai.edge.litert.support.tensorbuffer.TensorBufferFloat
+import java.io.File
+import kotlin.math.abs
+```
 
 ## 1. Find the runtime
 
@@ -33,7 +35,9 @@ tell the user: this skill doesn't migrate it.
 
 Then find the code that the later steps change:
 
-    grep -rnE 'org\.tensorflow\.lite\.|Interpreter|GpuDelegate|CompatibilityList|NnApiDelegate|NNAPI|[nN]umThreads|FlexDelegate|TfLite' --include='*.kt' --include='*.java' app/src
+```bash
+grep -rnE 'org\.tensorflow\.lite\.|Interpreter|GpuDelegate|CompatibilityList|NnApiDelegate|NNAPI|[nN]umThreads|FlexDelegate|TfLite' --include='*.kt' --include='*.java' app/src
+```
 
 Note which accelerator each code path uses (the GPU delegate, NNAPI, or the CPU
 with a thread count), and whether the app uses the TensorFlow Lite Support
@@ -60,35 +64,38 @@ one path:
   test ends, which deletes the file. Install both APKs, run the test with
   `am instrument`, and copy the file out of the debuggable app:
 
-      ./gradlew installDebug installDebugAndroidTest
-      adb shell pm list instrumentation  # shows <test package>/<runner> for the app
-      adb shell am instrument -w -e class <capture test class> <test package>/<runner>
-      mkdir -p app/src/androidTest/assets/golden
-      adb shell run-as <application ID> cat files/golden.txt > app/src/androidTest/assets/golden/output.txt
-
+  ```bash
+  ./gradlew installDebug installDebugAndroidTest
+  adb shell pm list instrumentation  # shows <test package>/<runner> for the app
+  adb shell am instrument -w -e class <capture test class> <test package>/<runner>
+  mkdir -p app/src/androidTest/assets/golden
+  adb shell run-as <application ID> cat files/golden.txt > app/src/androidTest/assets/golden/output.txt
+  ```
 - **Path B (no device)**: Don't capture. Report the capture and the device
   comparison of Step 6 to the user as post-implementation steps.
 
-    // Before the dependency swap: record the legacy app's output for one fixed
-    // input, one value per line.
-    fun writeGoldenOutput(file: File, output: FloatArray) {
-        file.writeText(output.joinToString("\n"))
-    }
+```kotlin
+// Before the dependency swap: record the legacy app's output for one fixed
+// input, one value per line.
+fun writeGoldenOutput(file: File, output: FloatArray) {
+    file.writeText(output.joinToString("\n"))
+}
 
-    // After the migration: compare the migrated output with the recorded one.
-    // A difference smaller than 1e-3 passes for outputs of order 1.
-    fun maxAbsDifference(golden: FloatArray, migrated: FloatArray): Float {
-        check(golden.size == migrated.size) { "Size ${migrated.size} != ${golden.size}" }
-        return golden.indices.maxOf { abs(golden[it] - migrated[it]) }
-    }
+// After the migration: compare the migrated output with the recorded one.
+// A difference smaller than 1e-3 passes for outputs of order 1.
+fun maxAbsDifference(golden: FloatArray, migrated: FloatArray): Float {
+    check(golden.size == migrated.size) { "Size ${migrated.size} != ${golden.size}" }
+    return golden.indices.maxOf { abs(golden[it] - migrated[it]) }
+}
 
-    // The golden file is an asset of the test APK: pass
-    // InstrumentationRegistry.getInstrumentation().context, not targetContext,
-    // whose assets throw FileNotFoundException for it.
-    fun readGoldenOutput(testContext: Context, path: String = "golden/output.txt"): FloatArray =
-        testContext.assets.open(path).bufferedReader().use { reader ->
-            reader.readLines().filter { it.isNotBlank() }.map { it.toFloat() }.toFloatArray()
-        }
+// The golden file is an asset of the test APK: pass
+// InstrumentationRegistry.getInstrumentation().context, not targetContext,
+// whose assets throw FileNotFoundException for it.
+fun readGoldenOutput(testContext: Context, path: String = "golden/output.txt"): FloatArray =
+    testContext.assets.open(path).bufferedReader().use { reader ->
+        reader.readLines().filter { it.isNotBlank() }.map { it.toFloat() }.toFloatArray()
+    }
+```
 
 ## 3. Swap the dependencies
 
@@ -120,15 +127,19 @@ coordinates:
 Keep `litert:2.3.0` in the build file. Then rename the package in the sources,
 the R8 and ProGuard rules, and any reflection strings:
 
-    grep -rl 'org\.tensorflow\.lite\.support' --include='*.java' --include='*.kt' --include='*.pro' app/ \
-      | xargs sed -i 's/org\.tensorflow\.lite\.support/com.google.ai.edge.litert.support/g'
+```bash
+grep -rl 'org\.tensorflow\.lite\.support' --include='*.java' --include='*.kt' --include='*.pro' app/ \
+  | xargs sed -i 's/org\.tensorflow\.lite\.support/com.google.ai.edge.litert.support/g'
+```
 
 An app that never used the Support library doesn't add it. Without the Support
 library, load labels from assets:
 
-    // Replaces FileUtil.loadLabels in an app that drops the Support library.
-    fun loadLabels(context: Context, name: String = "labels.txt"): List<String> =
-        context.assets.open(name).bufferedReader().use { it.readLines() }
+```kotlin
+// Replaces FileUtil.loadLabels in an app that drops the Support library.
+fun loadLabels(context: Context, name: String = "labels.txt"): List<String> =
+    context.assets.open(name).bufferedReader().use { it.readLines() }
+```
 
 ### Toolchain
 
@@ -148,10 +159,12 @@ the root `build.gradle.kts`:
 - **NNAPI** (`NnApiDelegate`, `setUseNNAPI(true)`): NNAPI is deprecated from Android 15, and the `CompiledModel` API has no NNAPI accelerator. Remove the delegate, and map an NNAPI choice in the app to the GPU option. You must tell the user about this change in the final report, because the speed and the numerical results of a quantized model that ran on a DSP or an NPU through NNAPI change on the GPU. NPU acceleration is a separate topic that this skill doesn't cover ([NPU acceleration with LiteRT](https://ai.google.dev/edge/litert/next/npu)).
 - **Select TensorFlow operators** (`FlexDelegate`): No LiteRT 2.x artifact contains the Flex delegate. This skill doesn't cover it. Tell the user that the model needs to be exported again without Select TensorFlow operators.
 
-    // Replaces GpuDelegate: the CPU runs the operators that the GPU doesn't
-    // support, as it did with the delegate. Keep the CPU fallback of Step 3 for a
-    // model that the GPU can't compile at all.
-    val gpuWithCpuFallback = CompiledModel.Options(Accelerator.GPU, Accelerator.CPU)
+```kotlin
+// Replaces GpuDelegate: the CPU runs the operators that the GPU doesn't
+// support, as it did with the delegate. Keep the CPU fallback of Step 3 for a
+// model that the GPU can't compile at all.
+val gpuWithCpuFallback = CompiledModel.Options(Accelerator.GPU, Accelerator.CPU)
+```
 
 ## 5. Rewrite the inference code
 
@@ -166,54 +179,62 @@ Keep the app's own classes and their public functions as the callers.
 - **Signatures** : `runSignature(inputs, outputs, key)` becomes `run(inputs, outputs, key)` on the lists that `createInputBuffers(key)` and `createOutputBuffers(key)` return, created once with the model. Use this List overload by default on both runtimes, and always on the Google Play services runtime: with `litert-api` 2.3.0, the `Map<String, TensorBuffer>` overload of `run` aborts the process on that runtime, and the List overload doesn't, so code that uses it keeps running when the app changes runtime or upgrades LiteRT. The lists follow the order of the signature's inputs and outputs in the model, so a signature with one input and one output needs no names. For a signature with more than one input or output on the bundled runtime, create each buffer by name with `createInputBuffer(name, key)` and `createOutputBuffer(name, key)`, and pass maps from those names to `run(inputs, outputs, key)`; on the Google Play services runtime, keep the lists and check each position against the golden output. Every by-name call (`createInputBuffer`, `createOutputBuffer`, `run` with maps, `getInputTensorType`, `getInputBufferRequirements`) takes the names in the signature, such as `x` or `args_0` and `output_0`, not the graph tensor names such as `serving_default_x:0`. When the model has no signatures, the names are its input and output tensor names (such as `images` and `Softmax`). `CompiledModel` has no call that lists them, so take them from the legacy code (Step 2). A missing or wrong name in an output map crashes the process (JNI abort) instead of throwing, so check the names before the first `run`.
 - **Closing** : Closing the interpreter becomes the helper's `close`.
 
-    // Replaces Interpreter.Options.setNumThreads. Create new options; never change
-    // the shared CompiledModel.Options.CPU.
-    fun cpuOptionsWithThreads(numThreads: Int): CompiledModel.Options =
-        CompiledModel.Options(Accelerator.CPU).apply {
-            cpuOptions = CompiledModel.CpuOptions(numThreads = numThreads)
-        }
-
-    // Replaces interpreter.getInputTensor(0).shape() for float tensors. Look the
-    // tensor up by its signature name; this throws for uint8 tensors.
-    fun inputShape(model: CompiledModel, inputName: String): List<Int>? =
-        model.getInputTensorType(inputName).layout?.dimensions
-
-    // Replaces interpreter.getInputTensor(0).numBytes() for any element type.
-    fun inputSizeBytes(model: CompiledModel, inputName: String, signature: String): Int =
-        model.getInputBufferRequirements(inputName, signature).bufferSize
-
-    // Replaces interpreter.runSignature(mapOf("args_0" to input),
-    // mapOf("output_0" to output), "serving_default") for a signature with one
-    // input and one output, on both runtimes. The Classifier helper of Step 2 of
-    // the skill creates its buffers once in init with
-    // model.createInputBuffers(signature) and model.createOutputBuffers(signature),
-    // and calls this from infer.
-    fun runSignature(
-        model: CompiledModel,
-        signature: String,
-        inputs: List<TensorBuffer>,
-        outputs: List<TensorBuffer>,
-        input: FloatArray
-    ): FloatArray {
-        inputs[0].writeFloat(input)
-        model.run(inputs, outputs, signature)
-        return outputs[0].readFloat()
+```kotlin
+// Replaces Interpreter.Options.setNumThreads. Create new options; never change
+// the shared CompiledModel.Options.CPU.
+fun cpuOptionsWithThreads(numThreads: Int): CompiledModel.Options =
+    CompiledModel.Options(Accelerator.CPU).apply {
+        cpuOptions = CompiledModel.CpuOptions(numThreads = numThreads)
     }
+```
 
-    // Bundled runtime only, for a signature with more than one input or output:
-    // create each buffer by its signature name, once. Never use the map overload
-    // of run on the Google Play services runtime, where it aborts with litert-api
-    // 2.3.0; change it to the List overload when the app moves to that runtime.
-    fun createSignatureBuffers(
-        model: CompiledModel,
-        signature: String,
-        inputNames: List<String>,
-        outputNames: List<String>
-    ): Pair<Map<String, TensorBuffer>, Map<String, TensorBuffer>> =
-        inputNames.associateWith { model.createInputBuffer(it, signature) } to
-            outputNames.associateWith { model.createOutputBuffer(it, signature) }
+```kotlin
+// Replaces interpreter.getInputTensor(0).shape() for float tensors. Look the
+// tensor up by its signature name; this throws for uint8 tensors.
+fun inputShape(model: CompiledModel, inputName: String): List<Int>? =
+    model.getInputTensorType(inputName).layout?.dimensions
 
-    // Then, for every call: model.run(inputs, outputs, signature)
+// Replaces interpreter.getInputTensor(0).numBytes() for any element type.
+fun inputSizeBytes(model: CompiledModel, inputName: String, signature: String): Int =
+    model.getInputBufferRequirements(inputName, signature).bufferSize
+```
+
+```kotlin
+// Replaces interpreter.runSignature(mapOf("args_0" to input),
+// mapOf("output_0" to output), "serving_default") for a signature with one
+// input and one output, on both runtimes. The Classifier helper of Step 2 of
+// the skill creates its buffers once in init with
+// model.createInputBuffers(signature) and model.createOutputBuffers(signature),
+// and calls this from infer.
+fun runSignature(
+    model: CompiledModel,
+    signature: String,
+    inputs: List<TensorBuffer>,
+    outputs: List<TensorBuffer>,
+    input: FloatArray
+): FloatArray {
+    inputs[0].writeFloat(input)
+    model.run(inputs, outputs, signature)
+    return outputs[0].readFloat()
+}
+```
+
+```kotlin
+// Bundled runtime only, for a signature with more than one input or output:
+// create each buffer by its signature name, once. Never use the map overload
+// of run on the Google Play services runtime, where it aborts with litert-api
+// 2.3.0; change it to the List overload when the app moves to that runtime.
+fun createSignatureBuffers(
+    model: CompiledModel,
+    signature: String,
+    inputNames: List<String>,
+    outputNames: List<String>
+): Pair<Map<String, TensorBuffer>, Map<String, TensorBuffer>> =
+    inputNames.associateWith { model.createInputBuffer(it, signature) } to
+        outputNames.associateWith { model.createOutputBuffer(it, signature) }
+
+// Then, for every call: model.run(inputs, outputs, signature)
+```
 
 ### With the Support library
 
@@ -228,26 +249,28 @@ backward compatibility. Apply these rules to the Support code:
 The following code writes a processed image into the helper's buffers and pairs
 the output scores with the labels, without `DataType`:
 
-    // Replaces the Support library's Model class. ImageProcessor and TensorImage
-    // stay; the processed image goes into the CompiledModel buffers directly, and
-    // the scores pair with the labels without TensorLabel.
-    fun runWithSupportImage(
-        model: CompiledModel,
-        inputs: List<TensorBuffer>,
-        outputs: List<TensorBuffer>,
-        image: TensorImage,
-        inputElementCount: Int,
-        labels: List<String>
-    ): Map<String, Float> {
-        // A uint8 image (one that skipped NormalizeOp) in a float input yields NaN.
-        val pixels = (image.tensorBuffer as? TensorBufferFloat)?.floatArray
-            ?: error("Normalize the image to float first")
-        // writeFloat accepts a shorter array without an error.
-        check(pixels.size == inputElementCount) { "Input size ${pixels.size}" }
-        inputs[0].writeFloat(pixels)
-        model.run(inputs, outputs)
-        return labels.zip(outputs[0].readFloat().toList()).toMap()
-    }
+```kotlin
+// Replaces the Support library's Model class. ImageProcessor and TensorImage
+// stay; the processed image goes into the CompiledModel buffers directly, and
+// the scores pair with the labels without TensorLabel.
+fun runWithSupportImage(
+    model: CompiledModel,
+    inputs: List<TensorBuffer>,
+    outputs: List<TensorBuffer>,
+    image: TensorImage,
+    inputElementCount: Int,
+    labels: List<String>
+): Map<String, Float> {
+    // A uint8 image (one that skipped NormalizeOp) in a float input yields NaN.
+    val pixels = (image.tensorBuffer as? TensorBufferFloat)?.floatArray
+        ?: error("Normalize the image to float first")
+    // writeFloat accepts a shorter array without an error.
+    check(pixels.size == inputElementCount) { "Input size ${pixels.size}" }
+    inputs[0].writeFloat(pixels)
+    model.run(inputs, outputs)
+    return labels.zip(outputs[0].readFloat().toList()).toMap()
+}
+```
 
 ### Without the Support library
 
@@ -263,8 +286,10 @@ of the following commands prints anything. The build alone doesn't reveal
 leftover Interpreter code, because the `litert` 2.3.0 artifact still contains
 `org.tensorflow.lite.Interpreter`:
 
-    grep -rnE 'org\.tensorflow\.lite\.|GpuDelegate|NnApiDelegate|FlexDelegate|support\.model\.Model|org\.tensorflow:tensorflow-lite' --include='*.kt' --include='*.java' --include='*.kts' --include='*.gradle' --include='*.toml' --include='*.pro' --exclude-dir=build --exclude-dir=.gradle .
-    ./gradlew :app:dependencies --configuration releaseRuntimeClasspath | grep -E 'org\.tensorflow:tensorflow-lite|com\.google\.ai\.edge\.litert:litert[a-z-]*:1\.'
+```bash
+grep -rnE 'org\.tensorflow\.lite\.|GpuDelegate|NnApiDelegate|FlexDelegate|support\.model\.Model|org\.tensorflow:tensorflow-lite' --include='*.kt' --include='*.java' --include='*.kts' --include='*.gradle' --include='*.toml' --include='*.pro' --exclude-dir=build --exclude-dir=.gradle .
+./gradlew :app:dependencies --configuration releaseRuntimeClasspath | grep -E 'org\.tensorflow:tensorflow-lite|com\.google\.ai\.edge\.litert:litert[a-z-]*:1\.'
+```
 
 **Stage 2, on a device**: Pick one path:
 

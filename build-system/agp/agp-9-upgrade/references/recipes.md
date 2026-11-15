@@ -44,17 +44,19 @@ See the detailed guide at [BuildConfig](https://developer.android.com/agents/ski
 
 In the old DSL, an APK could be renamed very simply. Here's an example:
 
-    android {
-      applicationVariants.all {
-        outputs.all {
-          val output = this as com.android.build.gradle.api.ApkVariantOutput
-          val fileName = output.outputFileName
-          if (fileName.contains("release")) {
-            output.outputFileName = "my-cool-new-name.apk"
-          }
-        }
+```kotlin
+android {
+  applicationVariants.all {
+    outputs.all {
+      val output = this as com.android.build.gradle.api.ApkVariantOutput
+      val fileName = output.outputFileName
+      if (fileName.contains("release")) {
+        output.outputFileName = "my-cool-new-name.apk"
       }
     }
+  }
+}
+```
 
 However, with AGP 9 and the new DSL, `applicationVariants` is no longer
 available. You must instead react to artifact creation using the

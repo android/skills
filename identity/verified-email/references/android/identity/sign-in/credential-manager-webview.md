@@ -7,11 +7,13 @@ Android app that uses WebView. Credential Manager is supported natively in the
 To use Credential Manager in WebView, add the following dependencies to your app
 module's build script:
 
-    dependencies {
-      implementation("androidx.credentials:credentials:1.6.0-beta02")   
-      implementation("androidx.credentials:credentials-play-services-auth:1.6.0-beta02")
-      implementation("androidx.webkit:webkit:1.14.0")
-    }
+```kotlin
+dependencies {
+  implementation("androidx.credentials:credentials:1.6.0-beta02")   
+  implementation("androidx.credentials:credentials-play-services-auth:1.6.0-beta02")
+  implementation("androidx.webkit:webkit:1.14.0")
+}
+```
 
 You will also need to associate your app with a website that your app owns using
 digital asset linking. For more information, see
@@ -22,44 +24,46 @@ digital asset linking. For more information, see
 To use the WebKit library, check for feature support, and then enable support by
 calling `setWebAuthenticationSupport()`:
 
-    class WebViewActivity : ComponentActivity() {
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            setContent {
-                // Put your webview link here.
-                val url = "https://project-sesame-426206.appspot.com/passkey-signup"
-                AndroidView(
-                    factory = { context ->
-                        WebView(context).apply {
-                            settings.javaScriptEnabled = true
+```kotlin
+class WebViewActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            // Put your webview link here.
+            val url = "https://project-sesame-426206.appspot.com/passkey-signup"
+            AndroidView(
+                factory = { context ->
+                    WebView(context).apply {
+                        settings.javaScriptEnabled = true
 
-                            webViewClient = WebViewClientImpl()
+                        webViewClient = WebViewClientImpl()
+                    }
+                },
+                update = { webView ->
+                    run {
+                        webView.loadUrl(url)
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_AUTHENTICATION)) {
+                            WebSettingsCompat.setWebAuthenticationSupport(
+                                webView.settings,
+                                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP,
+                            )
+                            // Check if getWebauthenticationSupport may have been disabled by the WebView.
+                            Log.e(
+                                "WebViewPasskeyDemo",
+                                "getWebAuthenticationSupport result: " + WebSettingsCompat.getWebAuthenticationSupport(
+                                    webView.settings
+                                ),
+                            )
+                        } else {
+                            Log.e("WebViewPasskeyDemo", "WebView does not support passkeys.")
                         }
-                    },
-                    update = { webView ->
-                        run {
-                            webView.loadUrl(url)
-                            if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_AUTHENTICATION)) {
-                                WebSettingsCompat.setWebAuthenticationSupport(
-                                    webView.settings,
-                                    WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP,
-                                )
-                                // Check if getWebauthenticationSupport may have been disabled by the WebView.
-                                Log.e(
-                                    "WebViewPasskeyDemo",
-                                    "getWebAuthenticationSupport result: " + WebSettingsCompat.getWebAuthenticationSupport(
-                                        webView.settings
-                                    ),
-                                )
-                            } else {
-                                Log.e("WebViewPasskeyDemo", "WebView does not support passkeys.")
-                            }
-                        }
-                    },
-                )
-            }
+                    }
+                },
+            )
         }
     }
+}
+```
 
 > [!NOTE]
 > **Note:** The WebKit library doesn't support `mediation:"conditional"` requests.

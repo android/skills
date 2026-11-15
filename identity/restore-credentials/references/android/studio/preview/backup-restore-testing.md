@@ -97,23 +97,27 @@ following steps:
 In your project's `gradle.properties` file, enable test suites and backup
 tests:
 
-    android.experimental.testSuiteSupport=true
-    android.experimental.enableBackupTest=true
+```properties
+android.experimental.testSuiteSupport=true
+android.experimental.enableBackupTest=true
+```
 
 ### Declare the test suite
 
 In your app module's `build.gradle.kts` file, declare a backup test suite in
 the `testOptions` block:
 
-    android {
-        testOptions {
-            backupTests {
-                create("backupTest") {
-                    backupTestLibraryVersion = "1.0.0-alpha04"
-                }
+```kotlin
+android {
+    testOptions {
+        backupTests {
+            create("backupTest") {
+                backupTestLibraryVersion = "1.0.0-alpha04"
             }
         }
     }
+}
+```
 
 The suite name, `backupTest` in this example, determines the source set
 directories and the Gradle task names. You can customize the suite with the
@@ -130,13 +134,15 @@ To add other dependencies, use the `hostJar` and `testApk` blocks of the suite.
 For example, to use [Truth](https://truth.dev/) in your host tests, add it to the `hostJar`
 block:
 
-    create("backupTest") {
-        hostJar {
-            dependencies {
-                implementation("com.google.truth:truth:1.4.2")
-            }
+```kotlin
+create("backupTest") {
+    hostJar {
+        dependencies {
+            implementation("com.google.truth:truth:1.4.2")
         }
     }
+}
+```
 
 ### Create the source sets
 
@@ -189,62 +195,64 @@ If a step fails, the method throws an exception, which fails the test. The
 following example tests `SharedPreferences`, Preferences DataStore, SQLite, an
 internal file, and an excluded file using the local backup transport:
 
-    package com.example.myapp
+```kotlin
+package com.example.myapp
 
-    import androidx.test.backup.host.BackupRestoreController
-    import androidx.test.backup.host.BackupRestoreExtension
-    import androidx.test.backup.host.BackupTransportMode
-    import androidx.test.backup.host.StorageDomain
-    import java.nio.file.Path
-    import kotlinx.coroutines.runBlocking
-    import org.junit.jupiter.api.Test
-    import org.junit.jupiter.api.extension.ExtendWith
-    import org.junit.jupiter.api.io.TempDir
+import androidx.test.backup.host.BackupRestoreController
+import androidx.test.backup.host.BackupRestoreExtension
+import androidx.test.backup.host.BackupTransportMode
+import androidx.test.backup.host.StorageDomain
+import java.nio.file.Path
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 
-    @ExtendWith(BackupRestoreExtension::class)
-    class SettingsBackupTest {
+@ExtendWith(BackupRestoreExtension::class)
+class SettingsBackupTest {
 
-        @Test
-        fun settingsSurviveBackupAndRestore(
-            device: BackupRestoreController,
-            @TempDir outputDir: Path,
-        ): Unit = runBlocking {
-            device.runBackupRestoreFlow(
-                storages = listOf(
-                    StorageDomain.Preference(
-                        prefName = "settings",
-                        key = "channels",
-                        value = setOf("news", "alerts"),
-                    ),
-                    StorageDomain.DataStorePreference(
-                        dataStoreName = "user_prefs",
-                        key = "font_scale",
-                        value = 1.25f,
-                    ),
-                    StorageDomain.Database(
-                        dbName = "notes.db",
-                        table = "notes",
-                        primaryKeyCol = "id",
-                        primaryKeyVal = 1,
-                        columnValues = mapOf("title" to "Groceries"),
-                    ),
-                    StorageDomain.TextFile(
-                        path = "drafts/note.txt",
-                        content = "Buy milk",
-                    ),
-                    // Check that a file excluded by backup rules isn't restored.
-                    StorageDomain.ExcludedData(
-                        StorageDomain.TextFile(
-                            path = "auth/session.txt",
-                            content = "temp-token",
-                        )
-                    ),
+    @Test
+    fun settingsSurviveBackupAndRestore(
+        device: BackupRestoreController,
+        @TempDir outputDir: Path,
+    ): Unit = runBlocking {
+        device.runBackupRestoreFlow(
+            storages = listOf(
+                StorageDomain.Preference(
+                    prefName = "settings",
+                    key = "channels",
+                    value = setOf("news", "alerts"),
                 ),
-                outputDir = outputDir,
-                mode = BackupTransportMode.LOCAL,
-            )
-        }
+                StorageDomain.DataStorePreference(
+                    dataStoreName = "user_prefs",
+                    key = "font_scale",
+                    value = 1.25f,
+                ),
+                StorageDomain.Database(
+                    dbName = "notes.db",
+                    table = "notes",
+                    primaryKeyCol = "id",
+                    primaryKeyVal = 1,
+                    columnValues = mapOf("title" to "Groceries"),
+                ),
+                StorageDomain.TextFile(
+                    path = "drafts/note.txt",
+                    content = "Buy milk",
+                ),
+                // Check that a file excluded by backup rules isn't restored.
+                StorageDomain.ExcludedData(
+                    StorageDomain.TextFile(
+                        path = "auth/session.txt",
+                        content = "temp-token",
+                    )
+                ),
+            ),
+            outputDir = outputDir,
+            mode = BackupTransportMode.LOCAL,
+        )
     }
+}
+```
 
 Keep the following in mind when you define storage domains:
 
@@ -274,86 +282,90 @@ The following example seeds and verifies a theme setting in a
 [Proto DataStore](https://developer.android.com/topic/libraries/architecture/datastore), where `settingsDataStore` is a
 `DataStore<Settings>` property defined in your app:
 
-    // In app/src/backupTest/androidTest/kotlin/com/example/myapp/ThemeActions.kt
-    package com.example.myapp
+```kotlin
+// In app/src/backupTest/androidTest/kotlin/com/example/myapp/ThemeActions.kt
+package com.example.myapp
 
-    import android.content.Context
-    import androidx.test.backup.BackupDeviceAction
-    import androidx.test.backup.BackupDeviceActionArgs
-    import androidx.test.backup.BackupDeviceActionResult
-    import kotlinx.coroutines.flow.first
-    import kotlinx.coroutines.runBlocking
+import android.content.Context
+import androidx.test.backup.BackupDeviceAction
+import androidx.test.backup.BackupDeviceActionArgs
+import androidx.test.backup.BackupDeviceActionResult
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
-    class SeedThemeAction : BackupDeviceAction {
-        override fun execute(
-            context: Context,
-            args: BackupDeviceActionArgs,
-        ): BackupDeviceActionResult {
-            val theme = args["theme"]
-                ?: return BackupDeviceActionResult.failure("Missing theme argument")
-            runBlocking {
-                context.settingsDataStore.updateData {
-                    it.toBuilder().setTheme(theme).build()
-                }
-            }
-            return BackupDeviceActionResult.success()
-        }
-    }
-
-    class VerifyThemeAction : BackupDeviceAction {
-        override fun execute(
-            context: Context,
-            args: BackupDeviceActionArgs,
-        ): BackupDeviceActionResult {
-            val expected = args["theme"]
-            val actual = runBlocking {
-                context.settingsDataStore.data.first().theme
-            }
-            return if (actual == expected) {
-                BackupDeviceActionResult.success()
-            } else {
-                BackupDeviceActionResult.failure("Expected $expected, found $actual")
+class SeedThemeAction : BackupDeviceAction {
+    override fun execute(
+        context: Context,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult {
+        val theme = args["theme"]
+            ?: return BackupDeviceActionResult.failure("Missing theme argument")
+        runBlocking {
+            context.settingsDataStore.updateData {
+                it.toBuilder().setTheme(theme).build()
             }
         }
+        return BackupDeviceActionResult.success()
     }
+}
+
+class VerifyThemeAction : BackupDeviceAction {
+    override fun execute(
+        context: Context,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult {
+        val expected = args["theme"]
+        val actual = runBlocking {
+            context.settingsDataStore.data.first().theme
+        }
+        return if (actual == expected) {
+            BackupDeviceActionResult.success()
+        } else {
+            BackupDeviceActionResult.failure("Expected $expected, found $actual")
+        }
+    }
+}
+```
 
 To run populate and verify actions in `runBackupRestoreFlow`, pass their class
 names to [`StorageDomain.CustomData`](https://developer.android.com/reference/kotlin/androidx/test/backup/host/StorageDomain.CustomData):
 
-    package com.example.myapp
+```kotlin
+package com.example.myapp
 
-    import androidx.test.backup.host.BackupRestoreController
-    import androidx.test.backup.host.BackupRestoreExtension
-    import androidx.test.backup.host.BackupTransportMode
-    import androidx.test.backup.host.StorageDomain
-    import java.nio.file.Path
-    import kotlinx.coroutines.runBlocking
-    import org.junit.jupiter.api.Test
-    import org.junit.jupiter.api.extension.ExtendWith
-    import org.junit.jupiter.api.io.TempDir
+import androidx.test.backup.host.BackupRestoreController
+import androidx.test.backup.host.BackupRestoreExtension
+import androidx.test.backup.host.BackupTransportMode
+import androidx.test.backup.host.StorageDomain
+import java.nio.file.Path
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 
-    const val SEED_THEME = "com.example.myapp.SeedThemeAction"
-    const val VERIFY_THEME = "com.example.myapp.VerifyThemeAction"
+const val SEED_THEME = "com.example.myapp.SeedThemeAction"
+const val VERIFY_THEME = "com.example.myapp.VerifyThemeAction"
 
-    @ExtendWith(BackupRestoreExtension::class)
-    class ThemeBackupTest {
+@ExtendWith(BackupRestoreExtension::class)
+class ThemeBackupTest {
 
-        @Test
-        fun themeSurvivesCloudBackup(
-            device: BackupRestoreController,
-            @TempDir outputDir: Path,
-        ): Unit = runBlocking {
-            device.runBackupRestoreFlow(
-                storage = StorageDomain.CustomData(
-                    populateAction = SEED_THEME,
-                    verifyAction = VERIFY_THEME,
-                    args = mapOf("theme" to "dark"),
-                ),
-                outputDir = outputDir,
-                mode = BackupTransportMode.CLOUD_ENCRYPTED,
-            )
-        }
+    @Test
+    fun themeSurvivesCloudBackup(
+        device: BackupRestoreController,
+        @TempDir outputDir: Path,
+    ): Unit = runBlocking {
+        device.runBackupRestoreFlow(
+            storage = StorageDomain.CustomData(
+                populateAction = SEED_THEME,
+                verifyAction = VERIFY_THEME,
+                args = mapOf("theme" to "dark"),
+            ),
+            outputDir = outputDir,
+            mode = BackupTransportMode.CLOUD_ENCRYPTED,
+        )
     }
+}
+```
 
 To pass values generated during seeding to the verify action, pass a map to
 `BackupDeviceActionResult.success`. `CustomData` merges those entries into the
@@ -365,40 +377,42 @@ To customize the flow---for example, calling [`uninstallApp`](https://developer.
 [`installApk`](https://developer.android.com/reference/kotlin/androidx/test/backup/host/BackupRestoreController#installApk(java.nio.file.Path,kotlin.collections.List)) to test an upgrade, or calling
 [`launchApp`](https://developer.android.com/reference/kotlin/androidx/test/backup/host/BackupRestoreController#launchApp(kotlin.String,kotlin.collections.Map,kotlin.String))---run each step yourself:
 
-    package com.example.myapp
+```kotlin
+package com.example.myapp
 
-    import androidx.test.backup.host.BackupRestoreController
-    import androidx.test.backup.host.BackupRestoreExtension
-    import androidx.test.backup.host.BackupTransportMode
-    import java.nio.file.Path
-    import kotlinx.coroutines.runBlocking
-    import org.junit.jupiter.api.Test
-    import org.junit.jupiter.api.extension.ExtendWith
-    import org.junit.jupiter.api.io.TempDir
+import androidx.test.backup.host.BackupRestoreController
+import androidx.test.backup.host.BackupRestoreExtension
+import androidx.test.backup.host.BackupTransportMode
+import java.nio.file.Path
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 
-    @ExtendWith(BackupRestoreExtension::class)
-    class CustomFlowBackupTest {
+@ExtendWith(BackupRestoreExtension::class)
+class CustomFlowBackupTest {
 
-        @Test
-        fun themeSurvivesLaunchAfterRestore(
-            device: BackupRestoreController,
-            @TempDir outputDir: Path,
-        ): Unit = runBlocking {
-            val args = mapOf("theme" to "dark")
-            device.runOnDevice(SEED_THEME, args).getOrThrow()
+    @Test
+    fun themeSurvivesLaunchAfterRestore(
+        device: BackupRestoreController,
+        @TempDir outputDir: Path,
+    ): Unit = runBlocking {
+        val args = mapOf("theme" to "dark")
+        device.runOnDevice(SEED_THEME, args).getOrThrow()
 
-            device.stopApp()
-            val backupFile = device.performBackup(
-                BackupTransportMode.CLOUD_ENCRYPTED,
-                outputDir,
-            )
-            device.clearAppData()
-            device.performRestore(backupFile)
-            device.launchApp()
+        device.stopApp()
+        val backupFile = device.performBackup(
+            BackupTransportMode.CLOUD_ENCRYPTED,
+            outputDir,
+        )
+        device.clearAppData()
+        device.performRestore(backupFile)
+        device.launchApp()
 
-            device.runOnDevice(VERIFY_THEME, args).getOrThrow()
-        }
+        device.runOnDevice(VERIFY_THEME, args).getOrThrow()
     }
+}
+```
 
 When a device action fails, [`runOnDevice`](https://developer.android.com/reference/kotlin/androidx/test/backup/host/BackupRestoreController#runOnDevice(kotlin.String,kotlin.collections.Map,java.time.Duration,kotlin.Boolean)) returns a
 [`BackupActionResult.Failure`](https://developer.android.com/reference/kotlin/androidx/test/backup/host/BackupActionResult.Failure) instead of throwing an exception.
@@ -411,40 +425,42 @@ To test a transfer between two devices, declare a `BackupRestoreController`
 parameter for each device and pass the target device to `restoreOn` in
 `runBackupRestoreFlow`:
 
-    package com.example.myapp
+```kotlin
+package com.example.myapp
 
-    import androidx.test.backup.host.BackupRestoreController
-    import androidx.test.backup.host.BackupRestoreExtension
-    import androidx.test.backup.host.BackupTransportMode
-    import androidx.test.backup.host.Device
-    import androidx.test.backup.host.StorageDomain
-    import java.nio.file.Path
-    import kotlinx.coroutines.runBlocking
-    import org.junit.jupiter.api.Test
-    import org.junit.jupiter.api.extension.ExtendWith
-    import org.junit.jupiter.api.io.TempDir
+import androidx.test.backup.host.BackupRestoreController
+import androidx.test.backup.host.BackupRestoreExtension
+import androidx.test.backup.host.BackupTransportMode
+import androidx.test.backup.host.Device
+import androidx.test.backup.host.StorageDomain
+import java.nio.file.Path
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 
-    @ExtendWith(BackupRestoreExtension::class)
-    class ThemeTransferTest {
+@ExtendWith(BackupRestoreExtension::class)
+class ThemeTransferTest {
 
-        @Test
-        fun themeTransfersToNewDevice(
-            @Device(role = "source") source: BackupRestoreController,
-            @Device(role = "target") target: BackupRestoreController,
-            @TempDir outputDir: Path,
-        ): Unit = runBlocking {
-            source.runBackupRestoreFlow(
-                storage = StorageDomain.DataStorePreference(
-                    dataStoreName = "settings",
-                    key = "theme",
-                    value = "dark",
-                ),
-                outputDir = outputDir,
-                mode = BackupTransportMode.DEVICE_TO_DEVICE,
-                restoreOn = target,
-            )
-        }
+    @Test
+    fun themeTransfersToNewDevice(
+        @Device(role = "source") source: BackupRestoreController,
+        @Device(role = "target") target: BackupRestoreController,
+        @TempDir outputDir: Path,
+    ): Unit = runBlocking {
+        source.runBackupRestoreFlow(
+            storage = StorageDomain.DataStorePreference(
+                dataStoreName = "settings",
+                key = "theme",
+                value = "dark",
+            ),
+            outputDir = outputDir,
+            mode = BackupTransportMode.DEVICE_TO_DEVICE,
+            restoreOn = target,
+        )
     }
+}
+```
 
 On `source`, the flow seeds and backs up the app. On `target`, it clears app
 data, restores the backup, and verifies the data. Restoring on another device
@@ -471,7 +487,9 @@ bind each role to a device with the
 following command runs the suite with `emulator-5554` as the source device and
 `emulator-5556` as the target device:
 
-    ./gradlew :app:testDebugBackupTestDefaultTestSuite -Dandroidx.test.backup.device.serial.source=emulator-5554 -Dandroidx.test.backup.device.serial.target=emulator-5556
+```bash
+./gradlew :app:testDebugBackupTestDefaultTestSuite -Dandroidx.test.backup.device.serial.source=emulator-5554 -Dandroidx.test.backup.device.serial.target=emulator-5556
+```
 
 A binding applies only to parameters with that role. Other parameters get the
 remaining matching devices.
@@ -504,97 +522,101 @@ check that the restore brings back the same key. In this example,
 `createRequestJson` and `getRequestJson` are the request JSON strings that your
 app passes to Credential Manager:
 
-    // In app/src/backupTest/androidTest/kotlin/com/example/myapp/RestoreKeyActions.kt
-    package com.example.myapp
+```kotlin
+// In app/src/backupTest/androidTest/kotlin/com/example/myapp/RestoreKeyActions.kt
+package com.example.myapp
 
-    import android.content.Context
-    import androidx.credentials.CreateRestoreCredentialRequest
-    import androidx.credentials.CreateRestoreCredentialResponse
-    import androidx.credentials.CredentialManager
-    import androidx.credentials.GetCredentialRequest
-    import androidx.credentials.GetRestoreCredentialOption
-    import androidx.credentials.RestoreCredential
-    import androidx.test.backup.BackupDeviceAction
-    import androidx.test.backup.BackupDeviceActionArgs
-    import androidx.test.backup.BackupDeviceActionResult
-    import kotlinx.coroutines.runBlocking
-    import org.json.JSONObject
+import android.content.Context
+import androidx.credentials.CreateRestoreCredentialRequest
+import androidx.credentials.CreateRestoreCredentialResponse
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetRestoreCredentialOption
+import androidx.credentials.RestoreCredential
+import androidx.test.backup.BackupDeviceAction
+import androidx.test.backup.BackupDeviceActionArgs
+import androidx.test.backup.BackupDeviceActionResult
+import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 
-    class CreateRestoreKeyAction : BackupDeviceAction {
-        override fun execute(
-            context: Context,
-            args: BackupDeviceActionArgs,
-        ): BackupDeviceActionResult {
-            val request = CreateRestoreCredentialRequest(createRequestJson)
-            val response = runBlocking {
-                CredentialManager.create(context).createCredential(context, request)
-            } as CreateRestoreCredentialResponse
-            val credentialId = JSONObject(response.responseJson).getString("id")
-            return BackupDeviceActionResult.success(mapOf("credential_id" to credentialId))
+class CreateRestoreKeyAction : BackupDeviceAction {
+    override fun execute(
+        context: Context,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult {
+        val request = CreateRestoreCredentialRequest(createRequestJson)
+        val response = runBlocking {
+            CredentialManager.create(context).createCredential(context, request)
+        } as CreateRestoreCredentialResponse
+        val credentialId = JSONObject(response.responseJson).getString("id")
+        return BackupDeviceActionResult.success(mapOf("credential_id" to credentialId))
+    }
+}
+
+class VerifyRestoreKeyAction : BackupDeviceAction {
+    override fun execute(
+        context: Context,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult {
+        val option = GetRestoreCredentialOption(getRequestJson)
+        val response = runBlocking {
+            CredentialManager.create(context)
+                .getCredential(context, GetCredentialRequest(listOf(option)))
+        }
+        val credential = response.credential as RestoreCredential
+        val credentialId = JSONObject(credential.authenticationResponseJson).getString("id")
+        val expected = args["credential_id"]
+        return if (credentialId == expected) {
+            BackupDeviceActionResult.success()
+        } else {
+            BackupDeviceActionResult.failure("Expected key $expected, found $credentialId")
         }
     }
-
-    class VerifyRestoreKeyAction : BackupDeviceAction {
-        override fun execute(
-            context: Context,
-            args: BackupDeviceActionArgs,
-        ): BackupDeviceActionResult {
-            val option = GetRestoreCredentialOption(getRequestJson)
-            val response = runBlocking {
-                CredentialManager.create(context)
-                    .getCredential(context, GetCredentialRequest(listOf(option)))
-            }
-            val credential = response.credential as RestoreCredential
-            val credentialId = JSONObject(credential.authenticationResponseJson).getString("id")
-            val expected = args["credential_id"]
-            return if (credentialId == expected) {
-                BackupDeviceActionResult.success()
-            } else {
-                BackupDeviceActionResult.failure("Expected key $expected, found $credentialId")
-            }
-        }
-    }
+}
+```
 
 The following host test creates the key on the source device, restores it on the
 target device, and verifies that the credential ID matches:
 
-    package com.example.myapp
+```kotlin
+package com.example.myapp
 
-    import androidx.test.backup.host.BackupRestoreController
-    import androidx.test.backup.host.BackupRestoreExtension
-    import androidx.test.backup.host.BackupTransportMode
-    import androidx.test.backup.host.Device
-    import androidx.test.backup.host.StorageDomain
-    import java.nio.file.Path
-    import kotlinx.coroutines.runBlocking
-    import org.junit.jupiter.api.Test
-    import org.junit.jupiter.api.extension.ExtendWith
-    import org.junit.jupiter.api.io.TempDir
+import androidx.test.backup.host.BackupRestoreController
+import androidx.test.backup.host.BackupRestoreExtension
+import androidx.test.backup.host.BackupTransportMode
+import androidx.test.backup.host.Device
+import androidx.test.backup.host.StorageDomain
+import java.nio.file.Path
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 
-    const val CREATE_RESTORE_KEY = "com.example.myapp.CreateRestoreKeyAction"
-    const val VERIFY_RESTORE_KEY = "com.example.myapp.VerifyRestoreKeyAction"
+const val CREATE_RESTORE_KEY = "com.example.myapp.CreateRestoreKeyAction"
+const val VERIFY_RESTORE_KEY = "com.example.myapp.VerifyRestoreKeyAction"
 
-    @ExtendWith(BackupRestoreExtension::class)
-    class RestoreKeyTest {
+@ExtendWith(BackupRestoreExtension::class)
+class RestoreKeyTest {
 
-        @Test
-        fun restoreKeyTransfersToNewDevice(
-            @Device(role = "source") source: BackupRestoreController,
-            @Device(role = "target") target: BackupRestoreController,
-            @TempDir outputDir: Path,
-        ): Unit = runBlocking {
-            // Clears target (including any existing restore key) before restoring.
-            source.runBackupRestoreFlow(
-                storage = StorageDomain.CustomData(
-                    populateAction = CREATE_RESTORE_KEY,
-                    verifyAction = VERIFY_RESTORE_KEY,
-                ),
-                outputDir = outputDir,
-                mode = BackupTransportMode.DEVICE_TO_DEVICE,
-                restoreOn = target,
-            )
-        }
+    @Test
+    fun restoreKeyTransfersToNewDevice(
+        @Device(role = "source") source: BackupRestoreController,
+        @Device(role = "target") target: BackupRestoreController,
+        @TempDir outputDir: Path,
+    ): Unit = runBlocking {
+        // Clears target (including any existing restore key) before restoring.
+        source.runBackupRestoreFlow(
+            storage = StorageDomain.CustomData(
+                populateAction = CREATE_RESTORE_KEY,
+                verifyAction = VERIFY_RESTORE_KEY,
+            ),
+            outputDir = outputDir,
+            mode = BackupTransportMode.DEVICE_TO_DEVICE,
+            restoreOn = target,
+        )
     }
+}
+```
 
 To create a key with `isCloudBackupEnabled` set to `true`, the default, the
 source device needs a Google Account with backup turned on and a screen lock.
@@ -626,7 +648,9 @@ AGP creates a Gradle task for each variant that the suite tests, named
 `test{Variant}{SuiteName}DefaultTestSuite`. To run the `backupTest` suite
 against the `debug` variant, connect your devices and run the task:
 
-    ./gradlew :app:testDebugBackupTestDefaultTestSuite
+```bash
+./gradlew :app:testDebugBackupTestDefaultTestSuite
+```
 
 The `check`, `test`, and `connectedCheck` tasks don't run backup and restore
 test suites, so run the suite's task explicitly.
@@ -634,7 +658,9 @@ test suites, so run the suite's task explicitly.
 To run a single test class or method, use the
 [`--tests` option](https://docs.gradle.org/current/userguide/java_testing.html#test_filtering):
 
-    ./gradlew :app:testDebugBackupTestDefaultTestSuite --tests "com.example.myapp.ThemeBackupTest"
+```bash
+./gradlew :app:testDebugBackupTestDefaultTestSuite --tests "com.example.myapp.ThemeBackupTest"
+```
 
 ## Inspect test reports
 

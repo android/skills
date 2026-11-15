@@ -23,20 +23,22 @@ Modern APIs abstract away the complexity of hardware diversity.
 
 Add the following dependencies to your `libs.versions.toml` file:
 
-    # CameraX ML Kit
+```toml
+# CameraX ML Kit
 
-    androidx-camera-mlkit-vision = { group = "androidx.camera", name =
-    "camera-mlkit-vision", version.ref = "camerax" }
+androidx-camera-mlkit-vision = { group = "androidx.camera", name =
+"camera-mlkit-vision", version.ref = "camerax" }
 
-    # Media3 effects
+# Media3 effects
 
-    androidx-media3-effect = { group = "androidx.media3", name = "media3-effect",
-    version.ref = "media3" }
+androidx-media3-effect = { group = "androidx.media3", name = "media3-effect",
+version.ref = "media3" }
 
-    # Camera extensions
+# Camera extensions
 
-    androidx-camera-extensions = { group = "androidx.camera", name =
-    "camera-extensions", version.ref = "camerax" }
+androidx-camera-extensions = { group = "androidx.camera", name =
+"camera-extensions", version.ref = "camerax" }
+```
 
 Refer to the official [CameraX Release Notes](https://developer.android.com/jetpack/androidx/releases/camera) for the
 stable versions.

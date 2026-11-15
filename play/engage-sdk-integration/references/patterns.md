@@ -436,22 +436,24 @@ Adapt these definitions to other formats (such as standard Groovy `build.gradle`
 or Kotlin DSL `build.gradle.kts` implementation lines) as required by the
 project.
 
-    [versions]
-    engage-core = "1.6.0"
-    engage-tv = "1.1.0"
-    playServicesOssLicenses = "17.5.1"
-    workManager = "2.11.2"
-    coroutines = "1.10.2"
+```toml
+[versions]
+engage-core = "1.6.0"
+engage-tv = "1.1.0"
+playServicesOssLicenses = "17.5.1"
+workManager = "2.11.2"
+coroutines = "1.10.2"
 
-    [libraries]
-    engage-core = { group = "com.google.android.engage", name = "engage-core", version.ref = "engage-core" }
-    engage-tv = { group = "com.google.android.engage", name = "engage-tv", version.ref = "engage-tv" }
-    play-services-oss-licenses = { group = "com.google.android.gms", name = "play-services-oss-licenses", version.ref = "playServicesOssLicenses" }
-    androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
-    androidx-work-testing = { group = "androidx.work", name = "work-testing", version.ref = "workManager" }
-    kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
-    kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
-    kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+[libraries]
+engage-core = { group = "com.google.android.engage", name = "engage-core", version.ref = "engage-core" }
+engage-tv = { group = "com.google.android.engage", name = "engage-tv", version.ref = "engage-tv" }
+play-services-oss-licenses = { group = "com.google.android.gms", name = "play-services-oss-licenses", version.ref = "playServicesOssLicenses" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
+androidx-work-testing = { group = "androidx.work", name = "work-testing", version.ref = "workManager" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+```
 
 ## Dual content rating fields for Watch and TV
 

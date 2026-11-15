@@ -108,30 +108,32 @@ actionable for engineers.
 
 Output the investigation result adhering strictly to this schema:
 
-    # Investigation Result
+```markdown
+# Investigation Result
 
-    - **Candidate:** [Package / Thread / Classification]
-    - **Symptom Window:** [Start TS] - [End TS] ([Duration ms])
-    - **Budget (Expected Duration):** [If known / applicable, else "N/A"]
-    - **Applied Hints:** [List of matched hint files used]
+- **Candidate:** [Package / Thread / Classification]
+- **Symptom Window:** [Start TS] - [End TS] ([Duration ms])
+- **Budget (Expected Duration):** [If known / applicable, else "N/A"]
+- **Applied Hints:** [List of matched hint files used]
 
-    ## Primary Finding
+## Primary Finding
 
-    - **Classification:** [Hardware | Software/Code | System Exhaustion | Scheduling Policy | External Dependency]
-    - **Details and Reasoning:** `___`
-    - **Explained Duration:** `[X ms (Y% of window)]`
-    - **Evidence SQL or Backing Data:** `___`
-    - **Dependency Chain:** `[Root to Leaf Dependency Chain with UTIDs, UPIDs, and Timestamps]`
-    - **Root Cause Conclusion:** `___`
+- **Classification:** [Hardware | Software/Code | System Exhaustion | Scheduling Policy | External Dependency]
+- **Details and Reasoning:** `___`
+- **Explained Duration:** `[X ms (Y% of window)]`
+- **Evidence SQL or Backing Data:** `___`
+- **Dependency Chain:** `[Root to Leaf Dependency Chain with UTIDs, UPIDs, and Timestamps]`
+- **Root Cause Conclusion:** `___`
 
-    ## Other Findings / Partial Suspects
+## Other Findings / Partial Suspects
 
-    - **Status:** [Partial Suspect | Low Confidence Suspicion | Terminal Root Cause]
-    - *(same fields as Primary Finding)*
+- **Status:** [Partial Suspect | Low Confidence Suspicion | Terminal Root Cause]
+- *(same fields as Primary Finding)*
 
-    ## Verification Checklist
+## Verification Checklist
 
-    - [ ] All claims tagged (`[SQL]` / `[GAP]` / `[INFERRED]`)
-    - [ ] Total explained duration accounts for the majority of the symptom window
-    - [ ] Unexplored state buckets: [None / list with reasons]
-    - [ ] Workload contextualized (specific UI actions/slices identified)
+- [ ] All claims tagged (`[SQL]` / `[GAP]` / `[INFERRED]`)
+- [ ] Total explained duration accounts for the majority of the symptom window
+- [ ] Unexplored state buckets: [None / list with reasons]
+- [ ] Workload contextualized (specific UI actions/slices identified)
+```

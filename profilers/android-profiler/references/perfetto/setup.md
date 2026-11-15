@@ -7,10 +7,12 @@ The skill ships a `trace_processor` wrapper at
 `$SKILL_ROOT/references/perfetto/bin/trace_processor`. Make it invokable for
 this session:
 
-    # some installs lose the exec bit
-    chmod +x "$SKILL_ROOT/references/perfetto/bin/trace_processor"
-    export PATH="$SKILL_ROOT/references/perfetto/bin:$PATH"
-    trace_processor --version                   # smoke test
+```bash
+# some installs lose the exec bit
+chmod +x "$SKILL_ROOT/references/perfetto/bin/trace_processor"
+export PATH="$SKILL_ROOT/references/perfetto/bin:$PATH"
+trace_processor --version                   # smoke test
+```
 
 After this, every bare `trace_processor ...` command in this skill works
 verbatim. If each command runs in a fresh shell, repeat the `export` line in

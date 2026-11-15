@@ -214,7 +214,7 @@ discoverability with auto-complete in the IDE.
 
 Access the current value of a `CompositionLocal` by using its `current`
 property. For example, the code below shows a toast message by providing
-`LocalContext.current` into the `Toast.makeToast` method.
+`LocalContext.current` into the `Toast.makeText` method.
 
 
 ```kotlin

@@ -21,31 +21,37 @@ change. Never print `N/A%` as a score.
 
 Back up the file before you edit it (use `settings.gradle` for Groovy):
 
-    mkdir -p tmp/r8analysis
-    cp settings.gradle.kts tmp/r8analysis/settings.gradle.kts.orig
+```bash
+mkdir -p tmp/r8analysis
+cp settings.gradle.kts tmp/r8analysis/settings.gradle.kts.orig
+```
 
 Add R8 tools to a classpath dependency inside the project's `settings.gradle`
 or `settings.gradle.kts` file.
 
-    pluginManagement {
-        buildscript {
-            repositories {
-                google()
-                mavenCentral()
-            }
-            dependencies {
-                // Update to a more recent R8 version.
-                classpath("com.android.tools:r8:9.4.34")
-            }
+```kotlin
+pluginManagement {
+    buildscript {
+        repositories {
+            google()
+            mavenCentral()
+        }
+        dependencies {
+            // Update to a more recent R8 version.
+            classpath("com.android.tools:r8:9.4.34")
         }
     }
+}
+```
 
 ## 2. Generate proto
 
 The report and files must be generated at `{project_root}/tmp/r8analysis`. If
 the folder isn't present, create it. For example:
 
-    mkdir -p "$PWD/tmp/r8analysis"
+```bash
+mkdir -p "$PWD/tmp/r8analysis"
+```
 
 ## 3. Remove existing files
 
@@ -54,8 +60,10 @@ the intermediate files `keepruleradius.json` and `analysis_result.txt` and the
 proto files in the `{project_root}/tmp/r8analysis` folder. Run the following
 Bash commands:
 
-    rm -f tmp/r8analysis/keepruleradius.json tmp/r8analysis/analysis_result.txt
-    find tmp/r8analysis -name '*.pb' -delete
+```bash
+rm -f tmp/r8analysis/keepruleradius.json tmp/r8analysis/analysis_result.txt
+find tmp/r8analysis -name '*.pb' -delete
+```
 
 ## 4. Generate the Configuration Analyzer report
 
@@ -66,8 +74,10 @@ input, so `--rerun` and `--no-build-cache` are needed to make R8 run even when
 the release build is up to date or cached (for example,
 `:app:minifyReleaseWithR8` for module `app` and variant `release`):
 
-    ./gradlew :<module>:minify<Variant>WithR8 --rerun --no-build-cache \
-      -Dcom.android.tools.r8.dumpkeepradiustodirectory=$PWD/tmp/r8analysis
+```bash
+./gradlew :<module>:minify<Variant>WithR8 --rerun --no-build-cache \
+  -Dcom.android.tools.r8.dumpkeepradiustodirectory=$PWD/tmp/r8analysis
+```
 
 ## 5. Convert to JSON
 
@@ -76,16 +86,20 @@ JSON, run the following script. The JSON must be generated in
 `{project_root}/tmp/r8analysis`. The script imports `keep_radius_pb2.py`, which
 sits next to it in `<skill_dir>/scripts/`.
 
-    python3 <skill_dir>/scripts/convert_pb_to_json.py \
-      tmp/r8analysis \
-      tmp/r8analysis/keepruleradius.json
+```bash
+python3 <skill_dir>/scripts/convert_pb_to_json.py \
+  tmp/r8analysis \
+  tmp/r8analysis/keepruleradius.json
+```
 
 ## 6. Analyze
 
 Run the following analysis script on the generated JSON to get the impact of the
 keep rules and sort it.
 
-    python3 <skill_dir>/scripts/analyze.py tmp/r8analysis/keepruleradius.json
+```bash
+python3 <skill_dir>/scripts/analyze.py tmp/r8analysis/keepruleradius.json
+```
 
 Outputs `analysis_result.txt` containing scores and rule impacts.
 
@@ -101,4 +115,6 @@ directly.
 If you changed `settings.gradle` or `settings.gradle.kts` in Step 1, restore it
 after Step 6, or as soon as any step fails (use `settings.gradle` for Groovy):
 
-    mv tmp/r8analysis/settings.gradle.kts.orig settings.gradle.kts
+```bash
+mv tmp/r8analysis/settings.gradle.kts.orig settings.gradle.kts
+```

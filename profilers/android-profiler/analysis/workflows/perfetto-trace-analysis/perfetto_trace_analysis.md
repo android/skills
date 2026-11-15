@@ -37,12 +37,14 @@ Clarify the following with the user (ask questions, present options):
 
 Launch a sub-agent to run triage using the following prompt template:
 
-    Trace Path: [path of the trace with the issue]
-    Goal: Identify all candidate bottlenecks for [symptom] in
-    [package or entire system]
-    Execution: Read
-    `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/triage.md`
-    and follow its instructions.
+```markdown
+Trace Path: [path of the trace with the issue]
+Goal: Identify all candidate bottlenecks for [symptom] in
+[package or entire system]
+Execution: Read
+`$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/triage.md`
+and follow its instructions.
+```
 
 From the triage output:
 
@@ -54,16 +56,18 @@ From the triage output:
 For every confirmed candidate, launch dedicated sub-agents in parallel with this
 prompt:
 
-    Trace path: [path]
-    Baseline Trace Path: [path, if provided, else "None"]
-    Candidate Info: [package_name, `utid`, `upid`, render_thread_utid,
-    process_name, thread_name]
-    Symptom Window: [start_ts, end_ts, duration]
-    Expanded Symptom Window: [expanded_start_ts to end_ts, if applicable]
-    System Vitals: [payload from Step 2]
-    Execution Protocol: Read
-    `$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/per_candidate_analysis.md`
-    and follow it end-to-end.
+```markdown
+Trace path: [path]
+Baseline Trace Path: [path, if provided, else "None"]
+Candidate Info: [package_name, `utid`, `upid`, render_thread_utid,
+process_name, thread_name]
+Symptom Window: [start_ts, end_ts, duration]
+Expanded Symptom Window: [expanded_start_ts to end_ts, if applicable]
+System Vitals: [payload from Step 2]
+Execution Protocol: Read
+`$SKILL_ROOT/analysis/workflows/perfetto-trace-analysis/references/per_candidate_analysis.md`
+and follow it end-to-end.
+```
 
 AWAIT completion of all agents before proceeding to Step 4.
 

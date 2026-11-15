@@ -27,37 +27,41 @@ need to optimize performance.
 To provide system instructions, create a `SystemInstruction` object and pass it
 to the `GenerateContentRequest` builder:
 
-    import com.google.mlkit.genai.prompt.SystemInstruction
-    import com.google.mlkit.genai.prompt.TextPart
-    import com.google.mlkit.genai.prompt.generateContentRequest
+```kotlin
+import com.google.mlkit.genai.prompt.SystemInstruction
+import com.google.mlkit.genai.prompt.TextPart
+import com.google.mlkit.genai.prompt.generateContentRequest
 
-    // 1. Define the system instruction
-    val systemInstruction =
-        SystemInstruction("You are a concise assistant. Answer in 2 sentences or less.")
+// 1. Define the system instruction
+val systemInstruction =
+    SystemInstruction("You are a concise assistant. Answer in 2 sentences or less.")
 
-    // 2. Create the request
-    val request = generateContentRequest(TextPart("How does photosynthesis work?")) {
-        this.systemInstruction = systemInstruction
-    }
+// 2. Create the request
+val request = generateContentRequest(TextPart("How does photosynthesis work?")) {
+    this.systemInstruction = systemInstruction
+}
 
-    // 3. Run inference
-    try {
-        val response = generativeModel.generateContent(request)
-        println(response.candidates.firstOrNull()?.text)
-    } catch (e: GenAiException) {
-        // Handle SDK-specific exceptions
-    }
+// 3. Run inference
+try {
+    val response = generativeModel.generateContent(request)
+    println(response.candidates.firstOrNull()?.text)
+} catch (e: GenAiException) {
+    // Handle SDK-specific exceptions
+}
+```
 
 You can further simplify the code by passing the system instructions directly
 into the `generateContentRequest` request builder:
 
-    val request = generateContentRequest(
-        SystemInstruction("You are a pirate. Speak like one."),
-        TextPart("What is the weather like today?")
-    ) {
-        // Optional configurations like temperature
-        temperature = 0.7f
-    }
+```kotlin
+val request = generateContentRequest(
+    SystemInstruction("You are a pirate. Speak like one."),
+    TextPart("What is the weather like today?")
+) {
+    // Optional configurations like temperature
+    temperature = 0.7f
+}
+```
 
 ## Best practices
 

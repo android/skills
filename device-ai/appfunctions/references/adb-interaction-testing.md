@@ -59,28 +59,36 @@ service: app_function` is returned, the device doesn't support this feature.
 
 ### Example 1: Verify app function service availability on connected device
 
-    adb shell cmd app_function help
+```bash
+adb shell cmd app_function help
+```
 
 If executing the preceding command returns a help page, use the commands and
 parameters provided to guide the ADB interaction testing tool interactions.
 
 ### Example 2: List an app's registered functions
 
-    adb shell cmd app_function list-app-functions --package com.example.app
+```bash
+adb shell cmd app_function list-app-functions --package com.example.app
+```
 
 ### Example 3: Execute a "send message" function
 
-     adb shell cmd app_function execute-app-function \
-     --package com.example.messaging \
-     --function
-    'com.example.messaging.appfunctions.MessagingAppFunctionService#sendMessage' \
-     --parameters '{"recipient": "Alice", "message": "Hello!"}'
+```bash
+ adb shell cmd app_function execute-app-function \
+ --package com.example.messaging \
+ --function
+'com.example.messaging.appfunctions.MessagingAppFunctionService#sendMessage' \
+ --parameters '{"recipient": "Alice", "message": "Hello!"}'
+```
 
 ### Example 4: Disable a specific function
 
-     adb shell cmd app_function set-enabled --package com.example.app \
-     --function 'com.example.app.appfunctions.SomeAppFunctionService#someFunction'
-    --state disable
+```bash
+ adb shell cmd app_function set-enabled --package com.example.app \
+ --function 'com.example.app.appfunctions.SomeAppFunctionService#someFunction'
+--state disable
+```
 
 ## Troubleshooting
 

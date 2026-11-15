@@ -11,7 +11,7 @@ description: Configures and implements LiteRT (.tflite) on-device inference on A
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-28'
+  last-updated: '2026-11-10'
   keywords:
   - LiteRT
   - CompiledModel
@@ -56,16 +56,18 @@ editing build files. Then pick the runtime:
   com.google.android.gms:play-services-litert:17.0.0`, and tell the user, also when the user asked for Google Play services. Never leave the build broken.
 - **Bundled runtime** : Use it only when the app needs the NPU, custom operators, or a Support library class that this skill can't replace (such as `MetadataExtractor`), when the app also targets devices without Google Play services, or when the user asks for it. `FileUtil`, `ImageProcessor`, `TensorImage`, and `TensorLabel` don't count: replace them as [LiteRT in Google Play services](references/play-services.md) describes. For the bundled runtime, configure `minSdk` and add the LiteRT runtime and GPU accelerator dependencies in `app/build.gradle.kts`:
 
-    android {
-        defaultConfig {
-            minSdk = 24
-        }
+```kotlin
+android {
+    defaultConfig {
+        minSdk = 24
     }
+}
 
-    dependencies {
-        implementation("com.google.ai.edge.litert:litert:2.3.0")
-        implementation("com.google.ai.edge.litert:litert-gpu:2.3.0")
-    }
+dependencies {
+    implementation("com.google.ai.edge.litert:litert:2.3.0")
+    implementation("com.google.ai.edge.litert:litert-gpu:2.3.0")
+}
+```
 
 Place bundled models at `app/src/main/assets/model.tflite` (AGP stores `.tflite`
 files uncompressed by default). Deliver a model that exceeds the base APK size
@@ -96,47 +98,49 @@ build then fails at `compileDebugKotlin`.
 Isolate `CompiledModel` and its `TensorBuffer` instances in a dedicated
 `AutoCloseable` helper class free of Android UI types:
 
-    import android.content.Context
-    import com.google.ai.edge.litert.Accelerator
-    import com.google.ai.edge.litert.CompiledModel
-    import com.google.ai.edge.litert.Environment
-    import com.google.ai.edge.litert.TensorBuffer
+```kotlin
+import android.content.Context
+import com.google.ai.edge.litert.Accelerator
+import com.google.ai.edge.litert.CompiledModel
+import com.google.ai.edge.litert.Environment
+import com.google.ai.edge.litert.TensorBuffer
 
-    const val INPUT_SIZE = 224 * 224 * 3
-    private val environment by lazy { Environment.create() }
+const val INPUT_SIZE = 224 * 224 * 3
+private val environment by lazy { Environment.create() }
 
-    class Classifier(context: Context, accelerator: Accelerator) : AutoCloseable {
-        private val model = CompiledModel.create(
-            context.assets,
-            "model.tflite",
-            CompiledModel.Options(accelerator),
-            environment
-        )
-        private val inputs = mutableListOf<TensorBuffer>()
-        private val outputs = mutableListOf<TensorBuffer>()
+class Classifier(context: Context, accelerator: Accelerator) : AutoCloseable {
+    private val model = CompiledModel.create(
+        context.assets,
+        "model.tflite",
+        CompiledModel.Options(accelerator),
+        environment
+    )
+    private val inputs = mutableListOf<TensorBuffer>()
+    private val outputs = mutableListOf<TensorBuffer>()
 
-        init {
-            try {
-                inputs += model.createInputBuffers()
-                outputs += model.createOutputBuffers()
-                infer(FloatArray(INPUT_SIZE))
-            } catch (e: Exception) {
-                close()
-                throw e
-            }
-        }
-
-        fun infer(input: FloatArray): FloatArray {
-            inputs[0].writeFloat(input)
-            model.run(inputs, outputs)
-            return outputs[0].readFloat()
-        }
-
-        override fun close() {
-            (inputs + outputs).forEach { it.close() }
-            model.close()
+    init {
+        try {
+            inputs += model.createInputBuffers()
+            outputs += model.createOutputBuffers()
+            infer(FloatArray(INPUT_SIZE))
+        } catch (e: Exception) {
+            close()
+            throw e
         }
     }
+
+    fun infer(input: FloatArray): FloatArray {
+        inputs[0].writeFloat(input)
+        model.run(inputs, outputs)
+        return outputs[0].readFloat()
+    }
+
+    override fun close() {
+        (inputs + outputs).forEach { it.close() }
+        model.close()
+    }
+}
+```
 
 `Accelerator.CPU` requires nothing from the device. `Accelerator.GPU` compiles
 the graph for the GPU; when the GPU can't execute the model, the constructor
@@ -160,45 +164,47 @@ When memory matters, use the following options:
 
 - **Load from a path** : `create(context.assets, ...)` keeps a copy of the asset's bytes in the native heap while the model is open. Copy the asset once into `context.noBackupFilesDir` (a downloaded or AI pack file is already on disk) and call `create(filePath, ...)` so the file is mapped and reclaimable. Version the staged filename, bump the version when the bundled model changes, and delete the previous version's file. Copy to a temporary file and rename it so a copy interrupted by process death is never loaded:
 
-    import android.content.Context
-    import com.google.ai.edge.litert.Accelerator
-    import com.google.ai.edge.litert.CompiledModel
-    import java.io.File
+```kotlin
+import android.content.Context
+import com.google.ai.edge.litert.Accelerator
+import com.google.ai.edge.litert.CompiledModel
+import java.io.File
 
-    fun stageModelAsset(
-        context: Context, assetName: String = "model.tflite", version: String = "v1"
-    ): File =
-        File(context.noBackupFilesDir, "$version-$assetName").also { file ->
-            if (!file.isFile) {
-                context.noBackupFilesDir.listFiles()?.forEach {
-                    if (it.name.endsWith("-$assetName")) it.delete()
-                }
-                val tmp = File("${file.path}.tmp")
-                context.assets.open(assetName).use { input ->
-                    tmp.outputStream().use { output -> input.copyTo(output) }
-                }
-                check(tmp.renameTo(file))
+fun stageModelAsset(
+    context: Context, assetName: String = "model.tflite", version: String = "v1"
+): File =
+    File(context.noBackupFilesDir, "$version-$assetName").also { file ->
+        if (!file.isFile) {
+            context.noBackupFilesDir.listFiles()?.forEach {
+                if (it.name.endsWith("-$assetName")) it.delete()
+            }
+            val tmp = File("${file.path}.tmp")
+            context.assets.open(assetName).use { input ->
+                tmp.outputStream().use { output -> input.copyTo(output) }
+            }
+            check(tmp.renameTo(file))
+        }
+    }
+
+fun memoryOptions(
+    context: Context,
+    accelerator: Accelerator = Accelerator.CPU,
+    assetName: String = "model.tflite",
+    version: String = "v1"
+): CompiledModel.Options =
+    CompiledModel.Options(accelerator).apply {
+        val prefix = "$assetName-"
+        val cache = File(context.codeCacheDir, "$prefix$version.xnnpack_cache")
+        context.codeCacheDir.listFiles()?.forEach {
+            if (it.name.startsWith(prefix) && it.name.endsWith(".xnnpack_cache") && it != cache) {
+                it.delete()
             }
         }
-
-    fun memoryOptions(
-        context: Context,
-        accelerator: Accelerator = Accelerator.CPU,
-        assetName: String = "model.tflite",
-        version: String = "v1"
-    ): CompiledModel.Options =
-        CompiledModel.Options(accelerator).apply {
-            val prefix = "$assetName-"
-            val cache = File(context.codeCacheDir, "$prefix$version.xnnpack_cache")
-            context.codeCacheDir.listFiles()?.forEach {
-                if (it.name.startsWith(prefix) && it.name.endsWith(".xnnpack_cache") && it != cache) {
-                    it.delete()
-                }
-            }
-            cpuOptions = CompiledModel.CpuOptions(
-                numThreads = 4, xnnPackFlags = 0x23, xnnPackWeightCachePath = cache.path
-            )
-        }
+        cpuOptions = CompiledModel.CpuOptions(
+            numThreads = 4, xnnPackFlags = 0x23, xnnPackWeightCachePath = cache.path
+        )
+    }
+```
 
 - **Weight cache (`xnnPackWeightCachePath`)**: Written on the first load (\~1x an FP32 or \~2x an FP16 model's file size) and mapped on later loads, moving packed FP32 weights off the heap. Version the cache filename and delete outdated caches.
 - **Transient indirection buffer (`xnnPackFlags = 0x23`)** : Default `0x3` plus flag `0x20`, replacing per-operator convolution pointer tables with one shared buffer (byte-identical outputs, \~1% latency overhead at 4 threads, \~3% single-threaded). Because the value replaces the default, `0x20` alone leaves `int8` and `uint8` operators to fallback kernels. `cpuOptions` is ignored on the GPU.
@@ -209,83 +215,85 @@ When memory matters, use the following options:
 Drive the helper from a single-thread executor inside an `AndroidViewModel`, and
 fall back to `Accelerator.CPU` when GPU compilation fails:
 
-    import android.app.Application
-    import androidx.lifecycle.AndroidViewModel
-    import com.google.ai.edge.litert.Accelerator
-    import com.google.ai.edge.litert.LiteRtException
-    import java.util.concurrent.Executors
-    import kotlinx.coroutines.CoroutineScope
-    import kotlinx.coroutines.SupervisorJob
-    import kotlinx.coroutines.asCoroutineDispatcher
-    import kotlinx.coroutines.cancel
-    import kotlinx.coroutines.flow.MutableStateFlow
-    import kotlinx.coroutines.flow.StateFlow
-    import kotlinx.coroutines.flow.asStateFlow
-    import kotlinx.coroutines.flow.update
-    import kotlinx.coroutines.launch
+```kotlin
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import com.google.ai.edge.litert.Accelerator
+import com.google.ai.edge.litert.LiteRtException
+import java.util.concurrent.Executors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-    data class UiState(
-        val ready: Boolean = false,
-        val accelerator: Accelerator = Accelerator.CPU,
-        val result: List<Float>? = null,
-        val error: String? = null
+data class UiState(
+    val ready: Boolean = false,
+    val accelerator: Accelerator = Accelerator.CPU,
+    val result: List<Float>? = null,
+    val error: String? = null
+)
+
+class MainViewModel(app: Application) : AndroidViewModel(app) {
+    private val executor = Executors.newSingleThreadExecutor()
+    private val scope = CoroutineScope(
+        SupervisorJob() + executor.asCoroutineDispatcher()
     )
+    private var classifier: Classifier? = null
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    class MainViewModel(app: Application) : AndroidViewModel(app) {
-        private val executor = Executors.newSingleThreadExecutor()
-        private val scope = CoroutineScope(
-            SupervisorJob() + executor.asCoroutineDispatcher()
-        )
-        private var classifier: Classifier? = null
-        private val _uiState = MutableStateFlow(UiState())
-        val uiState: StateFlow<UiState> = _uiState.asStateFlow()
-
-        fun load(preferred: Accelerator = Accelerator.GPU) {
-            scope.launch {
-                if (classifier != null) return@launch
-                val appContext = getApplication<Application>()
-                val selected = try {
-                    classifier = Classifier(appContext, preferred)
-                    preferred
-                } catch (e: LiteRtException) {
-                    if (preferred != Accelerator.CPU) {
-                        try {
-                            classifier = Classifier(appContext, Accelerator.CPU)
-                            Accelerator.CPU
-                        } catch (cpuError: LiteRtException) {
-                            _uiState.value = UiState(error = cpuError.message)
-                            return@launch
-                        }
-                    } else {
-                        _uiState.value = UiState(error = e.message)
+    fun load(preferred: Accelerator = Accelerator.GPU) {
+        scope.launch {
+            if (classifier != null) return@launch
+            val appContext = getApplication<Application>()
+            val selected = try {
+                classifier = Classifier(appContext, preferred)
+                preferred
+            } catch (e: LiteRtException) {
+                if (preferred != Accelerator.CPU) {
+                    try {
+                        classifier = Classifier(appContext, Accelerator.CPU)
+                        Accelerator.CPU
+                    } catch (cpuError: LiteRtException) {
+                        _uiState.value = UiState(error = cpuError.message)
                         return@launch
                     }
-                }
-                _uiState.value = UiState(ready = true, accelerator = selected)
-            }
-        }
-
-        fun classify(input: FloatArray) {
-            scope.launch {
-                try {
-                    classifier?.infer(input)?.let { result ->
-                        _uiState.update {
-                            it.copy(result = result.toList(), error = null)
-                        }
-                    }
-                } catch (e: LiteRtException) {
-                    _uiState.update { it.copy(error = e.message) }
+                } else {
+                    _uiState.value = UiState(error = e.message)
+                    return@launch
                 }
             }
-        }
-
-        override fun onCleared() {
-            scope.launch { classifier?.close() }.invokeOnCompletion {
-                scope.cancel()
-            }
-            executor.shutdown()
+            _uiState.value = UiState(ready = true, accelerator = selected)
         }
     }
+
+    fun classify(input: FloatArray) {
+        scope.launch {
+            try {
+                classifier?.infer(input)?.let { result ->
+                    _uiState.update {
+                        it.copy(result = result.toList(), error = null)
+                    }
+                }
+            } catch (e: LiteRtException) {
+                _uiState.update { it.copy(error = e.message) }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        scope.launch { classifier?.close() }.invokeOnCompletion {
+            scope.cancel()
+        }
+        executor.shutdown()
+    }
+}
+```
 
 One single-thread executor owns the model: creation, inference, and closing
 execute only on it, never on the main thread. The `ViewModel` keeps its own
@@ -303,37 +311,39 @@ or CameraX and runs `preprocess` in the click handler (a few milliseconds for
 `androidx.lifecycle:lifecycle-viewmodel-compose` and
 `androidx.lifecycle:lifecycle-runtime-compose`:
 
-    import android.graphics.Bitmap
-    import androidx.compose.foundation.layout.Column
-    import androidx.compose.material3.Button
-    import androidx.compose.material3.Text
-    import androidx.compose.runtime.Composable
-    import androidx.compose.runtime.LaunchedEffect
-    import androidx.compose.runtime.getValue
-    import androidx.lifecycle.compose.collectAsStateWithLifecycle
-    import androidx.lifecycle.viewmodel.compose.viewModel
-    import com.google.ai.edge.litert.Accelerator
+```kotlin
+import android.graphics.Bitmap
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.ai.edge.litert.Accelerator
 
-    @Composable
-    fun MainScreen(
-        bitmap: Bitmap,
-        viewModel: MainViewModel = viewModel()
-    ) {
-        val state by viewModel.uiState.collectAsStateWithLifecycle()
-        LaunchedEffect(Unit) { viewModel.load(Accelerator.GPU) }
-        Column {
-            state.error?.let { Text(it) }
-            Button(
-                onClick = { viewModel.classify(preprocess(bitmap)) },
-                enabled = state.ready
-            ) {
-                Text("Run (${state.accelerator})")
-            }
-            state.result?.let { scores ->
-                Text("Top class: ${scores.indices.maxBy { i -> scores[i] }}")
-            }
+@Composable
+fun MainScreen(
+    bitmap: Bitmap,
+    viewModel: MainViewModel = viewModel()
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) { viewModel.load(Accelerator.GPU) }
+    Column {
+        state.error?.let { Text(it) }
+        Button(
+            onClick = { viewModel.classify(preprocess(bitmap)) },
+            enabled = state.ready
+        ) {
+            Text("Run (${state.accelerator})")
+        }
+        state.result?.let { scores ->
+            Text("Top class: ${scores.indices.maxBy { i -> scores[i] }}")
         }
     }
+}
+```
 
 ### Step 4: Preprocess inputs to match the model contract
 
@@ -343,29 +353,31 @@ channel order, and memory layout (this example uses NHWC, RGB, scaled to
 `-1.0..1.0`). Mismatched `mean` or `std` values produce corrupted predictions
 that look like a broken model:
 
-    import android.graphics.Bitmap
+```kotlin
+import android.graphics.Bitmap
 
-    fun preprocess(
-        bitmap: Bitmap,
-        size: Int = 224,
-        mean: Float = 127.5f,
-        std: Float = 127.5f
-    ): FloatArray {
-        val scaled = checkNotNull(
-            Bitmap.createScaledBitmap(bitmap, size, size, true)
-                .copy(Bitmap.Config.ARGB_8888, false)
-        )
-        val pixels = IntArray(size * size).also {
-            scaled.getPixels(it, 0, size, 0, 0, size, size)
-        }
-        val out = FloatArray(size * size * 3)
-        pixels.forEachIndexed { i, p ->
-            out[i * 3] = ((p shr 16 and 0xFF) - mean) / std
-            out[i * 3 + 1] = ((p shr 8 and 0xFF) - mean) / std
-            out[i * 3 + 2] = ((p and 0xFF) - mean) / std
-        }
-        return out
+fun preprocess(
+    bitmap: Bitmap,
+    size: Int = 224,
+    mean: Float = 127.5f,
+    std: Float = 127.5f
+): FloatArray {
+    val scaled = checkNotNull(
+        Bitmap.createScaledBitmap(bitmap, size, size, true)
+            .copy(Bitmap.Config.ARGB_8888, false)
+    )
+    val pixels = IntArray(size * size).also {
+        scaled.getPixels(it, 0, size, 0, 0, size, size)
     }
+    val out = FloatArray(size * size * 3)
+    pixels.forEachIndexed { i, p ->
+        out[i * 3] = ((p shr 16 and 0xFF) - mean) / std
+        out[i * 3 + 1] = ((p shr 8 and 0xFF) - mean) / std
+        out[i * 3 + 2] = ((p and 0xFF) - mean) / std
+    }
+    return out
+}
+```
 
 The scaled bitmap is copied to `Bitmap.Config.ARGB_8888` because `ImageDecoder`
 returns `Bitmap.Config.HARDWARE` bitmaps by default on Android 9 and higher
@@ -410,10 +422,11 @@ instead:
    the signature has more than one input or output, you must follow the
    signature rules in [migration](references/migration.md):
 
-       inputs += model.createInputBuffers("serving_default")
-       outputs += model.createOutputBuffers("serving_default")
-       model.run(inputs, outputs, "serving_default")
-
+   ```kotlin
+   inputs += model.createInputBuffers("serving_default")
+   outputs += model.createOutputBuffers("serving_default")
+   model.run(inputs, outputs, "serving_default")
+   ```
 6. **Verify in two stages**: The build passes and the searches for legacy
    references print nothing; then the migrated output matches the golden
    output on a device.

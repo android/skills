@@ -35,15 +35,17 @@ metadata in your app.
 2. Register the provider of the app widget in your `AndroidManifest.xml` file
    and the associated metadata file:
 
-           <receiver android:name=".glance.MyReceiver"
-           android:exported="true">
-           <intent-filter>
-               <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-           </intent-filter>
-           <meta-data
-               android:name="android.appwidget.provider"
-               android:resource="@xml/my_app_widget_info" />
-       </receiver>
+   ```xml
+       <receiver android:name=".glance.MyReceiver"
+       android:exported="true">
+       <intent-filter>
+           <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+       </intent-filter>
+       <meta-data
+           android:name="android.appwidget.provider"
+           android:resource="@xml/my_app_widget_info" />
+   </receiver>
+   ```
 
 ## Add the `AppWidgetProviderInfo` metadata
 
@@ -54,9 +56,11 @@ The only difference for Glance is that there is no `initialLayout` XML, but you
 must define one. You can use the predefined loading layout provided in the
 library:
 
-    <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-        android:initialLayout="@layout/glance_default_loading_layout">
-    </appwidget-provider>
+```xml
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/glance_default_loading_layout">
+</appwidget-provider>
+```
 
 ## Declare the AppWidgetProviderInfo XML
 
@@ -64,22 +68,24 @@ The `AppWidgetProviderInfo` object defines the essential qualities of your
 widget. Define the `AppWidgetProviderInfo` in your XML metadata resource file
 (`res/xml/my_app_widget_info.xml`) inside an `<appwidget-provider>` element:
 
-    <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-        android:minWidth="40dp"
-        android:minHeight="40dp"
-        android:targetCellWidth="1"
-        android:targetCellHeight="1"
-        android:maxResizeWidth="250dp"
-        android:maxResizeHeight="120dp"
-        android:updatePeriodMillis="86400000"
-        android:description="@string/example_appwidget_description"
-        android:previewLayout="@layout/example_appwidget_preview"
-        android:initialLayout="@layout/glance_default_loading_layout"
-        android:configure="com.example.android.ExampleAppWidgetConfigurationActivity"
-        android:resizeMode="horizontal|vertical"
-        android:widgetCategory="home_screen"
-        android:widgetFeatures="reconfigurable|configuration_optional">
-    </appwidget-provider>
+```xml
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="40dp"
+    android:minHeight="40dp"
+    android:targetCellWidth="1"
+    android:targetCellHeight="1"
+    android:maxResizeWidth="250dp"
+    android:maxResizeHeight="120dp"
+    android:updatePeriodMillis="86400000"
+    android:description="@string/example_appwidget_description"
+    android:previewLayout="@layout/example_appwidget_preview"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:configure="com.example.android.ExampleAppWidgetConfigurationActivity"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional">
+</appwidget-provider>
+```
 
 ### Widget sizing attributes
 
@@ -111,16 +117,18 @@ assume the following specifications:
 - A grid cell is 30 dp wide and 50 dp tall.
 - The following attribute specification is provided:
 
-    <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-        android:minWidth="80dp"
-        android:minHeight="80dp"
-        android:targetCellWidth="2"
-        android:targetCellHeight="2"
-        android:minResizeWidth="40dp"
-        android:minResizeHeight="40dp"
-        android:maxResizeWidth="120dp"
-        android:maxResizeHeight="120dp"
-        android:resizeMode="horizontal|vertical" />
+```xml
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="80dp"
+    android:minHeight="80dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:minResizeWidth="40dp"
+    android:minResizeHeight="40dp"
+    android:maxResizeWidth="120dp"
+    android:maxResizeHeight="120dp"
+    android:resizeMode="horizontal|vertical" />
+```
 
 **Starting with Android 12:**
 
@@ -234,14 +242,16 @@ translating them into Compose lifecycle requests.
 Declare your `GlanceAppWidgetReceiver` class subclass as a broadcast receiver in
 your `AndroidManifest.xml` file:
 
-    <receiver android:name="MyReceiver"
-              android:exported="false">
-        <intent-filter>
-            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-        </intent-filter>
-        <meta-data android:name="android.appwidget.provider"
-                   android:resource="@xml/my_app_widget_info" />
-    </receiver>
+```xml
+<receiver android:name="MyReceiver"
+          android:exported="false">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data android:name="android.appwidget.provider"
+               android:resource="@xml/my_app_widget_info" />
+</receiver>
+```
 
 The `<receiver>` element requires the `android:name` attribute, which specifies
 the receiver class. The receiver must accept the `ACTION_APPWIDGET_UPDATE`
@@ -368,29 +378,34 @@ lower, implement custom attributes and custom theme resource fallbacks:
 
 - **`/values/attrs.xml`**
 
-      <resources>
-      <attr name="backgroundRadius" format="dimension" />
-      </resources>
-
+  ```xml
+  <resources>
+  <attr name="backgroundRadius" format="dimension" />
+  </resources>
+  ```
 - **`/values/styles.xml`**
 
-      <resources>
-      <style name="MyWidgetTheme">
-        <item name="backgroundRadius">@dimen/my_background_radius_dimen</item>
-      </style>
-      </resources>
-
+  ```xml
+  <resources>
+  <style name="MyWidgetTheme">
+    <item name="backgroundRadius">@dimen/my_background_radius_dimen</item>
+  </style>
+  </resources>
+  ```
 - **`/values-31/styles.xml`**
 
-      <resources>
-      <style name="MyWidgetTheme" parent="@android:style/Theme.DeviceDefault.DayNight">
-        <item name="backgroundRadius">@android:dimen/system_app_widget_background_radius</item>
-      </style>
-      </resources>
-
+  ```xml
+  <resources>
+  <style name="MyWidgetTheme" parent="@android:style/Theme.DeviceDefault.DayNight">
+    <item name="backgroundRadius">@android:dimen/system_app_widget_background_radius</item>
+  </style>
+  </resources>
+  ```
 - **`/drawable/my_widget_background.xml`**
 
-      <shape xmlns:android="http://schemas.android.com/apk/res/android"
-      android:shape="rectangle">
-      <corners android:radius="?attr/backgroundRadius" />
-      </shape>
+  ```xml
+  <shape xmlns:android="http://schemas.android.com/apk/res/android"
+  android:shape="rectangle">
+  <corners android:radius="?attr/backgroundRadius" />
+  </shape>
+  ```

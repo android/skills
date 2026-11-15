@@ -21,25 +21,29 @@ To enable prefix caching, add the shared portion of the prompt to the
 
 ### Kotlin
 
-    val promptPrefix = "Reverse the given sentence: "
-    val dynamicSuffix = "Hello World"
+```kotlin
+val promptPrefix = "Reverse the given sentence: "
+val dynamicSuffix = "Hello World"
 
-    val result = generativeModel.generateContent(
-      generateContentRequest(TextPart(dynamicSuffix)) {
-        promptPrefix = PromptPrefix(promptPrefix)
-      }
-    )
+val result = generativeModel.generateContent(
+  generateContentRequest(TextPart(dynamicSuffix)) {
+    promptPrefix = PromptPrefix(promptPrefix)
+  }
+)
+```
 
 ### Java
 
-    String promptPrefix = "Reverse the given sentence: ";
-    String dynamicSuffix = "Hello World";
+```java
+String promptPrefix = "Reverse the given sentence: ";
+String dynamicSuffix = "Hello World";
 
-    GenerateContentResponse response = generativeModelFutures.generateContent(
-        new GenerateContentRequest.Builder(new TextPart(dynamicSuffix))
-        .setPromptPrefix(new PromptPrefix(promptPrefix))
-        .build())
-        .get();
+GenerateContentResponse response = generativeModelFutures.generateContent(
+    new GenerateContentRequest.Builder(new TextPart(dynamicSuffix))
+    .setPromptPrefix(new PromptPrefix(promptPrefix))
+    .build())
+    .get();
+```
 
 In the preceding snippet, the `dynamicSuffix` is passed as the main content, and
 the `promptPrefix` is provided separately.
@@ -78,69 +82,77 @@ perform inference:
 
 ### Kotlin
 
-    val cacheName = "my_cache"
-    val promptPrefix = "Reverse the given sentence: "
-    val dynamicSuffix = "Hello World"
+```kotlin
+val cacheName = "my_cache"
+val promptPrefix = "Reverse the given sentence: "
+val dynamicSuffix = "Hello World"
 
-    // Create a cache
-    val cacheRequest = createCachedContextRequest(cacheName, PromptPrefix(promptPrefix))
-    val cache = generativeModel.caches.create(cacheRequest)
+// Create a cache
+val cacheRequest = createCachedContextRequest(cacheName, PromptPrefix(promptPrefix))
+val cache = generativeModel.caches.create(cacheRequest)
 
-    // Run inference with the cache
-    val response = generativeModel.generateContent(
-      generateContentRequest(TextPart(dynamicSuffix)) {
-        cachedContextName = cache.name
-      }
-    )
+// Run inference with the cache
+val response = generativeModel.generateContent(
+  generateContentRequest(TextPart(dynamicSuffix)) {
+    cachedContextName = cache.name
+  }
+)
+```
 
 ### Java
 
-    String cacheName = "my_cache";
-    String promptPrefix = "Reverse the given sentence: ";
-    String dynamicSuffix = "Hello World";
+```java
+String cacheName = "my_cache";
+String promptPrefix = "Reverse the given sentence: ";
+String dynamicSuffix = "Hello World";
 
-    // Create a cache
-    CachedContext cache = cachesFutures.create(
-      new CreateCachedContextRequest.Builder(cacheName, new PromptPrefix(promptPrefix))
-      .build())
-      .get();
+// Create a cache
+CachedContext cache = cachesFutures.create(
+  new CreateCachedContextRequest.Builder(cacheName, new PromptPrefix(promptPrefix))
+  .build())
+  .get();
 
-    // Run inference with the cache
-    GenerateContentResponse response = generativeModelFutures.generateContent(
-      new GenerateContentRequest.Builder(new TextPart(dynamicSuffix))
-      .setCachedContextName(cache.getName())
-      .build())
-      .get();
+// Run inference with the cache
+GenerateContentResponse response = generativeModelFutures.generateContent(
+  new GenerateContentRequest.Builder(new TextPart(dynamicSuffix))
+  .setCachedContextName(cache.getName())
+  .build())
+  .get();
+```
 
 This example demonstrates how to query, retrieve, and delete explicitly managed
 caches using `generativeModel.caches`:
 
 ### Kotlin
 
-    val cacheName = "my_cache"
+```kotlin
+val cacheName = "my_cache"
 
-    // Query pre-created caches
-    for (cache in generativeModel.caches.list()) {
-      // Do something with cache
-    }
+// Query pre-created caches
+for (cache in generativeModel.caches.list()) {
+  // Do something with cache
+}
 
-    // Get specific cache
-    val cache = generativeModel.caches.get(cacheName)
+// Get specific cache
+val cache = generativeModel.caches.get(cacheName)
 
-    // Delete a pre-created cache
-    generativeModel.caches.delete(cacheName)
+// Delete a pre-created cache
+generativeModel.caches.delete(cacheName)
+```
 
 ### Java
 
-    String cacheName = "my_cache";
+```java
+String cacheName = "my_cache";
 
-    // Query pre-created caches
-    for (PrefixCache cache : cachesFutures.list().get()) {
-      // Do something with cache
-    }
+// Query pre-created caches
+for (PrefixCache cache : cachesFutures.list().get()) {
+  // Do something with cache
+}
 
-    // Get specific cache
-    PrefixCache cache = cachesFutures.get(cacheName).get();
+// Get specific cache
+PrefixCache cache = cachesFutures.get(cacheName).get();
 
-    // Delete a pre-created cache
-    cachesFutures.delete(cacheName);
+// Delete a pre-created cache
+cachesFutures.delete(cacheName);
+```

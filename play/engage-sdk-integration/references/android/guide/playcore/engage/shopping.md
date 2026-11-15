@@ -113,10 +113,12 @@ Minimum API level: 19
 
 Add the `com.google.android.engage:engage-core` library to your app:
 
-    dependencies {
-        // Make sure you also include that repository in your project's build.gradle file.
-        implementation 'com.google.android.engage:engage-core:1.6.0'
-    }
+```groovy
+dependencies {
+    // Make sure you also include that repository in your project's build.gradle file.
+    implementation 'com.google.android.engage:engage-core:1.6.0'
+}
+```
 
 For more information, see [Package visibility in Android
 11](https://developer.android.com/about/versions/11/privacy/package-visibility).
@@ -330,48 +332,52 @@ required for `ServiceAvailabilityRequest` from the following table.
 
 ### Kotlin
 
-    val request = ServiceAvailabilityRequest.Builder()
-        .addIntendedClusterType(ClusterType.TYPE_CONTINUATION)
-        .addIntendedClusterType(ClusterType.TYPE_RECOMMENDATION)
-        .build()
+```kotlin
+val request = ServiceAvailabilityRequest.Builder()
+    .addIntendedClusterType(ClusterType.TYPE_CONTINUATION)
+    .addIntendedClusterType(ClusterType.TYPE_RECOMMENDATION)
+    .build()
 
-    client.isServiceAvailable(request).addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-            val availabilityMap = task.result
-            if (availabilityMap[ClusterType.TYPE_CONTINUATION] == true) {
-                // Proceed with publishing continuation content
-            }
-            if (availabilityMap[ClusterType.TYPE_RECOMMENDATION] == true) {
-                // Proceed with publishing recommendation content
-            }
-        } else {
-            // The IPC call itself fails, proceed with error handling logic here,
-            // such as retry.
+client.isServiceAvailable(request).addOnCompleteListener { task ->
+    if (task.isSuccessful) {
+        val availabilityMap = task.result
+        if (availabilityMap[ClusterType.TYPE_CONTINUATION] == true) {
+            // Proceed with publishing continuation content
         }
+        if (availabilityMap[ClusterType.TYPE_RECOMMENDATION] == true) {
+            // Proceed with publishing recommendation content
+        }
+    } else {
+        // The IPC call itself fails, proceed with error handling logic here,
+        // such as retry.
     }
+}
+```
 
 ### Java
 
-    ServiceAvailabilityRequest request =
-        new ServiceAvailabilityRequest.Builder()
-            .addIntendedClusterType(ClusterType.TYPE_CONTINUATION)
-            .addIntendedClusterType(ClusterType.TYPE_RECOMMENDATION)
-            .build();
+```java
+ServiceAvailabilityRequest request =
+    new ServiceAvailabilityRequest.Builder()
+        .addIntendedClusterType(ClusterType.TYPE_CONTINUATION)
+        .addIntendedClusterType(ClusterType.TYPE_RECOMMENDATION)
+        .build();
 
-    client.isServiceAvailable(request).addOnCompleteListener(task -> {
-        if (task.isSuccessful()) {
-            Map<Integer, Boolean> availabilityMap = task.getResult();
-            if (Boolean.TRUE.equals(availabilityMap.get(ClusterType.TYPE_CONTINUATION))) {
-                // Proceed with publishing continuation content
-            }
-            if (Boolean.TRUE.equals(availabilityMap.get(ClusterType.TYPE_RECOMMENDATION))) {
-                // Proceed with publishing recommendation content
-            }
-        } else {
-            // The IPC call itself fails, proceed with error handling logic here,
-            // such as retry.
+client.isServiceAvailable(request).addOnCompleteListener(task -> {
+    if (task.isSuccessful()) {
+        Map<Integer, Boolean> availabilityMap = task.getResult();
+        if (Boolean.TRUE.equals(availabilityMap.get(ClusterType.TYPE_CONTINUATION))) {
+            // Proceed with publishing continuation content
         }
-    });
+        if (Boolean.TRUE.equals(availabilityMap.get(ClusterType.TYPE_RECOMMENDATION))) {
+            // Proceed with publishing recommendation content
+        }
+    } else {
+        // The IPC call itself fails, proceed with error handling logic here,
+        // such as retry.
+    }
+});
+```
 
 ###### Conditional Service Availability Feature
 
@@ -393,37 +399,41 @@ engage-developers@google.com.
 
 ### Kotlin
 
-    client.isServiceAvailable.addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-            // Handle IPC call success
-            if(task.result) {
-              // Service is available on the device, proceed with content publish
-              // calls.
-            } else {
-              // Service is not available, no further action is needed.
-            }
+```kotlin
+client.isServiceAvailable.addOnCompleteListener { task ->
+    if (task.isSuccessful) {
+        // Handle IPC call success
+        if(task.result) {
+          // Service is available on the device, proceed with content publish
+          // calls.
         } else {
-          // The IPC call itself fails, proceed with error handling logic here,
-          // such as retry.
+          // Service is not available, no further action is needed.
         }
+    } else {
+      // The IPC call itself fails, proceed with error handling logic here,
+      // such as retry.
     }
+}
+```
 
 ### Java
 
-    client.isServiceAvailable().addOnCompleteListener(task - > {
-        if (task.isSuccessful()) {
-            // Handle success
-            if(task.getResult()) {
-              // Service is available on the device, proceed with content publish
-              // calls.
-            } else {
-              // Service is not available, no further action is needed.
-            }
+```java
+client.isServiceAvailable().addOnCompleteListener(task - > {
+    if (task.isSuccessful()) {
+        // Handle success
+        if(task.getResult()) {
+          // Service is available on the device, proceed with content publish
+          // calls.
         } else {
-          // The IPC call itself fails, proceed with error handling logic here,
-          // such as retry.
+          // Service is not available, no further action is needed.
         }
-    });
+    } else {
+      // The IPC call itself fails, proceed with error handling logic here,
+      // such as retry.
+    }
+});
+```
 
 > [!NOTE]
 > **Note:** We highly recommend keeping a periodic job running to check if the service becomes available at a later point in time. The availability of the service may change with Android version upgrades, app upgrades, installs, and uninstalls. By ensuring periodic job checks at a certain time interval, data can be published once the service becomes available.
@@ -446,27 +456,31 @@ A `RecommendationCluster` object can have the following attributes:
 
 ### Kotlin
 
-    client.publishRecommendationClusters(
-                PublishRecommendationClustersRequest.Builder()
-                    .addRecommendationCluster(
-                        RecommendationCluster.Builder()
-                            .addEntity(entity1)
-                            .addEntity(entity2)
-                            .setTitle("Black Friday Deals")
-                            .build())
-                    .build())
+```kotlin
+client.publishRecommendationClusters(
+            PublishRecommendationClustersRequest.Builder()
+                .addRecommendationCluster(
+                    RecommendationCluster.Builder()
+                        .addEntity(entity1)
+                        .addEntity(entity2)
+                        .setTitle("Black Friday Deals")
+                        .build())
+                .build())
+```
 
 ### Java
 
-    client.publishRecommendationClusters(
-                new PublishRecommendationClustersRequest.Builder()
-                    .addRecommendationCluster(
-                        new RecommendationCluster.Builder()
-                            .addEntity(entity1)
-                            .addEntity(entity2)
-                            .setTitle("Black Friday Deals")
-                            .build())
-                    .build());
+```java
+client.publishRecommendationClusters(
+            new PublishRecommendationClustersRequest.Builder()
+                .addRecommendationCluster(
+                    new RecommendationCluster.Builder()
+                        .addEntity(entity1)
+                        .addEntity(entity2)
+                        .setTitle("Black Friday Deals")
+                        .build())
+                .build());
+```
 
 When the service receives the request, the following actions take place within
 one transaction:
@@ -486,23 +500,27 @@ This API is used to publish a `FeaturedCluster` object.
 
 ### Kotlin
 
-    client.publishFeaturedCluster(
-                PublishFeaturedClusterRequest.Builder()
-                    .setFeaturedCluster(
-                        FeaturedCluster.Builder()
-                            ...
-                            .build())
-                    .build())
+```kotlin
+client.publishFeaturedCluster(
+            PublishFeaturedClusterRequest.Builder()
+                .setFeaturedCluster(
+                    FeaturedCluster.Builder()
+                        ...
+                        .build())
+                .build())
+```
 
 ### Java
 
-    client.publishFeaturedCluster(
-                new PublishFeaturedClusterRequest.Builder()
-                    .setFeaturedCluster(
-                        new FeaturedCluster.Builder()
-                            ...
-                            .build())
-                    .build());
+```java
+client.publishFeaturedCluster(
+            new PublishFeaturedClusterRequest.Builder()
+                .setFeaturedCluster(
+                    new FeaturedCluster.Builder()
+                        ...
+                        .build())
+                .build());
+```
 
 When the service receives the request, the following actions take place within
 one transaction:
@@ -524,23 +542,27 @@ merchant name in the title when using this API.
 
 ### Kotlin
 
-    client.publishShoppingCarts(
-                PublishShoppingCartClustersRequest.Builder()
-                    .addShoppingCart(
-                        ShoppingCart.Builder()
-                            ...
-                            .build())
-                    .build())
+```kotlin
+client.publishShoppingCarts(
+            PublishShoppingCartClustersRequest.Builder()
+                .addShoppingCart(
+                    ShoppingCart.Builder()
+                        ...
+                        .build())
+                .build())
+```
 
 ### Java
 
-    client.publishShoppingCarts(
-                new PublishShoppingCartClustersRequest.Builder()
-                    .addShoppingCart(
-                        new ShoppingCart.Builder()
-                            ...
-                            .build())
-                    .build())
+```java
+client.publishShoppingCarts(
+            new PublishShoppingCartClustersRequest.Builder()
+                .addShoppingCart(
+                    new ShoppingCart.Builder()
+                        ...
+                        .build())
+                .build())
+```
 
 When the service receives the request, the following actions take place within
 one transaction:
@@ -560,23 +582,27 @@ This API is used to publish a list of `ShoppingList` objects.
 
 ### Kotlin
 
-    client.publishShoppingLists(
-                PublishShoppingListsRequest.Builder()
-                    .addShoppingList(
-                        ShoppingList.Builder()
-                            ...
-                            .build())
-                    .build())
+```kotlin
+client.publishShoppingLists(
+            PublishShoppingListsRequest.Builder()
+                .addShoppingList(
+                    ShoppingList.Builder()
+                        ...
+                        .build())
+                .build())
+```
 
 ### Java
 
-    client.publishShoppingLists(
-                new PublishShoppingListsRequest.Builder()
-                    .addShoppingList(
-                        new ShoppingList.Builder()
-                            ...
-                            .build())
-                    .build());
+```java
+client.publishShoppingLists(
+            new PublishShoppingListsRequest.Builder()
+                .addShoppingList(
+                    new ShoppingList.Builder()
+                        ...
+                        .build())
+                .build());
+```
 
 When the service receives the request, the following actions take place within
 one transaction:
@@ -596,23 +622,27 @@ This API is used to publish a `ShoppingReorderCluster` object.
 
 ### Kotlin
 
-    client.publishShoppingReorderCluster(
-                PublishShoppingReorderClusterRequest.Builder()
-                    .setReorderCluster(
-                        ShoppingReorderCluster.Builder()
-                            ...
-                            .build())
-                    .build())
+```kotlin
+client.publishShoppingReorderCluster(
+            PublishShoppingReorderClusterRequest.Builder()
+                .setReorderCluster(
+                    ShoppingReorderCluster.Builder()
+                        ...
+                        .build())
+                .build())
+```
 
 ### Java
 
-    client.publishShoppingReorderCluster(
-                new PublishShoppingReorderClusterRequest.Builder()
-                    .setReorderCluster(
-                        new ShoppingReorderCluster.Builder()
-                            ...
-                            .build())
-                    .build());
+```java
+client.publishShoppingReorderCluster(
+            new PublishShoppingReorderClusterRequest.Builder()
+                .setReorderCluster(
+                    new ShoppingReorderCluster.Builder()
+                        ...
+                        .build())
+                .build());
+```
 
 When the service receives the request, the following actions take place within
 one transaction:
@@ -632,23 +662,27 @@ This API is used to publish a `ShoppingOrderTrackingCluster` object.
 
 ### Kotlin
 
-    client.publishShoppingOrderTrackingCluster(
-                PublishShoppingOrderTrackingClusterRequest.Builder()
-                    .setShoppingOrderTrackingCluster(
-                        ShoppingOrderTrackingCluster.Builder()
-                            ...
-                            .build())
-                    .build())
+```kotlin
+client.publishShoppingOrderTrackingCluster(
+            PublishShoppingOrderTrackingClusterRequest.Builder()
+                .setShoppingOrderTrackingCluster(
+                    ShoppingOrderTrackingCluster.Builder()
+                        ...
+                        .build())
+                .build())
+```
 
 ### Java
 
-    client.publishShoppingOrderTrackingCluster(
-                new PublishShoppingOrderTrackingClusterRequest.Builder()
-                    .setShoppingOrderTrackingCluster(
-                        new ShoppingOrderTrackingCluster.Builder()
-                            ...
-                            .build())
-                    .build());
+```java
+client.publishShoppingOrderTrackingCluster(
+            new PublishShoppingOrderTrackingClusterRequest.Builder()
+                .setShoppingOrderTrackingCluster(
+                    new ShoppingOrderTrackingCluster.Builder()
+                        ...
+                        .build())
+                .build());
+```
 
 When the service receives the request, the following actions take place within
 one transaction:
@@ -680,41 +714,45 @@ The following metadata is part of the Sign In Card -
 
 ### Kotlin
 
-    var SIGN_IN_CARD_ENTITY =
-          SignInCardEntity.Builder()
-              .addPosterImage(
-                  Image.Builder()
-                      .setImageUri(Uri.parse("http://www.x.com/image.png"))
-                      .setImageHeightInPixel(500)
-                      .setImageWidthInPixel(500)
-                      .build())
-              .setActionText("Sign In")
-              .setActionUri(Uri.parse("http://xx.com/signin"))
-              .build()
+```kotlin
+var SIGN_IN_CARD_ENTITY =
+      SignInCardEntity.Builder()
+          .addPosterImage(
+              Image.Builder()
+                  .setImageUri(Uri.parse("http://www.x.com/image.png"))
+                  .setImageHeightInPixel(500)
+                  .setImageWidthInPixel(500)
+                  .build())
+          .setActionText("Sign In")
+          .setActionUri(Uri.parse("http://xx.com/signin"))
+          .build()
 
-    client.publishUserAccountManagementRequest(
-                PublishUserAccountManagementRequest.Builder()
-                    .setSignInCardEntity(SIGN_IN_CARD_ENTITY)
-                    .build());
+client.publishUserAccountManagementRequest(
+            PublishUserAccountManagementRequest.Builder()
+                .setSignInCardEntity(SIGN_IN_CARD_ENTITY)
+                .build());
+```
 
 ### Java
 
-    SignInCardEntity SIGN_IN_CARD_ENTITY =
-          new SignInCardEntity.Builder()
-              .addPosterImage(
-                  new Image.Builder()
-                      .setImageUri(Uri.parse("http://www.x.com/image.png"))
-                      .setImageHeightInPixel(500)
-                      .setImageWidthInPixel(500)
-                      .build())
-              .setActionText("Sign In")
-              .setActionUri(Uri.parse("http://xx.com/signin"))
-              .build();
+```java
+SignInCardEntity SIGN_IN_CARD_ENTITY =
+      new SignInCardEntity.Builder()
+          .addPosterImage(
+              new Image.Builder()
+                  .setImageUri(Uri.parse("http://www.x.com/image.png"))
+                  .setImageHeightInPixel(500)
+                  .setImageWidthInPixel(500)
+                  .build())
+          .setActionText("Sign In")
+          .setActionUri(Uri.parse("http://xx.com/signin"))
+          .build();
 
-    client.publishUserAccountManagementRequest(
-                new PublishUserAccountManagementRequest.Builder()
-                    .setSignInCardEntity(SIGN_IN_CARD_ENTITY)
-                    .build());
+client.publishUserAccountManagementRequest(
+            new PublishUserAccountManagementRequest.Builder()
+                .setSignInCardEntity(SIGN_IN_CARD_ENTITY)
+                .build());
+```
 
 When the service receives the request, the following actions take place within
 one transaction:
@@ -778,17 +816,21 @@ with the status code **NOT_PUBLISHED_REQUIRES_SIGN_IN**
 
 ### Kotlin
 
-    client.updatePublishStatus(
-       PublishStatusRequest.Builder()
-         .setStatusCode(AppEngagePublishStatusCode.NOT_PUBLISHED_REQUIRES_SIGN_IN)
-         .build())
+```kotlin
+client.updatePublishStatus(
+   PublishStatusRequest.Builder()
+     .setStatusCode(AppEngagePublishStatusCode.NOT_PUBLISHED_REQUIRES_SIGN_IN)
+     .build())
+```
 
 ### Java
 
-    client.updatePublishStatus(
-        new PublishStatusRequest.Builder()
-            .setStatusCode(AppEngagePublishStatusCode.NOT_PUBLISHED_REQUIRES_SIGN_IN)
-            .build());
+```java
+client.updatePublishStatus(
+    new PublishStatusRequest.Builder()
+        .setStatusCode(AppEngagePublishStatusCode.NOT_PUBLISHED_REQUIRES_SIGN_IN)
+        .build());
+```
 
 #### `deleteRecommendationsClusters`
 
@@ -799,11 +841,15 @@ This API is used to delete the content of Recommendation Clusters.
 
 ### Kotlin
 
-    client.deleteRecommendationsClusters()
+```kotlin
+client.deleteRecommendationsClusters()
+```
 
 ### Java
 
-    client.deleteRecommendationsClusters();
+```java
+client.deleteRecommendationsClusters();
+```
 
 When the service receives the request, it removes the existing data from the
 Recommendation Clusters. In case of an error, the entire request is rejected
@@ -821,11 +867,15 @@ This API is used to delete the content of Featured Cluster.
 
 ### Kotlin
 
-    client.deleteFeaturedCluster()
+```kotlin
+client.deleteFeaturedCluster()
+```
 
 ### Java
 
-    client.deleteFeaturedCluster();
+```java
+client.deleteFeaturedCluster();
+```
 
 When the service receives the request, it removes the existing data from the
 Featured Cluster. In case of an error, the entire request is rejected
@@ -843,11 +893,15 @@ This API is used to delete the content of Shopping Cart Cluster.
 
 ### Kotlin
 
-    client.deleteShoppingCartCluster()
+```kotlin
+client.deleteShoppingCartCluster()
+```
 
 ### Java
 
-    client.deleteShoppingCartCluster();
+```java
+client.deleteShoppingCartCluster();
+```
 
 When the service receives the request, it removes the existing data from the
 Shopping Cart Cluster. In case of an error, the entire request is rejected
@@ -865,11 +919,15 @@ This API is used to delete the content of Shopping List Cluster.
 
 ### Kotlin
 
-    client.deleteShoppingListCluster()
+```kotlin
+client.deleteShoppingListCluster()
+```
 
 ### Java
 
-    client.deleteShoppingListCluster();
+```java
+client.deleteShoppingListCluster();
+```
 
 When the service receives the request, it removes the existing data from the
 Shopping List Cluster. In case of an error, the entire request is rejected
@@ -887,11 +945,15 @@ This API is used to delete the content of Shopping Reorder Cluster.
 
 ### Kotlin
 
-    client.deleteReorderCluster()
+```kotlin
+client.deleteReorderCluster()
+```
 
 ### Java
 
-    client.deleteReorderCluster();
+```java
+client.deleteReorderCluster();
+```
 
 When the service receives the request, it removes the existing data from the
 Shopping Reorder Cluster. In case of an error, the entire request is rejected
@@ -909,11 +971,15 @@ This API is used to delete the content of Shopping Order Tracking Cluster.
 
 ### Kotlin
 
-    client.deleteShoppingOrderTrackingCluster()
+```kotlin
+client.deleteShoppingOrderTrackingCluster()
+```
 
 ### Java
 
-    client.deleteShoppingOrderTrackingCluster();
+```java
+client.deleteShoppingOrderTrackingCluster();
+```
 
 When the service receives the request, it removes the existing data from the
 Shopping Order Tracking Cluster. In case of an error, the entire request is
@@ -931,11 +997,15 @@ This API is used to delete the content of UserAccountManagement Cluster.
 
 ### Kotlin
 
-    client.deleteUserManagementCluster()
+```kotlin
+client.deleteUserManagementCluster()
+```
 
 ### Java
 
-    client.deleteUserManagementCluster();
+```java
+client.deleteUserManagementCluster();
+```
 
 When the service receives the request, it removes the existing data from the
 UserAccountManagement Cluster. In case of an error, the entire request is
@@ -953,21 +1023,25 @@ This API is used to delete the content of a given cluster type.
 
 ### Kotlin
 
-    client.deleteClusters(
-        DeleteClustersRequest.Builder()
-          .addClusterType(ClusterType.TYPE_FEATURED)
-          .addClusterType(ClusterType.TYPE_RECOMMENDATION)
-          ...
-          .build())
+```kotlin
+client.deleteClusters(
+    DeleteClustersRequest.Builder()
+      .addClusterType(ClusterType.TYPE_FEATURED)
+      .addClusterType(ClusterType.TYPE_RECOMMENDATION)
+      ...
+      .build())
+```
 
 ### Java
 
-    client.deleteClusters(
-                new DeleteClustersRequest.Builder()
-                    .addClusterType(ClusterType.TYPE_FEATURED)
-                    .addClusterType(ClusterType.TYPE_RECOMMENDATION)
-                    ...
-                    .build());
+```java
+client.deleteClusters(
+            new DeleteClustersRequest.Builder()
+                .addClusterType(ClusterType.TYPE_FEATURED)
+                .addClusterType(ClusterType.TYPE_RECOMMENDATION)
+                ...
+                .build());
+```
 
 When the service receives the request, it removes the existing data from all
 clusters matching the specified cluster types. Clients can choose to pass one or
@@ -981,45 +1055,49 @@ that a follow-up action can be taken to recover and resubmit an successful task.
 
 ### Kotlin
 
-    client.publishRecommendationClusters(
-            PublishRecommendationClustersRequest.Builder()
-              .addRecommendationCluster(..)
-              .build())
-          .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
+```kotlin
+client.publishRecommendationClusters(
+        PublishRecommendationClustersRequest.Builder()
+          .addRecommendationCluster(..)
+          .build())
+      .addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+          // do something
+        } else {
+          val exception = task.exception
+          if (exception is AppEngageException) {
+            @AppEngageErrorCode val errorCode = exception.errorCode
+            if (errorCode == AppEngageErrorCode.SERVICE_NOT_FOUND) {
               // do something
-            } else {
-              val exception = task.exception
-              if (exception is AppEngageException) {
-                @AppEngageErrorCode val errorCode = exception.errorCode
-                if (errorCode == AppEngageErrorCode.SERVICE_NOT_FOUND) {
-                  // do something
-                }
-              }
             }
           }
+        }
+      }
+```
 
 ### Java
 
-    client.publishRecommendationClusters(
-                  new PublishRecommendationClustersRequest.Builder()
-                      .addRecommendationCluster(...)
-                      .build())
-              .addOnCompleteListener(
-                  task -> {
-                    if (task.isSuccessful()) {
+```java
+client.publishRecommendationClusters(
+              new PublishRecommendationClustersRequest.Builder()
+                  .addRecommendationCluster(...)
+                  .build())
+          .addOnCompleteListener(
+              task -> {
+                if (task.isSuccessful()) {
+                  // do something
+                } else {
+                  Exception exception = task.getException();
+                  if (exception instanceof AppEngageException) {
+                    @AppEngageErrorCode
+                    int errorCode = ((AppEngageException) exception).getErrorCode();
+                    if (errorCode == AppEngageErrorCode.SERVICE_NOT_FOUND) {
                       // do something
-                    } else {
-                      Exception exception = task.getException();
-                      if (exception instanceof AppEngageException) {
-                        @AppEngageErrorCode
-                        int errorCode = ((AppEngageException) exception).getErrorCode();
-                        if (errorCode == AppEngageErrorCode.SERVICE_NOT_FOUND) {
-                          // do something
-                        }
-                      }
                     }
-                  });
+                  }
+                }
+              });
+```
 
 The error is returned as an `AppEngageException` with the cause included as an
 error code.
@@ -1056,156 +1134,162 @@ The `BroadcastReceiver` must be set up in the following two ways:
 
 ### Kotlin
 
-    class AppEngageBroadcastReceiver : BroadcastReceiver(){
-      // Trigger recommendation cluster publish when PUBLISH_RECOMMENDATION
-      // broadcast is received
-      // Trigger featured cluster publish when PUBLISH_FEATURED broadcast is
-      // received
-      // Trigger shopping cart cluster publish when PUBLISH_SHOPPING_CART broadcast
-      // is received
-      // Trigger shopping list cluster publish when PUBLISH_SHOPPING_LIST broadcast
-      // is received
-      // Trigger reorder cluster publish when PUBLISH_REORDER_CLUSTER broadcast is
-      // received
-      // Trigger shopping order tracking cluster publish when
-      // PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER broadcast is received
-    }
+```kotlin
+class AppEngageBroadcastReceiver : BroadcastReceiver(){
+  // Trigger recommendation cluster publish when PUBLISH_RECOMMENDATION
+  // broadcast is received
+  // Trigger featured cluster publish when PUBLISH_FEATURED broadcast is
+  // received
+  // Trigger shopping cart cluster publish when PUBLISH_SHOPPING_CART broadcast
+  // is received
+  // Trigger shopping list cluster publish when PUBLISH_SHOPPING_LIST broadcast
+  // is received
+  // Trigger reorder cluster publish when PUBLISH_REORDER_CLUSTER broadcast is
+  // received
+  // Trigger shopping order tracking cluster publish when
+  // PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER broadcast is received
+}
 
-    fun registerBroadcastReceivers(context: Context){
-      var  context = context
-      context = context.applicationContext
+fun registerBroadcastReceivers(context: Context){
+  var  context = context
+  context = context.applicationContext
 
-    // Register Recommendation Cluster Publish Intent
-      context.registerReceiver(AppEngageBroadcastReceiver(),
-                               IntentFilter(Intents.ACTION_PUBLISH_RECOMMENDATION),
-                               com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                               /*scheduler=*/null)
+// Register Recommendation Cluster Publish Intent
+  context.registerReceiver(AppEngageBroadcastReceiver(),
+                           IntentFilter(Intents.ACTION_PUBLISH_RECOMMENDATION),
+                           com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                           /*scheduler=*/null)
 
-    // Register Featured Cluster Publish Intent
-      context.registerReceiver(AppEngageBroadcastReceiver(),
-                               IntentFilter(Intents.ACTION_PUBLISH_FEATURED),
-                               com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                               /*scheduler=*/null)
+// Register Featured Cluster Publish Intent
+  context.registerReceiver(AppEngageBroadcastReceiver(),
+                           IntentFilter(Intents.ACTION_PUBLISH_FEATURED),
+                           com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                           /*scheduler=*/null)
 
-    // Register Shopping Cart Cluster Publish Intent
-      context.registerReceiver(AppEngageBroadcastReceiver(),
-                               IntentFilter(Intents.ACTION_PUBLISH_SHOPPING_CART),
-                               com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                               /*scheduler=*/null)
+// Register Shopping Cart Cluster Publish Intent
+  context.registerReceiver(AppEngageBroadcastReceiver(),
+                           IntentFilter(Intents.ACTION_PUBLISH_SHOPPING_CART),
+                           com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                           /*scheduler=*/null)
 
-    // Register Shopping List Cluster Publish Intent
-      context.registerReceiver(AppEngageBroadcastReceiver(),
-                               IntentFilter(Intents.ACTION_PUBLISH_SHOPPING_LIST),
-                               com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                               /*scheduler=*/null)
+// Register Shopping List Cluster Publish Intent
+  context.registerReceiver(AppEngageBroadcastReceiver(),
+                           IntentFilter(Intents.ACTION_PUBLISH_SHOPPING_LIST),
+                           com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                           /*scheduler=*/null)
 
-    // Register Reorder Cluster Publish Intent
-      context.registerReceiver(AppEngageBroadcastReceiver(),
-                               IntentFilter(Intents.ACTION_PUBLISH_REORDER_CLUSTER),
-                               com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                               /*scheduler=*/null)
+// Register Reorder Cluster Publish Intent
+  context.registerReceiver(AppEngageBroadcastReceiver(),
+                           IntentFilter(Intents.ACTION_PUBLISH_REORDER_CLUSTER),
+                           com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                           /*scheduler=*/null)
 
-    // Register Shopping Order Tracking Cluster Publish Intent
-      context.registerReceiver(AppEngageBroadcastReceiver(),
-                               IntentFilter(Intents.ACTION_PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER),
-                               com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                               /*scheduler=*/null)
-    }
+// Register Shopping Order Tracking Cluster Publish Intent
+  context.registerReceiver(AppEngageBroadcastReceiver(),
+                           IntentFilter(Intents.ACTION_PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER),
+                           com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                           /*scheduler=*/null)
+}
+```
 
 ### Java
 
-    class AppEngageBroadcastReceiver extends BroadcastReceiver {
-    // Trigger recommendation cluster publish when PUBLISH_RECOMMENDATION broadcast
-    // is received
+```java
+class AppEngageBroadcastReceiver extends BroadcastReceiver {
+// Trigger recommendation cluster publish when PUBLISH_RECOMMENDATION broadcast
+// is received
 
-    // Trigger featured cluster publish when PUBLISH_FEATURED broadcast is received
+// Trigger featured cluster publish when PUBLISH_FEATURED broadcast is received
 
-    // Trigger shopping cart cluster publish when PUBLISH_SHOPPING_CART broadcast is
-    // received
+// Trigger shopping cart cluster publish when PUBLISH_SHOPPING_CART broadcast is
+// received
 
-    // Trigger shopping list cluster publish when PUBLISH_SHOPPING_LIST broadcast is
-    // received
+// Trigger shopping list cluster publish when PUBLISH_SHOPPING_LIST broadcast is
+// received
 
-    // Trigger reorder cluster publish when PUBLISH_REORDER_CLUSTER broadcast is
-    // received
+// Trigger reorder cluster publish when PUBLISH_REORDER_CLUSTER broadcast is
+// received
 
-    // Trigger reorder cluster publish when PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER
-    // broadcast is received
-    }
+// Trigger reorder cluster publish when PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER
+// broadcast is received
+}
 
-    public static void registerBroadcastReceivers(Context context) {
+public static void registerBroadcastReceivers(Context context) {
 
-    context = context.getApplicationContext();
+context = context.getApplicationContext();
 
-    // Register Recommendation Cluster Publish Intent
-    context.registerReceiver(new AppEngageBroadcastReceiver(),
-                             new IntentFilter(com.google.android.engage.service.Intents.ACTION_PUBLISH_RECOMMENDATION),
-                             com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                             /*scheduler=*/null);
+// Register Recommendation Cluster Publish Intent
+context.registerReceiver(new AppEngageBroadcastReceiver(),
+                         new IntentFilter(com.google.android.engage.service.Intents.ACTION_PUBLISH_RECOMMENDATION),
+                         com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                         /*scheduler=*/null);
 
-    // Register Featured Cluster Publish Intent
-    context.registerReceiver(new AppEngageBroadcastReceiver(),
-                             new IntentFilter(com.google.android.engage.service.Intents.ACTION_PUBLISH_FEATURED),
-                             com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                             /*scheduler=*/null);
+// Register Featured Cluster Publish Intent
+context.registerReceiver(new AppEngageBroadcastReceiver(),
+                         new IntentFilter(com.google.android.engage.service.Intents.ACTION_PUBLISH_FEATURED),
+                         com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                         /*scheduler=*/null);
 
-    // Register Shopping Cart Cluster Publish Intent
-    context.registerReceiver(new AppEngageBroadcastReceiver(),
-                             new IntentFilter(com.google.android.engage.shopping.service.Intents.ACTION_PUBLISH_SHOPPING_CART),
-                             com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                             /*scheduler=*/null);
+// Register Shopping Cart Cluster Publish Intent
+context.registerReceiver(new AppEngageBroadcastReceiver(),
+                         new IntentFilter(com.google.android.engage.shopping.service.Intents.ACTION_PUBLISH_SHOPPING_CART),
+                         com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                         /*scheduler=*/null);
 
-    // Register Shopping List Cluster Publish Intent
-    context.registerReceiver(new AppEngageBroadcastReceiver(),
-                             new IntentFilter(com.google.android.engage.shopping.service.Intents.ACTION_PUBLISH_SHOPPING_LIST),
-                             com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                             /*scheduler=*/null);
+// Register Shopping List Cluster Publish Intent
+context.registerReceiver(new AppEngageBroadcastReceiver(),
+                         new IntentFilter(com.google.android.engage.shopping.service.Intents.ACTION_PUBLISH_SHOPPING_LIST),
+                         com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                         /*scheduler=*/null);
 
-    // Register Reorder Cluster Publish Intent
-    context.registerReceiver(new AppEngageBroadcastReceiver(),
-                             new IntentFilter(com.google.android.engage.shopping.service.Intents.ACTION_PUBLISH_REORDER_CLUSTER),
-                             com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                             /*scheduler=*/null);
+// Register Reorder Cluster Publish Intent
+context.registerReceiver(new AppEngageBroadcastReceiver(),
+                         new IntentFilter(com.google.android.engage.shopping.service.Intents.ACTION_PUBLISH_REORDER_CLUSTER),
+                         com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                         /*scheduler=*/null);
 
-    // Register Shopping Order Tracking Cluster Publish Intent
-    context.registerReceiver(new AppEngageBroadcastReceiver(),
-                             new IntentFilter(com.google.android.engage.shopping.service.Intents.ACTION_PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER),
-                             com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                             /*scheduler=*/null);
+// Register Shopping Order Tracking Cluster Publish Intent
+context.registerReceiver(new AppEngageBroadcastReceiver(),
+                         new IntentFilter(com.google.android.engage.shopping.service.Intents.ACTION_PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER),
+                         com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                         /*scheduler=*/null);
 
-    }
+}
+```
 
 - Statically declare an implementation with the `<receiver>` tag in your
   `AndroidManifest.xml` file. This allows the application to receive broadcast
   intents when it is not running, and also allows the application to publish
   the content.
 
-    <application>
-       <receiver
-          android:name=".AppEngageBroadcastReceiver"
-          android:permission="com.google.android.engage.REQUEST_ENGAGE_DATA"
-          android:exported="true"
-          android:enabled="true">
-          <intent-filter>
-             <action android:name="com.google.android.engage.action.PUBLISH_RECOMMENDATION" />
-          </intent-filter>
-          <intent-filter>
-             <action android:name="com.google.android.engage.action.PUBLISH_FEATURED" />
-          </intent-filter>
-          <intent-filter>
-             <action android:name="com.google.android.engage.action.shopping.PUBLISH_SHOPPING_CART" />
-          </intent-filter>
-          <intent-filter>
-             <action android:name="com.google.android.engage.action.shopping.PUBLISH_SHOPPING_LIST" />
-          </intent-filter>
-          <intent-filter>
-             <action android:name="com.google.android.engage.action.shopping.PUBLISH_REORDER_CLUSTER" />
-          </intent-filter>
-          <intent-filter>
-             <action android:name="com.google.android.engage.action.shopping.PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER" />
-          </intent-filter>
-       </receiver>
-    </application>
+```xml
+<application>
+   <receiver
+      android:name=".AppEngageBroadcastReceiver"
+      android:permission="com.google.android.engage.REQUEST_ENGAGE_DATA"
+      android:exported="true"
+      android:enabled="true">
+      <intent-filter>
+         <action android:name="com.google.android.engage.action.PUBLISH_RECOMMENDATION" />
+      </intent-filter>
+      <intent-filter>
+         <action android:name="com.google.android.engage.action.PUBLISH_FEATURED" />
+      </intent-filter>
+      <intent-filter>
+         <action android:name="com.google.android.engage.action.shopping.PUBLISH_SHOPPING_CART" />
+      </intent-filter>
+      <intent-filter>
+         <action android:name="com.google.android.engage.action.shopping.PUBLISH_SHOPPING_LIST" />
+      </intent-filter>
+      <intent-filter>
+         <action android:name="com.google.android.engage.action.shopping.PUBLISH_REORDER_CLUSTER" />
+      </intent-filter>
+      <intent-filter>
+         <action android:name="com.google.android.engage.action.shopping.PUBLISH_SHOPPING_ORDER_TRACKING_CLUSTER" />
+      </intent-filter>
+   </receiver>
+</application>
+```
 
 The following [intents](https://developer.android.com/reference/android/content/Intent) are sent by the
 service:

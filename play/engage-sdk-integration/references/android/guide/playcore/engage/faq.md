@@ -53,23 +53,25 @@ While registering the broadcast intent, you may come across the following error:
 
 You need to register the broadcast receivers dynamically.
 
-    class AppEngageBroadcastReceiver extends BroadcastReceiver {
-    // Trigger recommendation cluster publish when PUBLISH_RECOMMENDATION broadcast
-    // is received
-    }
+```java
+class AppEngageBroadcastReceiver extends BroadcastReceiver {
+// Trigger recommendation cluster publish when PUBLISH_RECOMMENDATION broadcast
+// is received
+}
 
-    public static void registerBroadcastReceivers(Context context) {
+public static void registerBroadcastReceivers(Context context) {
 
-    context = context.getApplicationContext();
+context = context.getApplicationContext();
 
-    // Register Recommendation Cluster Publish Intent
-    context.registerReceiver(new AppEngageBroadcastReceiver(),
-                             new IntentFilter(com.google.android.engage.service.Intents.ACTION_PUBLISH_RECOMMENDATION,
-                             com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
-                             /*scheduler=*/null));
-    ...
+// Register Recommendation Cluster Publish Intent
+context.registerReceiver(new AppEngageBroadcastReceiver(),
+                         new IntentFilter(com.google.android.engage.service.Intents.ACTION_PUBLISH_RECOMMENDATION,
+                         com.google.android.engage.service.BroadcastReceiverPermissions.BROADCAST_REQUEST_DATA_PUBLISH_PERMISSION,
+                         /*scheduler=*/null));
+...
 
-    }
+}
+```
 
 ## Workflow FAQs
 
@@ -88,7 +90,9 @@ the APK.
 The deep links are associated with the package name. A good way to test
 deep links is using the adb tool.
 
-    adb shell am start -W -a android.intent.action.VIEW -d <DEEPLINK URI> <PACKAGE NAME>
+```bash
+adb shell am start -W -a android.intent.action.VIEW -d <DEEPLINK URI> <PACKAGE NAME>
+```
 
 #### How can I calculate the impact of the integration?
 

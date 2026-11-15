@@ -8,12 +8,13 @@ that handles finished strokes.
 
 1. Set up UI component
 
-       InProgressStrokes(
-         defaultBrush = currentBrush,
-         nextBrush = onGetNextBrush,
-         onStrokesFinished = onStrokesFinished,
-       )
-
+   ```kotlin
+   InProgressStrokes(
+     defaultBrush = currentBrush,
+     nextBrush = onGetNextBrush,
+     onStrokesFinished = onStrokesFinished,
+   )
+   ```
 2. Handle finished strokes
 
    When wet strokes become dry, they are passed to the application through the
@@ -22,29 +23,31 @@ that handles finished strokes.
    Your app must pass the finished strokes to another Composable within the same
    UI thread to commit them to the screen.
 
-       @Composable
-       fun DrawingScreen(
-         finishedStrokes: List<Strokes>,
-         onStrokesFinished: (List<Stroke>) -> Unit,
-         currentBrush: Brush,
-         onGetNextBrush: () -> Brush,
-         modifier: Modifier = Modifier
-       ) {
-         val canvasStrokeRenderer = remember { CanvasStrokeRenderer.create() }
+   ```kotlin
+   @Composable
+   fun DrawingScreen(
+     finishedStrokes: List<Strokes>,
+     onStrokesFinished: (List<Stroke>) -> Unit,
+     currentBrush: Brush,
+     onGetNextBrush: () -> Brush,
+     modifier: Modifier = Modifier
+   ) {
+     val canvasStrokeRenderer = remember { CanvasStrokeRenderer.create() }
 
-         Box(modifier = Modifier.fillMaxSize()) {
-             // The Canvas for drawing the permanent, dry strokes.
-             Canvas(modifier = Modifier.fillMaxSize()) {
-                 finishedStrokes.forEach { stroke ->
-                     canvasStrokeRenderer.draw(
-                         stroke = stroke,
-                         canvas = this,
-                         strokeToScreenTransform = Matrix()
-                     )
-                 }
+     Box(modifier = Modifier.fillMaxSize()) {
+         // The Canvas for drawing the permanent, dry strokes.
+         Canvas(modifier = Modifier.fillMaxSize()) {
+             finishedStrokes.forEach { stroke ->
+                 canvasStrokeRenderer.draw(
+                     stroke = stroke,
+                     canvas = this,
+                     strokeToScreenTransform = Matrix()
+                 )
              }
-
-             //The wet ink layer for live drawing.
-             // The InProgressStrokes composable for the wet ink layer goes here.
          }
-       }
+
+         //The wet ink layer for live drawing.
+         // The InProgressStrokes composable for the wet ink layer goes here.
+     }
+   }
+   ```

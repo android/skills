@@ -10,7 +10,7 @@ description: Provides guidelines for developing projected Android XR apps for di
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-11-08'
+  last-updated: '2026-11-13'
   keywords:
   - Jetpack Compose Glimmer
   - display glasses
@@ -24,41 +24,32 @@ metadata:
 
 | Term | Definition |
 |---|---|
-| **Intelligent eyewear** | Hands-free eyewear with speakers, camera, and microphone (audio-only or display glasses). |
-| **Display glasses** | Eyewear with a private in-lens display for glanceable visuals that pair with audio. |
-| **Jetpack Compose Glimmer** | Compose UI toolkit providing components, theming, and focus behavior for display glasses. |
-| **Projected activity** | An `Activity` running on a phone host whose UI and input are projected to connected eyewear. |
-| **Projected device** | An XR eyewear device connected to an Android host phone that projects app content to it. |
-| **GlimmerTheme** | Root styling provider for `GlimmerColors`, `GlimmerTypography`, and `GlimmerShapes`. |
-| **Additive display** | Display where black (`#000000`) renders as 100% transparent by adding light to the scene. |
-| **Augmented experiences** | Lightweight, additive Android XR experiences that help users while they're on the go. |
-| **Visual angle** | Perceived size in XR; minimum readable text is 0.6 degrees (about 18sp at 1 m). |
+| **Intelligent eyewear** | Hands-free eyewear with speakers, camera, and microphone (audio-only or display). |
+| **Display glasses** | Eyewear with a private in-lens display for glanceable visuals and audio. |
+| **Jetpack Compose Glimmer** | Compose UI toolkit with components, theming, and focus for display glasses. |
+| **Projected activity** | Host phone `Activity` whose UI and input are projected to connected eyewear. |
+| **Projected device** | XR eyewear device connected to an Android host phone projecting content. |
+| **GlimmerTheme** | Root styling provider for `GlimmerColors`, `GlimmerTypography`, `GlimmerShapes`. |
+| **Additive display** | Display where black (`#000000`) renders 100% transparent by adding light. |
+| **Augmented experiences** | Lightweight, additive Android XR experiences for users on the go. |
 
-## Prerequisites
+## Prerequisites and core constraints
 
 - Target `compileSdk` 37 or higher (`compileSdk = 37` or `compileSdk { version
-  = release(37) }`). Update `compileSdk` to 37 if lower.
-- When adding dependencies, follow the instructions in [Create your first
-  activity for intelligent eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/first-activity):
-  - `androidx.xr.glimmer:glimmer` (minimum `1.0.0-alpha21`, or catalog alias `libs.androidx.glimmer`)
-  - `androidx.xr.glimmer:glimmer-google-fonts` (minimum `1.0.0-alpha21`, or catalog alias `libs.androidx.glimmer.google.fonts`)
-  - `androidx.xr.projected:projected` (minimum `1.0.0-alpha13`, or catalog alias `libs.androidx.xr.projected` or `libs.androidx.projected`)
-  - Check `gradle/libs.versions.toml` first; if catalog entries exist, use them in `app/build.gradle.kts` and verify their versions meet the minimums. Never guess `1.0.0-alpha01` for `glimmer-google-fonts`.
-
-## Core constraints and limitations
-
-- **Don't** : Use `MaterialTheme` or Material 3 components (`androidx.compose.material3.*`) inside Projected Activities or Glimmer UI.
-- **Do** : Use `GlimmerTheme` and Glimmer components (`androidx.xr.glimmer.*`).
-- **Do** : Always pass `createGoogleSansFlexTypography()` from `androidx.xr.glimmer.googlefonts` as `typography` in `GlimmerTheme`.
-- Specific hardware device models or unique capabilities aren't detailed.
-- **Elevation** : Material 3 shadow or elevation modifiers aren't supported. Use `ShadowScope` or `Depth` tokens from Jetpack Compose Glimmer.
-- **Typography limits**: Minimum readable text size is 18sp (0.6°). Avoid "Thin" or "Hairline" weights, which shimmer on additive lenses.
+  = release(37) }`).
+- When adding dependencies, follow [Create your first activity for intelligent
+  eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/first-activity) and [Declaring Jetpack Compose Glimmer Dependencies](https://developer.android.com/jetpack/androidx/releases/xr-glimmer) (check `gradle/libs.versions.toml` first; never guess `1.0.0-alpha01`):
+  - `androidx.xr.glimmer:glimmer` (`1.0.0-alpha21+` or `libs.androidx.glimmer`)
+  - `androidx.xr.glimmer:glimmer-google-fonts` (`1.0.0-alpha21+` or `libs.androidx.glimmer.google.fonts`)
+  - `androidx.xr.projected:projected` (`1.0.0-alpha13+` or `libs.androidx.xr.projected` or `libs.androidx.projected`)
+- **Don't** : Use `MaterialTheme`, Material 3 (`androidx.compose.material3.*`), or Material elevation or shadow modifiers inside Glimmer UI.
+- **Do** : Use `GlimmerTheme`, Glimmer components (`androidx.xr.glimmer.*`), `DepthEffectLevels`, and `createGoogleSansFlexTypography()` (`androidx.xr.glimmer.googlefonts`). Minimum text size is 18sp; avoid Thin or Hairline weights.
 
 ## 1. Set up dependencies
 
-- **Set up projected activity** : When creating a projected activity, follow
-  [Create your first activity for intelligent eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/first-activity) and
-  [projectedcontext-source.md](references/projectedcontext-source.md). Set `android:requiredDisplayCategory` to
+- **Set up projected activity** : Follow [Create your first activity for
+  intelligent eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/first-activity) and [projectedcontext-source.md](references/projectedcontext-source.md). Set
+  `android:exported="true"` and `android:requiredDisplayCategory` to
   `android.hardware.display.category.XR_PROJECTED` in `AndroidManifest.xml`:
 
 
@@ -76,15 +67,12 @@ metadata:
 
   <br />
 
-- **Mobile app integration** : In the host phone app, add a button with
-  `Text("Launch on Glasses")`. Observe
+- **Mobile app integration** : Add a `Text("Launch on Glasses")` button on the
+  host phone. Observe
   `ProjectedContext.isProjectedDeviceConnected(context, coroutineContext)`
-  using
-  `collectAsStateWithLifecycle(initialValue = false)` to set the button's
-  `enabled` state so it's disabled when glasses are disconnected. When
-  clicked, launch `GlassesMainActivity` on the glasses display using
-  `ProjectedContext.createProjectedActivityOptions(context).toBundle()` as
-  shown in the following snippet:
+  using `collectAsStateWithLifecycle(initialValue = false)` to set `enabled`
+  (so it is disabled when disconnected) and launch `GlassesMainActivity` with
+  `ProjectedContext.createProjectedActivityOptions(context).toBundle()`:
 
 
   ```kotlin
@@ -95,18 +83,11 @@ metadata:
 
   <br />
 
-- **UI library and font** : When declaring the Glimmer, Google Fonts, and
-  Projected artifacts in `app/build.gradle.kts`, follow [Declaring Jetpack
-  Compose Glimmer Dependencies](https://developer.android.com/jetpack/androidx/releases/xr-glimmer), and follow
-  [glimmersansflextypography-source.md](references/glimmersansflextypography-source.md) when configuring Google Sans Flex
-  using `createGoogleSansFlexTypography`.
-
-- **Theming, initial focus, and black background** : On additive displays, pure
-  black (`Color.Black` or `GlimmerTheme.colors.background`) renders as 100%
-  transparent. In `onCreate` (annotated with
+- **Theming, initial focus, and black background** : Follow
+  [glimmersansflextypography-source.md](references/glimmersansflextypography-source.md). In `onCreate` (with
   `@OptIn(ExperimentalComposeUiApi::class)`), set
   `ComposeUiFlags.isInitialFocusOnFocusableAvailable = true`
-  (`androidx.compose.ui.ComposeUiFlags`), wrap content in
+  (`androidx.compose.ui.ComposeUiFlags`), wrap UI in
   `GlimmerTheme(typography = createGoogleSansFlexTypography())`, and apply
   `Modifier.background(Color.Black)` (or `GlimmerTheme.colors.background`) to
   the root container:
@@ -164,44 +145,56 @@ metadata:
 
   <br />
 
-- **Hardware capabilities, permissions, and access** : When checking hardware
-  capabilities, requesting permissions, or accessing glasses hardware, follow
-  [Check device capabilities at runtime](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/check-capabilities), [Request hardware
-  permissions](references/android/develop/xr/jetpack-xr-sdk/request-hardware-permissions.md), and [Use a projected context to access hardware](references/android/develop/xr/jetpack-xr-sdk/access-hardware-projected-context.md).
+## 2. Minimize UI and map input controls
 
-## 2. Minimize and translate the UI
+- Bottom-align UI (`Alignment.BottomCenter`), show one primary piece of info at a time (`VerticalStack`), and avoid multiple simultaneous cards.
+- **Color contrast** : Follow [material-hct-source.md](references/material-hct-source.md) to keep at least a 70% HCT tone difference between foreground and background (`#000000`).
+- **Focus and 1D input** : Avoid nesting scrolling controls; use System Back to
+  dismiss views. For focus (`androidx.compose.foundation.focusGroup` and
+  `androidx.compose.ui.focus.*`) and hardware input, follow [Focus in Jetpack
+  Compose Glimmer](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/focus) and [Hardware Controls for display glasses](references/android/design/ui/ai-glasses/guides/interaction/inputs.md):
 
-- Build UI with Jetpack Compose Glimmer components and use depth for priority.
-- Design from the bottom up and always bottom-align UI (`Alignment.BottomCenter`).
-- **One thing at a time** : Show one primary piece of information at a time (for example, using `VerticalStack`) and avoid multiple simultaneous cards.
-- **Color contrast** : When choosing colors, follow [material-hct-source.md](references/material-hct-source.md) to maintain at least a 70% tone difference between foreground and background in HCT.
 
-## 3. Map input controls
+  ```kotlin
+  @Composable
+  fun FocusSample(initialFocus: FocusRequester) {
+      Box(
+          modifier =
+              Modifier.focusProperties {
+                      onEnter = {
+                          initialFocus.requestFocus()
+                          cancelFocusChange()
+                      }
+                  }
+                  .focusGroup()
+      ) {
+          Button(onClick = {}) { Text("First Button") }
+      }
+  }
+  ```
 
-- Map tap and swipe interactions to the glasses touchpad. Inputs are one-dimensional; avoid nesting scrolling controls.
-- Use System Back to dismiss temporary states or detailed views.
-- When implementing focus navigation and hardware input handling, follow [Focus in Jetpack Compose Glimmer](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/focus) and [Hardware Controls for display
-  glasses](references/android/design/ui/ai-glasses/guides/interaction/inputs.md). Focus movement is continuous for scrollable containers and discrete for elements like button rows.
+  <br />
 
-## 4. Build with Jetpack Compose Glimmer
+## 3. Build with Jetpack Compose Glimmer
 
 ### Implementing Glimmer styles
 
-When accessing theme tokens using `GlimmerTheme`, follow
-[glimmertheme-source.md](references/glimmertheme-source.md).
+Follow [glimmertheme-source.md](references/glimmertheme-source.md) when using `GlimmerTheme`.
 
 | Category | Token | Value / Role |
 |---|---|---|
 | **Color** | primary / secondary | `#9BBFFF` / `#4C88E9` (Focal colors) |
 | **Color** | positive / negative | `#7AD48F` (Confirmation) / `#F57082` (Alert) |
-| **Color** | background | `#000000` (Pure black, renders 100% transparent) |
-| **Color** | surface | `#262626` (Use `SurfaceDefaults.border` for borders) |
-| **Shape** | Standard / Small | `RoundedCornerShape(36.dp)` / `RoundedCornerShape(12.dp)` |
+| **Color** | background / surface | `#000000` (Transparent) / `#262626` (`GlimmerTheme.colors.surface`, `SurfaceDefaults.border`) |
+| **Shape** | `large` (Standard) / `small` | `RoundedCornerShape(36.dp)` / `RoundedCornerShape(12.dp)` |
 
 #### Typography scale (Google Sans Flex) and depth levels
 
-Use Google Sans Flex with variable axes `ROND` = `100f`, `wdth` = `100f`, `opsz`
-= `9f`, and `wght` by role:
+Pass `FontVariation.Settings(FontVariation.Setting("ROND", 100f),
+FontVariation.width(100f), FontVariation.opticalSizing(9.sp),
+FontVariation.weight(...))` to `createGoogleSansFlexTypography`
+(`titleLargeVariationSettings`, `bodyMediumVariationSettings`,
+`captionVariationSettings`, and other role settings):
 
 | Style | Size / Line-Height | Weight |
 |---|---|---|
@@ -209,25 +202,60 @@ Use Google Sans Flex with variable axes `ROND` = `100f`, `wdth` = `100f`, `opsz`
 | **Body Large / Medium / Small** | 30/36.sp, 24/32.sp, 20/28.sp | 520 |
 | **Caption** | 18.sp / 28.sp | 650 |
 
-When simulating depth with `DepthEffect` and `DepthEffectLevels`, follow
-[deptheffect-source.md](references/deptheffect-source.md) and [deptheffectlevels-source.md](references/deptheffectlevels-source.md): use `level1`
-for resting cards and background UI, and `level2` for focused or pressed
-interactive UI.
+Follow [deptheffect-source.md](references/deptheffect-source.md) and [deptheffectlevels-source.md](references/deptheffectlevels-source.md) for
+`DepthEffect` and `DepthEffectLevels`: use
+`GlimmerTheme.depthEffectLevels.level1` for resting state and `level2` for
+focused state (using `SurfaceDepthEffect(depthEffect = level1,
+focusedDepthEffect = level2)` on `Modifier.surface` or `Modifier.depthEffect`):
+
+
+```kotlin
+@Composable
+fun DepthEffectLevelsSample() {
+    val levels = GlimmerTheme.depthEffectLevels
+    Box(contentAlignment = Alignment.Center) {
+        DepthBox("Level 1", levels.level1)
+        DepthBox("Level 2", levels.level2)
+        DepthBox("Level 3", levels.level3)
+        DepthBox("Level 4", levels.level4)
+        DepthBox("Level 5", levels.level5)
+    }
+}
+
+@Composable
+private fun DepthBox(name: String, depthEffect: DepthEffect) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = Modifier
+            .size(100.dp)
+            .surface(
+                interactionSource = interactionSource,
+                depthEffect = SurfaceDepthEffect(
+                    depthEffect = depthEffect,
+                    focusedDepthEffect = depthEffect
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(name)
+    }
+}
+```
+
+<br />
 
 ### Implementing Jetpack Compose Glimmer components
 
 #### Cards, ActionCards, ImageCards, and ButtonGroups
 
-Cards (`androidx.xr.glimmer.Card`) group related content into a single focal
-point. Never embed a `Card` within a `ListItem`. When implementing cards, follow
-the instructions in [Jetpack Compose Glimmer: Cards](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/cards), [card-source.md](references/card-source.md),
-and [card-samples-source.md](references/card-samples-source.md).
+Never embed `Card` (`androidx.xr.glimmer.Card`) in `ListItem`. Follow [Jetpack
+Compose Glimmer: Cards](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/cards), [card-source.md](references/card-source.md), and
+[card-samples-source.md](references/card-samples-source.md).
 
-- **Clickable versus non-clickable card** : Pass `onClick = { ... }` if the entire `Card` acts as a trigger; omit `onClick` if informational. Control focus on non-clickable cards with `focusable: Boolean = true` (such as `Card(focusable = false)`).
-- **Single primary action (`ActionCard`)** : When a card has a single primary
-  button action anchored to its bottom edge, use
-  `androidx.xr.glimmer.ActionCard` instead of placing a `Button` inside
-  `Card`. Its `action` button takes focus directly:
+- **Clickable vs. non-clickable** : Pass `onClick = { ... }` if the whole card is a trigger; omit `onClick` if informational and control focus using `focusable: Boolean` (such as `Card(focusable = false)`).
+- **Single primary action (`ActionCard`)** : Use
+  `androidx.xr.glimmer.ActionCard` when anchoring a primary action button to
+  the bottom of a card:
 
 
   ```kotlin
@@ -244,13 +272,11 @@ and [card-samples-source.md](references/card-samples-source.md).
 
   <br />
 
-- **Multiple actions (`Card` and `ButtonGroup`)---avoiding focus contention** :
-  When pairing a card with multiple action buttons, use
-  `androidx.xr.glimmer.ButtonGroup` (with optional
-  `rememberButtonGroupState`). **Never nest `ButtonGroup` inside `Card { ...
-  }`.** Place a non-focusable `Card(focusable = false)` (without `onClick`)
-  **above** `ButtonGroup` as a sibling in a `Column` so the card and buttons
-  don't compete for focus:
+- **Multiple actions (`Card` and `ButtonGroup`)** : Use
+  `androidx.xr.glimmer.ButtonGroup` (`rememberButtonGroupState`). **Never nest
+  `ButtonGroup` inside `Card { ... }`.** Place `Card(focusable = false)`
+  **above** `ButtonGroup` as a sibling in a `Column` to avoid focus
+  contention:
 
 
   ```kotlin
@@ -265,102 +291,186 @@ and [card-samples-source.md](references/card-samples-source.md).
 
   <br />
 
-- **Image cards** : Use `ImageCard`, `LeadingImageCard`, or `TrailingImageCard`
-  to display prominent imagery alongside card text.
-
-#### Buttons and ToggleButtons
-
-When implementing buttons or toggle buttons, follow the instructions in [Jetpack
-Compose Glimmer: Buttons](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/buttons), [button-source.md](references/button-source.md), and
-[button-samples-source.md](references/button-samples-source.md).
-
-- **Standard and icon buttons** : Use `Button` for text actions (with optional `leadingIcon`/`trailingIcon`) and `IconButton` for icon-only triggers (such as media next-track or previous-track buttons).
-- **Toggle buttons (`ToggleButton` and `IconToggleButton`)** : Use
-  `ToggleButton` or `IconToggleButton` for stateful on/off or play/pause
-  controls that morph based on `checked`:
-
 
   ```kotlin
-  @Composable
-  fun ToggleButtonWithLeadingIconSample() {
-      var checked by remember { mutableStateOf(false) }
-
-      ToggleButton(
-          checked = checked,
-          leadingIcon = {
-              Icon(
-                  if (checked) FavoriteIcon else OutlinedFavoriteIcon,
-                  contentDescription = "Toggle favorite"
-              )
-          },
-          onCheckedChange = { checked = it }
-      ) {
-          Text(if (checked) "On" else "Off")
+  val scope = rememberCoroutineScope()
+  val state = rememberButtonGroupState()
+  ButtonGroup(modifier = Modifier.fillMaxWidth(), state = state) {
+      Button(onClick = { scope.launch { state.animateScrollToItem(1) } }) {
+          Text("Select last item")
+      }
+      Button(onClick = { scope.launch { state.animateScrollToItem(0) } }) {
+          Text("Select first item")
       }
   }
   ```
 
   <br />
+
+- **Image cards** : Use `ImageCard`, `LeadingImageCard`, or `TrailingImageCard`
+  (`image = { ... }`, `title`, `subtitle`, `leadingIcon`, `trailingIcon`) with
+  `ContentScale.Crop`, `Outline` (`CardDefaults.shape`), and `maxLines = 10`
+  on long body `Text`:
+
+
+  ```kotlin
+  ImageCard(
+      image = {
+          Image(
+              painter = myHeaderImage,
+              contentDescription = "Header image",
+              contentScale = ContentScale.FillWidth
+          )
+      },
+      title = { Text("Card Title", style = GlimmerTheme.typography.titleMedium) },
+      subtitle = { Text("Sub-heading text", style = GlimmerTheme.typography.titleSmall) },
+      leadingIcon = { Icon(FavoriteIcon, contentDescription = "Favorite") },
+  ) {
+      Text(
+          "This is the main body content of the card, utilizing theme-tokens for consistent styling.",
+          style = GlimmerTheme.typography.bodyMedium
+      )
+  }
+  ```
+
+  <br />
+
+#### Buttons and ToggleButtons
+
+Follow [Jetpack Compose Glimmer: Buttons](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/buttons), [button-source.md](references/button-source.md), and
+[button-samples-source.md](references/button-samples-source.md). Use `Button(onClick, buttonSize =
+ButtonSize.Large, color = baseColor, focusedColor =
+ButtonDefaults.focusedColor(baseColor))` (top-level parameters on `Button`,
+never `ButtonDefaults.colors`), `IconButton` for stateless icon
+triggers, and always use `ToggleButton(checked, onCheckedChange, leadingIcon)`
+or `IconToggleButton(checked, onCheckedChange)` (never stateful `IconButton`)
+for toggle or media playback controls:
+
+
+```kotlin
+Button(
+    onClick = {},
+    focusedColor = brandColor,
+) {
+    Text("Focus Color Button")
+}
+```
+
+<br />
+
+
+```kotlin
+@Composable
+fun ToggleButtonWithLeadingIconSample() {
+    var checked by remember { mutableStateOf(false) }
+
+    ToggleButton(
+        checked = checked,
+        leadingIcon = {
+            Icon(
+                if (checked) FavoriteIcon else OutlinedFavoriteIcon,
+                contentDescription = "Toggle favorite"
+            )
+        },
+        onCheckedChange = { checked = it }
+    ) {
+        Text(if (checked) "On" else "Off")
+    }
+}
+```
+
+<br />
+
+
+```kotlin
+var checked by remember { mutableStateOf(false) }
+
+val additionalColors =
+    IconToggleButtonDefaults.colors(checkedBackgroundColor = Color(0xFF80B799))
+
+IconToggleButton(
+    checked = checked,
+    onCheckedChange = { checked = it },
+    colors = additionalColors
+) {
+    Icon(
+        if (checked) FavoriteIcon else OutlinedFavoriteIcon,
+        contentDescription = "Toggle favorite"
+    )
+}
+```
+
+<br />
 
 #### Title chips
 
 `TitleChip` (`androidx.xr.glimmer.TitleChip`) is a non-interactive pill header
-(three words or fewer, single line). When implementing title chips, follow the
-instructions in [Jetpack Compose Glimmer: Title Chips](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/title-chips),
-[titlechip-source.md](references/titlechip-source.md), and [titlechip-samples-source.md](references/titlechip-samples-source.md).
+(three words or fewer, single line). Follow [Jetpack Compose Glimmer: Title
+Chips](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/title-chips), [titlechip-source.md](references/titlechip-source.md), and [titlechip-samples-source.md](references/titlechip-samples-source.md).
+When placing a standalone `TitleChip` above a `Card` or `ActionCard`, center it
+and space it with `TitleChipDefaults.associatedContentSpacing`:
 
-- **Spatial spacing** : When placing a standalone `TitleChip` above a `Card` or
-  `ActionCard`, center the `TitleChip` horizontally and separate it from the
-  card using `TitleChipDefaults.associatedContentSpacing` (using `Spacer` or
-  `Arrangement.spacedBy(TitleChipDefaults.associatedContentSpacing)`):
+
+```kotlin
+@Composable
+fun TitleChipWithCardSample() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        TitleChip { Text("Title Chip") }
+
+        Spacer(Modifier.height(TitleChipDefaults.associatedContentSpacing))
+
+        Card(
+            title = { Text("Title") },
+            subtitle = { Text("Subtitle") },
+            leadingIcon = { Icon(FavoriteIcon, "Localized description") },
+        ) {
+            Text("Card Content")
+        }
+    }
+}
+```
+
+<br />
+
+#### Icons
+
+Follow [Jetpack Compose Glimmer: Icons](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/icons), [icon-source.md](references/icon-source.md),
+[iconbutton-source.md](references/iconbutton-source.md), and [iconsizes-source.md](references/iconsizes-source.md).
+
+- **Sizing and contrast** : Pass `Modifier.size(GlimmerTheme.iconSizes.small)`,
+  `GlimmerTheme.iconSizes.medium`, or `GlimmerTheme.iconSizes.large` to `Icon`
+  whenever a small, medium, or large icon is needed (including inside card
+  icon slots). **Never** use `Color.Black` or saturated error tints; use
+  `Color.Unspecified` for multicolor vectors (`tint = null` on `Painter`). Use
+  [Material Symbols](https://fonts.google.com/icons?icon.style=Rounded) (600 weight, Rounded, Unfilled), or build vectors
+  with `ImageVector.Builder` or `painterResource` if `material-icons-*` isn't
+  in `app/build.gradle.kts`:
 
 
   ```kotlin
   @Composable
-  fun TitleChipWithCardSample() {
-      Column(horizontalAlignment = Alignment.CenterHorizontally) {
-          TitleChip { Text("Title Chip") }
-
-          Spacer(Modifier.height(TitleChipDefaults.associatedContentSpacing))
-
-          Card(
-              title = { Text("Title") },
-              subtitle = { Text("Subtitle") },
-              leadingIcon = { Icon(FavoriteIcon, "Localized description") },
-          ) {
-              Text("Card Content")
-          }
-      }
+  fun SizedIconSample() {
+      Icon(
+          FavoriteIcon,
+          contentDescription = "Localized description",
+          modifier = Modifier.size(GlimmerTheme.iconSizes.large),
+      )
   }
   ```
 
   <br />
 
-#### Icons
-
-When adding icons or icon buttons, follow the instructions in [Jetpack Compose
-Glimmer: Icons](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/icons), [icon-source.md](references/icon-source.md), [iconbutton-source.md](references/iconbutton-source.md), and
-[iconsizes-source.md](references/iconsizes-source.md).
-
-- **Sizing and interactivity** : Size icons with `GlimmerTheme.iconSizes` (`small`, `medium`, `large`). Use `IconButton` or `IconToggleButton` for triggers and `Icon` for status indicators.
-- **Contrast and library** : **Never** use pure black (`Color.Black`) for icon tints; black renders as transparent. Use [Material Symbols](https://fonts.google.com/icons?icon.style=Rounded) (600 weight, Rounded, Unfilled). If `androidx.compose.material:material-icons-*` isn't in `app/build.gradle.kts`, build vectors with `ImageVector.Builder` or `painterResource` instead of importing `androidx.compose.material.icons.*`.
-
 #### Lists
 
-Use `GlimmerLazyColumn` (`androidx.xr.glimmer.list.GlimmerLazyColumn`) for
-homogeneous scrollable items. When building scrollable lists and list items,
-follow the API definitions in [list-source.md](references/list-source.md), [listitem-source.md](references/listitem-source.md),
-and [liststate-source.md](references/liststate-source.md).
+Follow [list-source.md](references/list-source.md), [listitem-source.md](references/listitem-source.md), and
+[liststate-source.md](references/liststate-source.md).
 
-- **Always use `GlimmerLazyColumn`** : Never use foundation `LazyColumn`. Import `GlimmerLazyColumn`, `rememberGlimmerLazyListState`, and `items` from `androidx.xr.glimmer.list` (`item` is a scope member, not imported). For programmatic scrolling to the first item, hoist `val listState =
-  rememberGlimmerLazyListState()` and call `listState.scrollToItem(0)` or `listState.animateScrollToItem(0)`.
-- **Integrated title, spacing, and rows** : Pass headers using `title = {
-  TitleChip { Text("...") } }` directly on `GlimmerLazyColumn` (not outside
-  it), set `verticalArrangement = Arrangement.spacedBy(20.dp)`, and render
-  rows with `androidx.xr.glimmer.ListItem(onClick = { ... }, supportingLabel =
-  { Text(...) }) { Text(...) }` (pass the primary label as the trailing
-  `content` lambda, not `headlineContent`, and never nest a `Card` inside
-  `ListItem`):
+- **Always use `GlimmerLazyColumn`** : Import `GlimmerLazyColumn`, `rememberGlimmerLazyListState`, and `items` from `androidx.xr.glimmer.list` (never foundation `LazyColumn`). Use `listState.scrollToItem(0)` or `animateScrollToItem(0)` to scroll to top.
+- **Integrated title, spacing, and rows** : Pass `title = { TitleChip {
+  Text("...") } }` directly on `GlimmerLazyColumn`, explicitly set
+  `verticalArrangement = Arrangement.spacedBy(20.dp)`, and render rows with
+  `androidx.xr.glimmer.ListItem(onClick = { ... }, supportingLabel = {
+  Text(...) }) { Text(...) }` (never nest `Card` in `ListItem`):
 
 
   ```kotlin
@@ -378,83 +488,143 @@ and [liststate-source.md](references/liststate-source.md).
 
 #### Stacks
 
-Use `VerticalStack` (`androidx.xr.glimmer.stack.VerticalStack`) to display
-heterogeneous cards one at a time (such as calendar, transit, and weather
-cards). **Never** use a `TitleChip` with `VerticalStack`. When implementing a
-`VerticalStack`, follow the API definitions in [stack-source.md](references/stack-source.md),
-[stackstate-source.md](references/stackstate-source.md), and [stackitemscope-source.md](references/stackitemscope-source.md).
-
-- **Bottom alignment, height (+66.dp), and `itemDecoration`** : Align
-  `VerticalStack` to `Alignment.BottomCenter`, set its height to **`66.dp`
-  taller than the tallest card** (`maxCardHeight + 66.dp`), and apply
-  `Modifier.itemDecoration(CardDefaults.shape)` to the `Card` inside every
-  `item { ... }` block so background cards are clipped and masked:
+Use `VerticalStack` (`androidx.xr.glimmer.stack.VerticalStack`) for
+heterogeneous cards one at a time (**never** with `TitleChip`). Follow
+[stack-source.md](references/stack-source.md), [stackstate-source.md](references/stackstate-source.md), and
+[stackitemscope-source.md](references/stackitemscope-source.md). Align to `Alignment.BottomCenter`, set height to
+**`66.dp` taller than the tallest card** (`Modifier.height(maxCardHeight +
+66.dp)`), and apply `Modifier.itemDecoration(CardDefaults.shape)` to each item's
+`Card`:
 
 
-  ```kotlin
-  @Composable
-  fun VerticalStackSample() {
-      VerticalStack {
-          item {
-              Card { Text("Top Card") }
-          }
-          item {
-              Card { Text("Second Card") }
-          }
-          item {
-              Card { Text("Third Card") }
-          }
-      }
-  }
-  ```
+```kotlin
+@Composable
+fun VerticalStackSample() {
+    VerticalStack {
+        item {
+            Card { Text("Top Card") }
+        }
+        item {
+            Card { Text("Second Card") }
+        }
+        item {
+            Card { Text("Third Card") }
+        }
+    }
+}
+```
 
-  <br />
+<br />
 
 #### Horizontal pagers and animated text
 
 Use `GlimmerHorizontalPager`
 (`androidx.xr.glimmer.pager.GlimmerHorizontalPager`) with
-`rememberGlimmerPagerState(pageCount = { ... })` for horizontal card
-walkthroughs (never foundation `HorizontalPager`).
+`rememberGlimmerPagerState(pageCount = { ... })`, `pageSpacing`, and
+`pageIndicator = { GlimmerHorizontalPagerDefaults.PageIndicator(state,
+selectedIndicatorColor = GlimmerTheme.colors.primary, unselectedIndicatorColor =
+GlimmerTheme.colors.primary.copy(alpha =
+GlimmerHorizontalPagerDefaults.UnselectedIndicatorAlpha)) }` (never foundation
+`HorizontalPager`). Follow [Jetpack Compose Glimmer: Pager](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/pager). Use
+`pagerState.animateScrollToPage` in a coroutine for programmatic scroll, and
+configure Glimmer [`Text`](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/text) (`androidx.xr.glimmer.Text`, never Material
+`Text`) with `style = LocalTextStyle.current.copy(textMotion =
+TextMotion.Animated)`:
 
-- **Smooth text motion** : Inside pager pages, configure Glimmer [`Text`](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/text)
-  (`androidx.xr.glimmer.Text`, never `androidx.compose.material3.Text`) with
-  `textMotion = TextMotion.Animated` (using `.copy(textMotion =
-  TextMotion.Animated)`) for smooth rendering during snap transitions:
+
+```kotlin
+// Hoist the pager state, specifying the total page count with a lambda.
+val pagerState = rememberGlimmerPagerState(pageCount = { 10 })
+
+GlimmerHorizontalPager(
+    state = pagerState,
+    modifier = Modifier.fillMaxSize(),
+) { page ->
+    // Use Glimmer components like Card and Text for optimized glasses styling.
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Page: $page",
+            // Recommended: use TextMotion.Animated for smooth transitions in a pager.
+            style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
+        )
+    }
+}
+```
+
+<br />
+
+
+```kotlin
+GlimmerHorizontalPager(
+    state = pagerState,
+    modifier = Modifier.fillMaxSize(),
+    // Use a page numbers instead of the default dot-indicator
+    pageIndicator = {
+        Text(
+            text = "${pagerState.currentPage + 1} / ${pagerState.pageCount}",
+            style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
+        )
+    }
+)
+```
+
+<br />
+
+#### AlertDialogs and custom surfaces
+
+- **`AlertDialog`** : Use `androidx.xr.glimmer.AlertDialog` (never
+  `android.app` or Material `AlertDialog`) with `onDismissRequest`,
+  `confirmButton`, `dismissButton`, `icon`, `title`, and `text` using Glimmer
+  `Button`, `Icon`, and `Text`:
 
 
   ```kotlin
-  // Hoist the pager state, specifying the total page count with a lambda.
-  val pagerState = rememberGlimmerPagerState(pageCount = { 10 })
+  var showDialog by remember { mutableStateOf(true) }
 
-  GlimmerHorizontalPager(
-      state = pagerState,
-      modifier = Modifier.fillMaxSize(),
-  ) { page ->
-      // Use Glimmer components like Card and Text for optimized glasses styling.
-      Card(modifier = Modifier.fillMaxWidth()) {
-          Text(
-              text = "Page: $page",
-              // Recommended: use TextMotion.Animated for smooth transitions in a pager.
-              style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
-          )
-      }
+  if (showDialog) {
+      AlertDialog(
+          onDismissRequest = { showDialog = false },
+          confirmButton = { Button(onClick = { /* confirm action */ }) { Text("Confirm") } },
+          dismissButton = { Button(onClick = { showDialog = false }) { Text("Dismiss") } },
+          icon = { Icon(imageVector = FavoriteIcon, contentDescription = "Alert icon") },
+          title = { Text("Title") },
+          text = { Text("This is an alert dialog with options to confirm or dismiss.") },
+      )
   }
   ```
 
   <br />
 
-#### Surface
 
-`Modifier.surface` (`androidx.xr.glimmer.surface`) builds custom interactive
-components (such as status badges without `Card` or `Button`). When creating
-custom surfaces, follow the API definitions in [surface-source.md](references/surface-source.md).
+  ```kotlin
+  var showDialog by remember { mutableStateOf(true) }
 
-- **Shared `MutableInteractionSource` and order** : Create a single `remember {
-  MutableInteractionSource() }` and pass it to both
-  `Modifier.surface(interactionSource = interactionSource, ...)` and
-  `.clickable(interactionSource = interactionSource, ...)` (or `.focusable`),
-  chaining `.surface(...)` **before** `.clickable(...)`:
+  if (showDialog) {
+      AlertDialog(
+          onDismissRequest = { showDialog = false },
+          confirmButton = { Button(onClick = { showDialog = false }) { Text("OK") } },
+          icon = {
+              Icon(
+                  imageVector = OutlinedFavoriteIcon,
+                  contentDescription = "Favorite icon",
+              )
+          },
+          title = { Text("Title") },
+          text = { Text("This is an alert dialog with only an option to dismiss.") },
+      )
+  }
+  ```
+
+  <br />
+
+- **`Modifier.surface`** : Follow [surface-source.md](references/surface-source.md). Share one `remember
+  { MutableInteractionSource() }` between
+  `Modifier.surface(enabled = true, shape = GlimmerTheme.shapes.large, color
+  = GlimmerTheme.colors.surface, depthEffect = ..., interactionSource =
+  interactionSource)` and `.focusable(interactionSource = interactionSource)`
+  or `.clickable(interactionSource = interactionSource, indication = null,
+  ...)`, chaining `.surface(...)` **before** `.focusable(...)` or
+  `.clickable(...)`:
 
 
   ```kotlin
@@ -495,10 +665,12 @@ custom surfaces, follow the API definitions in [surface-source.md](references/su
 
 #### Voice input indicator and indirect pointer gestures
 
-- **`VoiceInputIndicator` and `ContainedVoiceInputIndicator`** : Pass a `level`
-  lambda returning a `Float` normalized to `0.0f..1.0f`. When driven by
-  `SpeechRecognizer` (`RecognitionListener.onRmsChanged(rmsdB: Float)`),
-  normalize and clamp `rmsdB` with `.coerceIn(0f, 1f)`:
+Follow [Jetpack Compose Glimmer: Voice Input Indicator](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/voice-input-indicator) and [Jetpack Compose
+Glimmer: Indirect Pointer](https://developer.android.com/develop/xr/jetpack-xr-sdk/jetpack-compose-glimmer/indirect-pointer).
+
+- **`VoiceInputIndicator` and `ContainedVoiceInputIndicator`** : Normalize
+  `SpeechRecognizer` `rmsdB` values into `0.0f..1.0f` using `.coerceIn(0f,
+  1f)`:
 
 
   ```kotlin
@@ -559,12 +731,10 @@ custom surfaces, follow the API definitions in [surface-source.md](references/su
 
   <br />
 
-- **`Modifier.onIndirectPointerGesture`** : Handle low-level touchpad tap
-  (`onClick`), forward swipe (`onSwipeForward`), and backward swipe
-  (`onSwipeBackward`) gestures using
-  `androidx.xr.glimmer.onIndirectPointerGesture` on a container made
-  **focusable** (using `focusTarget`, `focusable`, or `surface(focusable =
-  true)`):
+- **`Modifier.onIndirectPointerGesture`** : Apply
+  `androidx.xr.glimmer.onIndirectPointerGesture` (`onClick`, `onSwipeForward`,
+  `onSwipeBackward`) to a container made **focusable** (`focusTarget()` or
+  `focusable()`):
 
 
   ```kotlin
@@ -591,8 +761,6 @@ custom surfaces, follow the API definitions in [surface-source.md](references/su
 
   <br />
 
-## 5. Integrate with system UI
+## 4. Integrate with system UI
 
-- When handling notifications or starting a projected activity from a notification, follow the instructions in [Understand notification behavior
-  for intelligent eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/notifications/behavior) and [Start a glasses activity on display
-  glasses from a notification](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/notifications/start-activity).
+- Follow [Understand notification behavior for intelligent eyewear](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/notifications/behavior) and [Start a glasses activity on display glasses from a notification](https://developer.android.com/develop/xr/jetpack-xr-sdk/ai-glasses/notifications/start-activity).

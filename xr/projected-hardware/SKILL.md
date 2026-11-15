@@ -8,7 +8,7 @@ description: Provides instructions and workflows for accessing and managing hard
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-11-07'
+  last-updated: '2026-11-13'
   keywords:
   - Android XR
   - intelligent eyewear
@@ -41,3 +41,5 @@ how to get a projected context and [how to manage its lifecycle](references/andr
 ## Glasses hardware access and capabilities
 
 - **Camera capture and CameraX** : You must read [Capture an image with the glasses' camera](references/android/develop/xr/jetpack-xr-sdk/access-hardware-projected-context.md) to understand the implementation patterns for capturing a photo with the glasses' camera using a `ProjectedContext`.
+- **Bluetooth HFP audio and host device context** : Read [Use a projected
+  context to access hardware](references/android/develop/xr/jetpack-xr-sdk/access-hardware-projected-context.md) to route `AudioRecord` to the glasses microphone over Bluetooth HFP (`TYPE_BLUETOOTH_SCO`, `VOICE_COMMUNICATION`, `setPreferredDevice`, and `setCommunicationDevice`) and to obtain the host phone context from a projected activity using `ProjectedContext.createHostDeviceContext(activity)` (annotated with `@OptIn(ExperimentalProjectedApi::class)` from `androidx.xr.projected.experimental.ExperimentalProjectedApi`).

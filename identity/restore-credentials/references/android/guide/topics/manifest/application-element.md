@@ -59,28 +59,28 @@ syntax:
     ```
 
 contained in:
-:   `https://developer.android.com/guide/topics/manifest/manifest-element`
+:   `<manifest>`
 
 can contain:
-:   `https://developer.android.com/guide/topics/manifest/activity-element`
+:   `<activity>`
 
-    `https://developer.android.com/guide/topics/manifest/activity-alias-element`
+    `<activity-alias>`
 
-    `https://developer.android.com/guide/topics/manifest/meta-data-element`
+    `<meta-data>`
 
-    `https://developer.android.com/guide/topics/manifest/service-element`
+    `<service>`
 
-    `https://developer.android.com/guide/topics/manifest/receiver-element`
+    `<receiver>`
 
-    `https://developer.android.com/guide/topics/manifest/profileable-element`
+    `<profileable>`
 
-    `https://developer.android.com/guide/topics/manifest/provider-element`
+    `<provider>`
 
-    `https://developer.android.com/guide/topics/manifest/uses-library-element`
+    `<uses-library>`
 
-    `https://developer.android.com/guide/topics/manifest/uses-native-library-element`
+    `<uses-native-library>`
 
-    `https://developer.android.com/guide/topics/manifest/property-element`
+    `<property>`
 
 description:
 
@@ -108,9 +108,9 @@ attributes
 
 
         The
-        `https://developer.android.com/guide/topics/manifest/activity-element`
+        `<activity>`
         element has its own
-        `https://developer.android.com/guide/topics/manifest/activity-element#reparent`
+        `allowTaskReparenting`
         attribute that can override the value set here.
 
     `android:allowBackup`
@@ -199,12 +199,12 @@ attributes
 
     `android:backupAgent`
     :   The name of the class that implements the application's backup agent,
-        a subclass of `https://developer.android.com/reference/android/app/backup/BackupAgent`. The attribute value is
+        a subclass of `BackupAgent`. The attribute value is
         a fully qualified class name, such as `"com.example.project.MyBackupAgent"`.
         However, as a shorthand, if the first character of the name is a period,
         for example, `".MyBackupAgent"`, it is appended to the
         package name specified in the
-        `https://developer.android.com/guide/topics/manifest/manifest-element`
+        `<manifest>`
         element.
 
 
@@ -221,7 +221,7 @@ attributes
         The default value is `"false"`, which means that the OS avoids
         backing up the app while it's running in the foreground, such as a music app
         that is actively playing music using a service in the
-        `https://developer.android.com/reference/android/app/Service#startForeground(int, android.app.Notification)` state.
+        `startForeground()` state.
 
     `android:banner`
     :   A [drawable resource](https://developer.android.com/guide/topics/resources/drawable-resource)
@@ -232,7 +232,7 @@ attributes
 
         The system uses the banner to represent an app in
         the Android TV home screen. Therefore, only specify this for applications with an activity that handles the
-        `https://developer.android.com/reference/android/content/Intent#CATEGORY_LEANBACK_LAUNCHER` intent.
+        `CATEGORY_LEANBACK_LAUNCHER` intent.
 
 
         This attribute is set as a reference to a drawable resource containing
@@ -394,11 +394,11 @@ attributes
     :   An icon for the application as whole and the default icon for
         each of the application's components. See the individual
         `icon` attributes for the
-        `https://developer.android.com/guide/topics/manifest/activity-element`,
-        `https://developer.android.com/guide/topics/manifest/activity-alias-element`,
-        `https://developer.android.com/guide/topics/manifest/service-element`,
-        `https://developer.android.com/guide/topics/manifest/receiver-element`, and
-        `https://developer.android.com/guide/topics/manifest/provider-element` elements.
+        `<activity>`,
+        `<activity-alias>`,
+        `<service>`,
+        `<receiver>`, and
+        `<provider>` elements.
 
 
         This attribute is set as a reference to a drawable resource containing
@@ -475,17 +475,17 @@ attributes
         improved performance. Enabling this also doesn't guarantee a fixed increase in available memory,
         because some devices are constrained by their total available memory.
 
-        To query the available memory size at runtime, use the methods `https://developer.android.com/reference/android/app/ActivityManager#getMemoryClass()` or `https://developer.android.com/reference/android/app/ActivityManager#getLargeMemoryClass()`.
+        To query the available memory size at runtime, use the methods `getMemoryClass()` or `getLargeMemoryClass()`.
 
     `android:label`
     :   A user-readable label for the application as a whole and a default
         label for each of the application's components. See the individual
         `label` attributes for the
-        `https://developer.android.com/guide/topics/manifest/activity-element`,
-        `https://developer.android.com/guide/topics/manifest/activity-alias-element`,
-        `https://developer.android.com/guide/topics/manifest/service-element`,
-        `https://developer.android.com/guide/topics/manifest/receiver-element`, and
-        `https://developer.android.com/guide/topics/manifest/provider-element` elements.
+        `<activity>`,
+        `<activity-alias>`,
+        `<service>`,
+        `<receiver>`, and
+        `<provider>` elements.
 
 
         The label is set as a reference to a string resource, so that
@@ -511,10 +511,10 @@ attributes
     :   The fully qualified name of an `Activity` subclass that the system
         launches to let users manage the memory occupied by the application
         on the device. The activity is also declared with an
-        `https://developer.android.com/guide/topics/manifest/activity-element` element.
+        `<activity>` element.
 
     `android:name`
-    :   The fully qualified name of an `https://developer.android.com/reference/android/app/Application`
+    :   The fully qualified name of an `Application`
         subclass implemented for the application. When the application process
         is started, this class is instantiated before any of the application's
         components.
@@ -570,7 +570,7 @@ attributes
         By default, Android creates a process for an application when the first
         of its components needs to run. All components then run in that process.
         The name of the default process matches the package name set by the
-        `https://developer.android.com/guide/topics/manifest/manifest-element` element.
+        `<manifest>` element.
 
 
         By setting this attribute to a process name that's shared with another
@@ -604,9 +604,9 @@ attributes
 
     `android:requiredAccountType`
     :   Specifies the account type required by the application to function.
-        If your app requires an `https://developer.android.com/reference/android/accounts/Account`, the value for this attribute must
+        If your app requires an `Account`, the value for this attribute must
         correspond to the account authenticator
-        type used by your app, as defined by `https://developer.android.com/reference/android/accounts/AuthenticatorDescription`,
+        type used by your app, as defined by `AuthenticatorDescription`,
         such as `"com.google"`.
 
         The default value is null and indicates that the application
@@ -682,10 +682,10 @@ attributes
     `android:restrictedAccountType`
     :   Specifies the account type required by this application and indicates that restricted profiles
         can access such accounts that belong to the owner user. If your app requires an
-        `https://developer.android.com/reference/android/accounts/Account` and restricted profiles *can*
+        `Account` and restricted profiles *can*
         access the primary user's accounts, the value for this attribute must
         correspond to the account authenticator type used by your app, as
-        defined by `https://developer.android.com/reference/android/accounts/AuthenticatorDescription`, such as `"com.google"`.
+        defined by `AuthenticatorDescription`, such as `"com.google"`.
 
         The default value is null and indicates that the application can work *without* any
         accounts.
@@ -720,20 +720,20 @@ attributes
     `android:taskAffinity`
     :   An affinity name that applies to all activities within the application,
         except for those that set a different affinity with their own
-        `https://developer.android.com/guide/topics/manifest/activity-element#aff`
+        `taskAffinity`
         attributes. See that attribute for more information.
 
 
         By default, all activities within an application share the same
         affinity. The name of that affinity is the same as the package name
         set by the
-        `https://developer.android.com/guide/topics/manifest/manifest-element` element.
+        `<manifest>` element.
 
     `android:testOnly`
     :   Indicates whether this application is only for testing purposes. For example,
         it might expose functionality or data outside of itself that can cause a security
         hole, but be useful for testing. This kind of APK only installs
-        through `https://developer.android.com/studio/command-line/adb`. You can't publish it to Google Play.
+        through `adb`. You can't publish it to Google Play.
 
         Android Studio automatically adds this attribute when you click **Run**
         ![](https://developer.android.com/static/studio/images/buttons/toolbar-run.png).
@@ -741,7 +741,7 @@ attributes
     `android:theme`
     :   A reference to a style resource defining a default theme for all
         activities in the application. Individual activities can override
-        the default by setting their own `https://developer.android.com/guide/topics/manifest/activity-element#theme`
+        the default by setting their own `theme`
         attributes. For more information, see [Styles and themes](https://developer.android.com/guide/topics/ui/themes).
 
     `android:uiOptions`
@@ -769,8 +769,8 @@ attributes
 
 
         When the attribute is set to `"false"`, platform components, for example, HTTP and FTP
-        stacks, `https://developer.android.com/reference/android/app/DownloadManager`, and
-        `https://developer.android.com/reference/android/media/MediaPlayer`, refuse the
+        stacks, `DownloadManager`, and
+        `MediaPlayer`, refuse the
         app's requests to use cleartext traffic.
 
         Third-party libraries are strongly encouraged to honor this
@@ -781,25 +781,25 @@ attributes
 
         This flag is honored on a best-effort basis because it's impossible to prevent all cleartext
         traffic from Android applications given the level of access provided to them. For example, there's
-        no expectation that the `https://developer.android.com/reference/java/net/Socket` API honors
+        no expectation that the `Socket` API honors
         this flag, because it can't determine whether its traffic is in cleartext.
 
         However, most
         network traffic from applications is handled by higher-level network stacks and components, which can
         honor this flag by either reading it from
-        `https://developer.android.com/reference/android/content/pm/ApplicationInfo#flags`
+        `ApplicationInfo.flags`
         or
-        `https://developer.android.com/reference/android/security/NetworkSecurityPolicy#isCleartextTrafficPermitted()`.
+        `NetworkSecurityPolicy.isCleartextTrafficPermitted()`.
 
 
         **Note:**
-        `https://developer.android.com/reference/android/webkit/WebView` honors this attribute for
+        `WebView` honors this attribute for
         applications targeting API level 26 and higher.
 
 
         During app development, StrictMode can be used to identify any cleartext traffic from the app.
         For more information, see
-        `https://developer.android.com/reference/android/os/StrictMode.VmPolicy.Builder#detectCleartextNetwork()`.
+        `StrictMode.VmPolicy.Builder.detectCleartextNetwork()`.
 
 
         This attribute was added in API level 23.
@@ -823,10 +823,10 @@ introduced in:
 :   API level 1
 
 see also:
-:   `https://developer.android.com/guide/topics/manifest/activity-element`
+:   `<activity>`
 
-    `https://developer.android.com/guide/topics/manifest/service-element`
+    `<service>`
 
-    `https://developer.android.com/guide/topics/manifest/receiver-element`
+    `<receiver>`
 
-    `https://developer.android.com/guide/topics/manifest/provider-element`
+    `<provider>`

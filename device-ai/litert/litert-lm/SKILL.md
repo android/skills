@@ -12,7 +12,7 @@ description: Builds an Android app that runs an open text LLM on the device, on 
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-10-20'
+  last-updated: '2026-11-10'
   keywords:
   - LiteRT-LM
   - litertlm
@@ -58,15 +58,17 @@ LiteRT-LM dependency in `app/build.gradle.kts`:
 
 <br />
 
-    android {
-        defaultConfig {
-            minSdk = 24
-        }
+```kotlin
+android {
+    defaultConfig {
+        minSdk = 24
     }
+}
 
-    dependencies {
-        implementation("com.google.ai.edge.litertlm:litertlm-android:0.18.0")
-    }
+dependencies {
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.18.0")
+}
+```
 
 If the project uses Hilt, check the Dagger version first. `litertlm-android`
 0.18.0 carries Kotlin 2.4 metadata, which Hilt 2.59.2 can't read. The build
@@ -78,9 +80,11 @@ version 2.4.0, while maximum supported version is 2.3.0`. Pick one fix:
 
 <br />
 
-    dependencies {
-        ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
-    }
+```kotlin
+dependencies {
+    ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
+}
+```
 
 For the GPU backend, add both lines inside `<application>` in
 `AndroidManifest.xml`. Add the `INTERNET` permission outside `<application>`
@@ -88,16 +92,18 @@ when the app downloads the model:
 
 <br />
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
 
-    <application>
-        <uses-native-library
-            android:name="libvndksupport.so"
-            android:required="false"/>
-        <uses-native-library
-            android:name="libOpenCL.so"
-            android:required="false"/>
-    </application>
+<application>
+    <uses-native-library
+        android:name="libvndksupport.so"
+        android:required="false"/>
+    <uses-native-library
+        android:name="libOpenCL.so"
+        android:required="false"/>
+</application>
+```
 
 ### Step 2: Pick a model from litert-community
 
@@ -158,113 +164,115 @@ Drive the engine and the conversation from a single-thread executor inside an
 
 <br />
 
-    import android.app.Application
-    import androidx.lifecycle.AndroidViewModel
-    import com.google.ai.edge.litertlm.Backend
-    import com.google.ai.edge.litertlm.Contents
-    import com.google.ai.edge.litertlm.Conversation
-    import com.google.ai.edge.litertlm.ConversationConfig
-    import com.google.ai.edge.litertlm.Engine
-    import com.google.ai.edge.litertlm.EngineConfig
-    import java.util.concurrent.Executors
-    import kotlin.coroutines.cancellation.CancellationException
-    import kotlinx.coroutines.CoroutineScope
-    import kotlinx.coroutines.SupervisorJob
-    import kotlinx.coroutines.asCoroutineDispatcher
-    import kotlinx.coroutines.cancel
-    import kotlinx.coroutines.delay
-    import kotlinx.coroutines.flow.MutableStateFlow
-    import kotlinx.coroutines.flow.StateFlow
-    import kotlinx.coroutines.flow.asStateFlow
-    import kotlinx.coroutines.flow.update
-    import kotlinx.coroutines.launch
-    import kotlinx.coroutines.sync.Mutex
-    import kotlinx.coroutines.sync.withLock
+```kotlin
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import com.google.ai.edge.litertlm.Backend
+import com.google.ai.edge.litertlm.Contents
+import com.google.ai.edge.litertlm.Conversation
+import com.google.ai.edge.litertlm.ConversationConfig
+import com.google.ai.edge.litertlm.Engine
+import com.google.ai.edge.litertlm.EngineConfig
+import java.util.concurrent.Executors
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
-    data class ChatState(
-        val ready: Boolean = false,
-        val busy: Boolean = false,
-        val reply: String = "",
-        val error: String? = null
+data class ChatState(
+    val ready: Boolean = false,
+    val busy: Boolean = false,
+    val reply: String = "",
+    val error: String? = null
+)
+
+class ChatViewModel(app: Application) : AndroidViewModel(app) {
+    private val executor = Executors.newSingleThreadExecutor()
+    private val scope = CoroutineScope(
+        SupervisorJob() + executor.asCoroutineDispatcher()
     )
+    private val mutex = Mutex()
+    private var engine: Engine? = null
+    private var conversation: Conversation? = null
+    private val _state = MutableStateFlow(ChatState())
+    val state: StateFlow<ChatState> = _state.asStateFlow()
 
-    class ChatViewModel(app: Application) : AndroidViewModel(app) {
-        private val executor = Executors.newSingleThreadExecutor()
-        private val scope = CoroutineScope(
-            SupervisorJob() + executor.asCoroutineDispatcher()
-        )
-        private val mutex = Mutex()
-        private var engine: Engine? = null
-        private var conversation: Conversation? = null
-        private val _state = MutableStateFlow(ChatState())
-        val state: StateFlow<ChatState> = _state.asStateFlow()
-
-        fun load(modelPath: String, backend: Backend = Backend.CPU()) {
-            scope.launch {
-                mutex.withLock {
-                    if (engine?.engineConfig?.modelPath == modelPath) return@launch
-                    release()
-                    try {
-                        val config = EngineConfig(
-                            modelPath = modelPath,
-                            backend = backend,
-                            cacheDir = getApplication<Application>().cacheDir.path
-                        )
-                        engine = Engine(config).also { it.initialize() }
-                        conversation = checkNotNull(engine).createConversation(
-                            ConversationConfig(
-                                systemInstruction =
-                                    Contents.of("You are a helpful assistant.")
-                            )
-                        )
-                        _state.value = ChatState(ready = true)
-                    } catch (e: Exception) {
-                        release()
-                        _state.value = ChatState(error = e.message)
-                    }
-                }
-            }
-        }
-
-        fun send(text: String) {
-            scope.launch {
-                if (!_state.value.ready || _state.value.busy) return@launch
-                _state.update { it.copy(busy = true, reply = "", error = null) }
+    fun load(modelPath: String, backend: Backend = Backend.CPU()) {
+        scope.launch {
+            mutex.withLock {
+                if (engine?.engineConfig?.modelPath == modelPath) return@launch
+                release()
                 try {
-                    val replies = checkNotNull(conversation).sendMessageAsync(text)
-                    replies.collect { message ->
-                        _state.update { it.copy(reply = it.reply + message) }
-                    }
-                } catch (e: CancellationException) {
-                    throw e
+                    val config = EngineConfig(
+                        modelPath = modelPath,
+                        backend = backend,
+                        cacheDir = getApplication<Application>().cacheDir.path
+                    )
+                    engine = Engine(config).also { it.initialize() }
+                    conversation = checkNotNull(engine).createConversation(
+                        ConversationConfig(
+                            systemInstruction =
+                                Contents.of("You are a helpful assistant.")
+                        )
+                    )
+                    _state.value = ChatState(ready = true)
                 } catch (e: Exception) {
-                    _state.update { it.copy(error = e.message) }
-                } finally {
-                    _state.update { it.copy(busy = false) }
+                    release()
+                    _state.value = ChatState(error = e.message)
                 }
             }
-        }
-
-        private suspend fun release() {
-            _state.update { it.copy(ready = false) }
-            while (_state.value.busy) {
-                conversation?.cancelProcess()
-                delay(100)
-            }
-            conversation?.close()
-            conversation = null
-            engine?.close()
-            engine = null
-            _state.value = ChatState()
-        }
-
-        override fun onCleared() {
-            scope.launch {
-                mutex.withLock { release() }
-                executor.shutdown()
-            }.invokeOnCompletion { scope.cancel() }
         }
     }
+
+    fun send(text: String) {
+        scope.launch {
+            if (!_state.value.ready || _state.value.busy) return@launch
+            _state.update { it.copy(busy = true, reply = "", error = null) }
+            try {
+                val replies = checkNotNull(conversation).sendMessageAsync(text)
+                replies.collect { message ->
+                    _state.update { it.copy(reply = it.reply + message) }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message) }
+            } finally {
+                _state.update { it.copy(busy = false) }
+            }
+        }
+    }
+
+    private suspend fun release() {
+        _state.update { it.copy(ready = false) }
+        while (_state.value.busy) {
+            conversation?.cancelProcess()
+            delay(100)
+        }
+        conversation?.close()
+        conversation = null
+        engine?.close()
+        engine = null
+        _state.value = ChatState()
+    }
+
+    override fun onCleared() {
+        scope.launch {
+            mutex.withLock { release() }
+            executor.shutdown()
+        }.invokeOnCompletion { scope.cancel() }
+    }
+}
+```
 
 `sendMessageAsync(text)` returns a `Flow<Message>` of chunks, and `toString`
 gives a chunk's text. `sendMessage(text)` blocks and returns the whole reply.
@@ -290,43 +298,45 @@ lands while `release` stops a reply does nothing. A tap queued behind a
 
 <br />
 
-    import androidx.compose.foundation.layout.Column
-    import androidx.compose.foundation.rememberScrollState
-    import androidx.compose.foundation.verticalScroll
-    import androidx.compose.material3.Button
-    import androidx.compose.material3.Text
-    import androidx.compose.material3.TextField
-    import androidx.compose.runtime.Composable
-    import androidx.compose.runtime.LaunchedEffect
-    import androidx.compose.runtime.getValue
-    import androidx.compose.runtime.mutableStateOf
-    import androidx.compose.runtime.remember
-    import androidx.compose.runtime.setValue
-    import androidx.compose.ui.Modifier
-    import androidx.lifecycle.compose.collectAsStateWithLifecycle
-    import androidx.lifecycle.viewmodel.compose.viewModel
-    import com.google.ai.edge.litertlm.Backend
+```kotlin
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.ai.edge.litertlm.Backend
 
-    @Composable
-    fun ChatScreen(modelPath: String, viewModel: ChatViewModel = viewModel()) {
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        var input by remember { mutableStateOf("") }
-        LaunchedEffect(modelPath) { viewModel.load(modelPath, Backend.GPU()) }
-        Column {
-            Text(
-                state.reply,
-                Modifier.weight(1f).verticalScroll(rememberScrollState())
-            )
-            state.error?.let { Text(it) }
-            TextField(value = input, onValueChange = { input = it })
-            Button(
-                onClick = { viewModel.send(input); input = "" },
-                enabled = state.ready && !state.busy
-            ) {
-                Text("Send")
-            }
+@Composable
+fun ChatScreen(modelPath: String, viewModel: ChatViewModel = viewModel()) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    var input by remember { mutableStateOf("") }
+    LaunchedEffect(modelPath) { viewModel.load(modelPath, Backend.GPU()) }
+    Column {
+        Text(
+            state.reply,
+            Modifier.weight(1f).verticalScroll(rememberScrollState())
+        )
+        state.error?.let { Text(it) }
+        TextField(value = input, onValueChange = { input = it })
+        Button(
+            onClick = { viewModel.send(input); input = "" },
+            enabled = state.ready && !state.busy
+        ) {
+            Text("Send")
         }
     }
+}
+```
 
 ### Step 7: Manage the engine lifecycle
 

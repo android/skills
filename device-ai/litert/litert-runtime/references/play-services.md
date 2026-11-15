@@ -36,17 +36,19 @@ Play.
 In `app/build.gradle.kts`, remove `com.google.ai.edge.litert:litert` and
 `litert-gpu`, and add:
 
-    android {
-        defaultConfig {
-            minSdk = 24
-        }
+```kotlin
+android {
+    defaultConfig {
+        minSdk = 24
     }
+}
 
-    dependencies {
-        implementation("com.google.android.gms:play-services-litert:17.0.0")
-        // For Task.await() in coroutines.
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
-    }
+dependencies {
+    implementation("com.google.android.gms:play-services-litert:17.0.0")
+    // For Task.await() in coroutines.
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+}
+```
 
 Use version `17.0.0` exactly, also in `gradle/libs.versions.toml`, and run
 `./gradlew assembleDebug` (not `--dry-run`, which doesn't resolve
@@ -78,25 +80,27 @@ constructor parameter alone leaves the app without a way to get the
 `Environment`. Create it on the executor of Step 3 of the skill, never on the
 main thread:
 
-    import android.content.Context
-    import com.google.ai.edge.litert.Environment
-    import com.google.android.gms.litert.LiteRt
-    import com.google.android.gms.litert.client.LiteRtInitializationOptions
-    import kotlinx.coroutines.sync.Mutex
-    import kotlinx.coroutines.sync.withLock
-    import kotlinx.coroutines.tasks.await
+```kotlin
+import android.content.Context
+import com.google.ai.edge.litert.Environment
+import com.google.android.gms.litert.LiteRt
+import com.google.android.gms.litert.client.LiteRtInitializationOptions
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.tasks.await
 
-    object PlayServicesEnvironment {
-        private val mutex = Mutex()
-        private var environment: Environment? = null
+object PlayServicesEnvironment {
+    private val mutex = Mutex()
+    private var environment: Environment? = null
 
-        suspend fun get(context: Context): Environment = mutex.withLock {
-            environment ?: LiteRt.initialize(
-                context.applicationContext,
-                LiteRtInitializationOptions.builder().setEnableGpu(true).build()
-            ).await().also { environment = it }
-        }
+    suspend fun get(context: Context): Environment = mutex.withLock {
+        environment ?: LiteRt.initialize(
+            context.applicationContext,
+            LiteRtInitializationOptions.builder().setEnableGpu(true).build()
+        ).await().also { environment = it }
     }
+}
+```
 
 `setEnableGpu` is `false` by default; without it, `CompiledModel.create` with
 `Accelerator.GPU` fails. When the device can't load the GPU accelerator,
@@ -121,13 +125,15 @@ Kotlin compiler with an internal error in `17.0.0`.
 - **Step 2** : Remove the `environment` property and give `Classifier` an `environment: Environment` constructor parameter, which `CompiledModel.create` receives. When no `ViewModel` caller retries on the CPU as in Step 3, pass `CompiledModel.Options(accelerator, Accelerator.CPU)` so the model runs on the CPU when the Play services GPU module isn't loaded. Everything else in Step 2 stays.
 - **Step 3** : In `load`, get the `Environment` before creating the `Classifier`, inside the same `scope.launch`:
 
-    val environment = try {
-        PlayServicesEnvironment.get(appContext)
-    } catch (e: Exception) {
-        _uiState.value = UiState(error = e.message)
-        return@launch
-    }
-    classifier = Classifier(appContext, preferred, environment)
+```kotlin
+val environment = try {
+    PlayServicesEnvironment.get(appContext)
+} catch (e: Exception) {
+    _uiState.value = UiState(error = e.message)
+    return@launch
+}
+classifier = Classifier(appContext, preferred, environment)
+```
 
 Pass the same `environment` to the CPU retry. The GPU-to-CPU fallback, the
 buffers, `infer`, and `close` stay as in the skill.

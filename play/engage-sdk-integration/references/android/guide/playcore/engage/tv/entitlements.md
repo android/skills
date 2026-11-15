@@ -53,33 +53,37 @@ content, provide these essential details:
 
 Example for the sample media provider feed.
 
-    "actionAccessibilityRequirement": [
-      {
-        "@type": "ActionAccessSpecification",
-        "category": "subscription",
-        "availabilityStarts": "2022-06-01T07:00:00Z",
-        "availabilityEnds": "2026-05-31T07:00:00Z",
-        "requiresSubscription": {
-        "@type": "MediaSubscription",
-        // Don't match this string,
-        // ID is only used to for reconciliation purpose
-        "@id": "https://www.example.com/971bfc78-d13a-4419",
-        // Don't match this, as name is only used for displaying purpose
-        "name": "Basic common name",
-        "commonTier": true
-      }
+```json
+"actionAccessibilityRequirement": [
+  {
+    "@type": "ActionAccessSpecification",
+    "category": "subscription",
+    "availabilityStarts": "2022-06-01T07:00:00Z",
+    "availabilityEnds": "2026-05-31T07:00:00Z",
+    "requiresSubscription": {
+    "@type": "MediaSubscription",
+    // Don't match this string,
+    // ID is only used to for reconciliation purpose
+    "@id": "https://www.example.com/971bfc78-d13a-4419",
+    // Don't match this, as name is only used for displaying purpose
+    "name": "Basic common name",
+    "commonTier": true
+  }
+```
 
 The following example creates a `SubscriptionEntity` for a user:
 
-    val subscription = SubscriptionEntity.Builder()
-      .setSubscriptionType(
-        SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
-      )
-      .setProviderPackageName("com.google.android.example")
-      // Optional
-      // December 30, 2025 12:00:00AM in milliseconds since epoch
-      .setExpirationTimeMillis(1767052800000)
-      .build()
+```kotlin
+val subscription = SubscriptionEntity.Builder()
+  .setSubscriptionType(
+    SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
+  )
+  .setProviderPackageName("com.google.android.example")
+  // Optional
+  // December 30, 2025 12:00:00AM in milliseconds since epoch
+  .setExpirationTimeMillis(1767052800000)
+  .build()
+```
 
 ### Premium subscription
 
@@ -95,66 +99,72 @@ This entitlement has the following fields:
 
 For the following sample media provider feed snippet:
 
-    "actionAccessibilityRequirement": [
-      {
-        "@type": "ActionAccessSpecification",
-        "category": "subscription",
-        "availabilityStarts": "2022-06-01T07:00:00Z",
-        "availabilityEnds": "2026-05-31T07:00:00Z",
-        "requiresSubscription": {
-        "@type": "MediaSubscription",
-        // Don't match this string,
-        // ID is only used to for reconciliation purpose
-        "@id": "https://www.example.com/971bfc78-d13a-4419",
+```json
+"actionAccessibilityRequirement": [
+  {
+    "@type": "ActionAccessSpecification",
+    "category": "subscription",
+    "availabilityStarts": "2022-06-01T07:00:00Z",
+    "availabilityEnds": "2026-05-31T07:00:00Z",
+    "requiresSubscription": {
+    "@type": "MediaSubscription",
+    // Don't match this string,
+    // ID is only used to for reconciliation purpose
+    "@id": "https://www.example.com/971bfc78-d13a-4419",
 
-        // Don't match this, as name is only used for displaying purpose
-        "name": "Example entitlement name",
-        "commonTier": false,
-        // match this identifier in your API. This is the crucial
-        // entitlement identifier used for recommendation purpose.
-        "identifier": "example.com:entitlementString1"
-      }
+    // Don't match this, as name is only used for displaying purpose
+    "name": "Example entitlement name",
+    "commonTier": false,
+    // match this identifier in your API. This is the crucial
+    // entitlement identifier used for recommendation purpose.
+    "identifier": "example.com:entitlementString1"
+  }
+```
 
 The following example creates a `SubscriptionEntity` for a subscribed user:
 
-    // Subscription with entitlements.
-    // The entitlement expires at the same time as its subscription.
-    val subscription = SubscriptionEntity.Builder()
-      .setSubscriptionType(
-        SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
-      )
-      .setProviderPackageName("com.google.android.example")
-      // Optional
-      // December 30, 2025 12:00:00AM in milliseconds
-      .setExpirationTimeMillis(1767052800000)
-      .addEntitlement(
-        SubscriptionEntitlement.Builder()
-        // matches with the identifier in media provider feed
-        .setEntitlementId("example.com:entitlementString1")
-        .setDisplayName("entitlement name1")
-        .build()
-      )
-      .build()
+```kotlin
+// Subscription with entitlements.
+// The entitlement expires at the same time as its subscription.
+val subscription = SubscriptionEntity.Builder()
+  .setSubscriptionType(
+    SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
+  )
+  .setProviderPackageName("com.google.android.example")
+  // Optional
+  // December 30, 2025 12:00:00AM in milliseconds
+  .setExpirationTimeMillis(1767052800000)
+  .addEntitlement(
+    SubscriptionEntitlement.Builder()
+    // matches with the identifier in media provider feed
+    .setEntitlementId("example.com:entitlementString1")
+    .setDisplayName("entitlement name1")
+    .build()
+  )
+  .build()
+```
 
-    // Subscription with entitlements
-    // The entitement has different expiration time from its subscription
-    val subscription = SubscriptionEntity.Builder()
-      .setSubscriptionType(
-        SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
-      )
-      .setProviderPackageName("com.google.android.example")
-      // Optional
-      // December 30, 2025 12:00:00AM in milliseconds
-      .setExpirationTimeMillis(1767052800000)
-      .addEntitlement(
-        SubscriptionEntitlement.Builder()
-        .setEntitlementId("example.com:entitlementString1")
-        .setDisplayName("entitlement name1")
-        // You may set the expiration time for entitlement
-        // December 15, 2025 10:00:00 AM in milliseconds
-        .setExpirationTimeMillis(1765792800000)
-        .build())
-      .build()
+```kotlin
+// Subscription with entitlements
+// The entitement has different expiration time from its subscription
+val subscription = SubscriptionEntity.Builder()
+  .setSubscriptionType(
+    SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
+  )
+  .setProviderPackageName("com.google.android.example")
+  // Optional
+  // December 30, 2025 12:00:00AM in milliseconds
+  .setExpirationTimeMillis(1767052800000)
+  .addEntitlement(
+    SubscriptionEntitlement.Builder()
+    .setEntitlementId("example.com:entitlementString1")
+    .setDisplayName("entitlement name1")
+    // You may set the expiration time for entitlement
+    // December 15, 2025 10:00:00 AM in milliseconds
+    .setExpirationTimeMillis(1765792800000)
+    .build())
+  .build()
+```
 
 ### Subscription for linked service package
 
@@ -164,46 +174,50 @@ linked service package name within the subscription.
 
 Following code sample demonstrate how to create user subscription.
 
-    // Subscription for linked service package
-    val subscription = SubscriptionEntity.Builder()
-      .setSubscriptionType(
-        SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
-      )
-      .setProviderPackageName("com.google.android.example")
-      // Optional
-      // December 30, 2025 12:00:00AM in milliseconds since epoch
-      .setExpirationTimeMillis(1767052800000)
-      .build()
+```kotlin
+// Subscription for linked service package
+val subscription = SubscriptionEntity.Builder()
+  .setSubscriptionType(
+    SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
+  )
+  .setProviderPackageName("com.google.android.example")
+  // Optional
+  // December 30, 2025 12:00:00AM in milliseconds since epoch
+  .setExpirationTimeMillis(1767052800000)
+  .build()
+```
 
 In addition, if the user has another subscription to a subsidiary service, add
 another subscription and set the linked service package name accordingly.
 
-    // Subscription for linked service package
-    val linkedSubscription = SubscriptionEntity.Builder()
-      .setSubscriptionType(
-        SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
+```kotlin
+// Subscription for linked service package
+val linkedSubscription = SubscriptionEntity.Builder()
+  .setSubscriptionType(
+    SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE
+  )
+  .setProviderPackageName("linked service package name")
+  // Optional
+  // December 30, 2025 12:00:00AM in milliseconds since epoch
+  .setExpirationTimeMillis(1767052800000)
+  .addBundledSubscription(
+    BundledSubscription.Builder()
+      .setBundledSubscriptionProviderPackageName(
+        "bundled-subscription-package-name"
       )
-      .setProviderPackageName("linked service package name")
-      // Optional
-      // December 30, 2025 12:00:00AM in milliseconds since epoch
-      .setExpirationTimeMillis(1767052800000)
-      .addBundledSubscription(
-        BundledSubscription.Builder()
-          .setBundledSubscriptionProviderPackageName(
-            "bundled-subscription-package-name"
-          )
-          .setSubscriptionType(SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE)
-          .setExpirationTimeMillis(111)
-          .addEntitlement(
-            SubscriptionEntitlement.Builder()
-            .setExpirationTimeMillis(111)
-            .setDisplayName("Silver subscription")
-            .setEntitlementId("subscription.tier.platinum")
-            .build()
-          )
-          .build()
+      .setSubscriptionType(SubscriptionType.SUBSCRIPTION_TYPE_ACTIVE)
+      .setExpirationTimeMillis(111)
+      .addEntitlement(
+        SubscriptionEntitlement.Builder()
+        .setExpirationTimeMillis(111)
+        .setDisplayName("Silver subscription")
+        .setEntitlementId("subscription.tier.platinum")
+        .build()
       )
       .build()
+  )
+  .build()
+```
 
 Optionally, add entitlements to a linked service subscription too.
 
@@ -217,12 +231,14 @@ Use the `publishSubscriptionCluster()` method, from the
 Make sure to initialize the client and check for service availability as
 described in the [Getting Started guide](https://developer.android.com/guide/playcore/engage/tv/getting-started#common-integration).
 
-    client.publishSubscription(
-      PublishSubscriptionRequest.Builder()
-        .setAccountProfile(accountProfile)
-        .setSubscription(subscription)
-        .build()
-    )
+```kotlin
+client.publishSubscription(
+  PublishSubscriptionRequest.Builder()
+    .setAccountProfile(accountProfile)
+    .setSubscription(subscription)
+    .build()
+)
+```
 
 Use `setSubscription()` to verify that user should have only one subscription to
 the service.
@@ -256,40 +272,46 @@ maintained.
 
    The following code snippet shows how to remove a user subscription:
 
-       // If the user logs out from your media app, you must make the following call
-       // to remove subscription and other Engage data from the current
-       // google TV device.
-       client.deleteClusters(
-         DeleteClustersRequest.Builder()
-           .setAccountProfile(accountProfile)
-           .setDeleteReason(DeleteReason.DELETE_REASON_USER_LOG_OUT)
-           .build()
-       )
+   ```kotlin
+   // If the user logs out from your media app, you must make the following call
+   // to remove subscription and other Engage data from the current
+   // google TV device.
+   client.deleteClusters(
+     DeleteClustersRequest.Builder()
+       .setAccountProfile(accountProfile)
+       .setDeleteReason(DeleteReason.DELETE_REASON_USER_LOG_OUT)
+       .build()
+   )
+   ```
 
    The following code snippet demonstrates removal of user subscription
    when user revokes the consent:
 
-       // If the user revokes the consent to share across device, make the call
-       // to remove subscription and other Engage data from all google
-       // TV devices.
-       client.deleteClusters(
-         DeleteClustersRequest.Builder()
-           .setAccountProfile(accountProfile)
-           .setDeleteReason(DeleteReason.DELETE_REASON_LOSS_OF_CONSENT)
-           .build()
-       )
+   ```kotlin
+   // If the user revokes the consent to share across device, make the call
+   // to remove subscription and other Engage data from all google
+   // TV devices.
+   client.deleteClusters(
+     DeleteClustersRequest.Builder()
+       .setAccountProfile(accountProfile)
+       .setDeleteReason(DeleteReason.DELETE_REASON_LOSS_OF_CONSENT)
+       .build()
+   )
+   ```
 
    Following code demonstrates how to remove subscription data on user profile
    deletion.
 
-       // If the user delete a specific profile, you must make the following call
-       // to remove subscription data and other Engage data.
-       client.deleteClusters(
-         DeleteClustersRequest.Builder()
-           .setAccountProfile(accountProfile)
-           .setDeleteReason(DeleteReason.DELETE_REASON_ACCOUNT_PROFILE_DELETION)
-           .build()
-       )
+   ```kotlin
+   // If the user delete a specific profile, you must make the following call
+   // to remove subscription data and other Engage data.
+   client.deleteClusters(
+     DeleteClustersRequest.Builder()
+       .setAccountProfile(accountProfile)
+       .setDeleteReason(DeleteReason.DELETE_REASON_ACCOUNT_PROFILE_DELETION)
+       .build()
+   )
+   ```
 
 ### Testing
 
