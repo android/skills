@@ -441,7 +441,7 @@ project.
 engage-core = "1.6.0"
 engage-tv = "1.1.0"
 playServicesOssLicenses = "17.5.1"
-workManager = "2.11.2"
+workManager = "2.12.0"
 coroutines = "1.10.2"
 
 [libraries]

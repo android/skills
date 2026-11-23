@@ -150,7 +150,7 @@ Determine your execution capabilities and proceed with either Mode A OR Mode B.
     -   **Validate**: Confirm `<temp_dir>/worker_<goal_name>.json` exists before
         moving to the next goal.
 2.  **Aggregate Findings**: Execute the python aggregation command:
-   `python3 <repo_root>/scripts/orchestrator.py --aggregate <temp_dir>`.
+   `python3 <repo_root>/scripts/orchestrator.py aggregate <temp_dir>`.
    This produces `aggregated_findings.json` and returns a JSON object containing
    `critic_chunks` representing the number of chunks to verify.
 3.  **Sequential Critic review**: For each chunk index `i` from 1 to

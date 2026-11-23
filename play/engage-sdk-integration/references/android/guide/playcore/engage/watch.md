@@ -328,7 +328,14 @@ such as TikTok or YouTube.
 
 #### Image specifications
 
-The following section lists the required specifications for image assets:
+The following table lists the required specifications for image assets:
+
+| Aspect ratio | Supported cluster(s) | Minimum pixels | Recommended pixels |
+|---|---|---|---|
+| Landscape (16:9, 1.91x1) | Featured, continuation, and recommendation (16:9 preferred) | 640x360 (16:9) / 600x314 (1.91x1) | 1264x712 (16:9) / 1200x628 (1.91x1) |
+| Portrait (9:16) | Recommendation (vertical `VideoClipEntity`) | 360x640 | 720x1280 |
+| Portrait (4x5, 2x3) | Recommendation and continuation (cropped on phone continuation and recommendation cards) | 480x600 (4x5) / 400x600 (2x3) | 960x1200 (4x5) / 800x1200 (2x3) |
+| Square (1x1) | Recommendation | 300x300 | 1200x1200 |
 
 *File formats*
 

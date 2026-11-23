@@ -19,7 +19,6 @@ package com.example.platform.ui.appwidgets.glance.layout
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -41,7 +40,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
@@ -58,10 +56,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -181,40 +181,28 @@ private fun Header(modifier: Modifier) {
         val linkColor = MaterialTheme.colorScheme.primary
         val url = "https://developer.android.com/design/ui/mobile/guides/widgets/layouts"
 
-        val annotatedText = remember {
+        val annotatedText = remember(linkColor) {
             val part1 =
                 "Explore these widget layouts, showcasing common design patterns. Add them to your home screen for a hands-on experience or dive into "
             val toLinkify = "detailed design guidelines."
 
             buildAnnotatedString {
                 append(part1)
-                pushStringAnnotation(
-                    tag = "URL",
-                    annotation = "url",
-                )
-                withStyle(
-                    style = SpanStyle(
-                        color = linkColor,
-                    ),
+                withLink(
+                    LinkAnnotation.Url(
+                        url = url,
+                        styles = TextLinkStyles(style = SpanStyle(color = linkColor)),
+                    )
                 ) {
                     append(toLinkify)
                 }
-                pop()
             }
         }
 
-        ClickableText(
+        Text(
             text = annotatedText,
-
             style = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Center),
             modifier = modifier,
-            onClick = { offset ->
-                annotatedText.getStringAnnotations(
-                    tag = "URL", start = offset, end = offset,
-                ).firstOrNull()?.let { annotation ->
-                    Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                }
-            },
         )
     }
 

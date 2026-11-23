@@ -29,7 +29,7 @@ value class AspectRatio private constructor(private val value: Int) {
     val Ratio4x3: AspectRatio = AspectRatio(3)
 
     /**
-     * Returns the aspect ration as [Double]
+     * Returns the aspect ratio as [Double]
      */
     fun AspectRatio.asDouble(): Double {
       return when (this) {
@@ -37,7 +37,7 @@ value class AspectRatio private constructor(private val value: Int) {
         Ratio16x9 -> 16f / 9f
         Ratio2x3 -> 2f / 3f
         Ratio4x3 -> 4f / 3f
-        else -> throw IllegalArgumentException("Unknown Aspect ration $this")
+        else -> throw IllegalArgumentException("Unknown Aspect ratio $this")
       }.toDouble()
     }
 

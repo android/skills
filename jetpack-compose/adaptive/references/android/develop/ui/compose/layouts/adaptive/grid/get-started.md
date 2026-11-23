@@ -7,7 +7,7 @@ This page describes how to implement basic [`Grid`](https://developer.android.co
 
    ```kotlin
    [versions]
-   compose = "1.13.0-rc01"
+   compose = "1.14.0-alpha01"
 
    [libraries]
    androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "compose" }
@@ -19,6 +19,9 @@ This page describes how to implement basic [`Grid`](https://developer.android.co
        implementation(libs.androidx.compose.foundation.layout)
    }
    ```
+
+> [!NOTE]
+> **Note:** `Grid` is stable starting in Compose 1.13 (`foundation-layout` 1.13.0). If your project uses the [Compose BOM](https://developer.android.com/develop/ui/compose/bom/bom-mapping) version `2026.11.01` or later, you can omit the explicit `foundation-layout` version.
 
 ## Create a basic grid
 

@@ -1,11 +1,10 @@
 ## Introduction
 
-Play for On-device AI brings the benefits of
-[Android App Bundles](https://developer.android.com/guide/app-bundle) and Google Play delivery to custom ML
-model distribution so you can improve model performance with less device
-ecosystem complexity at no additional cost. It lets you publish a single
-artifact to Play containing your code, assets, and ML models and to choose
-from a number of delivery modes and targeting options.
+Play for On-device AI brings the benefits of [Android App Bundles](https://developer.android.com/guide/app-bundle) and
+Google Play delivery to custom ML model distribution so you can improve model
+performance with less device ecosystem complexity at no additional cost. It lets
+you publish a single artifact to Play containing your code, assets, and ML
+models and to choose from a number of delivery modes and targeting options.
 
 ### Benefits
 
@@ -39,20 +38,18 @@ doesn't make changes to an AI pack, then Play's automatic patching process will
 ensure the user doesn't have to re-download it. Play will just download what's
 changed when it updates the app.
 
-AI packs only contain models. Java/Kotlin and native libraries are not allowed.
-If you need to ship libraries or code to run your ML model, move it into the
-base module or a [feature module](https://developer.android.com/guide/playcore/feature-delivery). You can
-configure your feature module so that it has the same download and targeting
-settings as the AI pack.
+AI packs only contain models. Java, Kotlin, and native libraries are not
+allowed. If you need to ship libraries or code to run your ML model, move it
+into the base module or a [feature module](https://developer.android.com/guide/playcore/feature-delivery). You can configure your feature
+module so that it has the same download and targeting settings as the AI pack.
 
 > [!NOTE]
-> **Note:** AI packs don't contain Java/Kotlin or native libraries. You can ship libraries or code to run your ML models in [feature modules](https://developer.android.com/guide/playcore/feature-delivery).
+> **Note:** AI packs don't contain Java, Kotlin, or native libraries. You can ship libraries or code to run your ML models in [feature modules](https://developer.android.com/guide/playcore/feature-delivery).
 
 ### Use LiteRT and MediaPipe with AI packs
 
 You can use LiteRT and MediaPipe with AI packs. Package your model in an AI pack
-and then access it using the instructions for
-[install-time packs](https://developer.android.com/google/play/on-device-ai#install-time-delivery) or for
+and then access it using the instructions for [install-time packs](https://developer.android.com/google/play/on-device-ai#install-time-delivery) or for
 [fast-follow and on-demand packs](https://developer.android.com/google/play/on-device-ai#ff-od-delivery).
 
 Further reading:
@@ -138,9 +135,8 @@ Android Studio is not required for the following steps.
 8. \[Optional\] [Configure device targeting](https://developer.android.com/google/play/on-device-ai#device-targeting-configuration)
    to deliver different models to different devices.
 
-9. [Build the Android App Bundle with Gradle](https://developer.android.com/studio/build/building-cmdline#build_bundle).
-   In the generated app bundle, the root-level directory now includes the
-   following:
+9. [Build the Android App Bundle with Gradle](https://developer.android.com/studio/build/building-cmdline#build_bundle). In the generated app bundle,
+   the root-level directory now includes the following:
 
    - `ai-pack-name/manifest/AndroidManifest.xml`: Configures the AI pack's identifier and delivery mode
    - `ai-pack-name/assets/your-model-directories`: Directory that contains all assets delivered as part of the AI pack
@@ -181,10 +177,8 @@ dependencies {
 #### Check status
 
 Each AI pack is stored in a separate folder in the app's internal storage. Use
-the
-[`getPackLocation()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackLocation(java.lang.String))
-method to determine the root folder of an AI pack. This method returns the
-following values:
+the [`getPackLocation()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackLocation(java.lang.String)) method to determine the root folder of an AI pack.
+This method returns the following values:
 
 | Return value | Status |
 |---|---|
@@ -196,21 +190,17 @@ following values:
 
 #### Get download information about AI packs
 
-Use the   
-
-[`getPackStates()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackStates(java.util.List%3Cjava.lang.String%3E))
-method to determine the size of the download and whether the pack is already
-downloading.
+Use the [`getPackStates()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackStates(java.util.List%3Cjava.lang.String%3E)) method to determine the size of the download and
+whether the pack is already downloading.
 
 ```java
 Task<AiPackStates> getPackStates(List<String> packNames)
 ```
 
 `getPackStates()` is an asynchronous method that returns a `Task<AiPackStates>`.
-The
-[`packStates()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackStates#packStates())
-method of an `AiPackStates` object returns a `Map<String, AiPackState>`. This
-map contains the state of each requested AI pack, keyed by its name:
+The [`packStates()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackStates#packStates()) method of an `AiPackStates` object returns a
+`Map<String, AiPackState>`. This map contains the state of each requested AI
+pack, keyed by its name:
 
 ```java
 Map<String, AiPackState> AiPackStates#packStates()
@@ -237,57 +227,45 @@ aiPackManager
             });
 ```
 
-The following
-[`AiPackState`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState)
-methods provide the size of the AI pack, the downloaded amount so far (if
-requested), and the amount already transferred to the app:
+The following [`AiPackState`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState) methods provide the size of the AI pack, the
+downloaded amount so far (if requested), and the amount already transferred to
+the app:
 
 - [`totalBytesToDownload()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState#totalBytesToDownload())
 - [`bytesDownloaded()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState#bytesDownloaded())
 - [`transferProgressPercentage()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState#transferProgressPercentage())
 
-To get the status of an AI pack, use the
-[`status()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState#status())
-method, which returns the status as an integer that corresponds to a constant
-field in the
-[`AiPackStatus`](https://developer.android.com/reference/com/google/android/play/core/aipacks/model/AiPackStatus)
-class. An AI pack that's not installed yet has the status
+To get the status of an AI pack, use the [`status()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState#status()) method, which returns
+the status as an integer that corresponds to a constant field in the
+[`AiPackStatus`](https://developer.android.com/reference/com/google/android/play/core/aipacks/model/AiPackStatus) class. An AI pack that's not installed yet has the status
 `AiPackStatus.NOT_INSTALLED`.
 
-If a request fails, use the
-[`errorCode()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState#errorCode())
-method, whose return value corresponds to a constant field in the
-[`AiPackErrorCode`](https://developer.android.com/reference/com/google/android/play/core/aipacks/model/AiPackErrorCode)
-class.
+If a request fails, use the [`errorCode()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackState#errorCode()) method, whose return value
+corresponds to a constant field in the [`AiPackErrorCode`](https://developer.android.com/reference/com/google/android/play/core/aipacks/model/AiPackErrorCode) class.
 
 #### Install
 
-Use the
-[`fetch()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#fetch(java.util.List%3Cjava.lang.String%3E))
-method to download an AI pack for the first time or call for the update of an AI
-pack to complete:
+Use the [`fetch()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#fetch(java.util.List%3Cjava.lang.String%3E)) method to download an AI pack for the first time or call
+for the update of an AI pack to complete:
 
 ```java
 Task<AiPackStates> fetch(List<String> packNames)
 ```
 
-This method returns an
-[`AiPackStates`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackStates)
-object containing a list of packs and their initial download states and sizes.
-If an AI pack requested via `fetch()` is already downloading, the download
-status is returned and no additional download is started.
+This method returns an [`AiPackStates`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackStates) object containing a list of packs
+and their initial download states and sizes. If an AI pack requested using
+`fetch()` is already downloading, the download status is returned and no
+additional download is started.
 
 > [!NOTE]
 > **Note:** In most cases, you implement a `listener` to track the download and installation process as covered in the next section.
 
 #### Monitor download states
 
-You should implement an
-[`AiPackStateUpdateListener`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackStateUpdateListener)
-to track the installation progress of AI packs. The status updates are broken
-down per pack to support tracking the status of individual AI packs. You can
-start using available AI packs before all other downloads for your request have
-completed.
+You should implement an [`AiPackStateUpdateListener`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackStateUpdateListener) to track the
+installation progress of AI packs. The status updates are broken down per pack
+to support tracking the status of individual AI packs. You can start using
+available AI packs before all other downloads for your request have completed.
 
 ```java
 void registerListener(AiPackStateUpdateListener listener)
@@ -305,9 +283,7 @@ download using a mobile data connection. Similarly, if the download is large and
 the user loses Wi-Fi, the download is paused and explicit consent is required to
 proceed using a mobile data connection. A paused pack has state
 `WAITING_FOR_WIFI`. To trigger the UI flow to prompt the user for consent, use
-the
-[`showConfirmationDialog()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#showConfirmationDialog(androidx.activity.result.ActivityResultLauncher%3Candroidx.activity.result.IntentSenderRequest%3E))
-method.
+the [`showConfirmationDialog()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#showConfirmationDialog(androidx.activity.result.ActivityResultLauncher%3Candroidx.activity.result.IntentSenderRequest%3E)) method.
 
 Note that if the app does not call this method, the download is paused and will
 resume automatically only when the user is back on a Wi-Fi connection.
@@ -316,12 +292,10 @@ resume automatically only when the user is back on a Wi-Fi connection.
 
 If a pack has the `REQUIRES_USER_CONFIRMATION` status, the download won't
 proceed until the user accepts the dialog that is shown with
-[`showConfirmationDialog()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#showConfirmationDialog(androidx.activity.result.ActivityResultLauncher%3Candroidx.activity.result.IntentSenderRequest%3E)).
-This status can occur when the app is not recognized by Play---for example, if the
-app was sideloaded. Note that calling
-[`showConfirmationDialog()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#showConfirmationDialog(androidx.activity.result.ActivityResultLauncher%3Candroidx.activity.result.IntentSenderRequest%3E))
-in this case will cause the app to be updated. After the update, you will need
-to request the AI packs again.
+[`showConfirmationDialog()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#showConfirmationDialog(androidx.activity.result.ActivityResultLauncher%3Candroidx.activity.result.IntentSenderRequest%3E)). This status can occur when the app is not
+recognized by Play---for example, if the app was sideloaded. Note that calling
+[`showConfirmationDialog()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#showConfirmationDialog(androidx.activity.result.ActivityResultLauncher%3Candroidx.activity.result.IntentSenderRequest%3E)) in this case will cause the app to be updated.
+After the update, you will need to request the AI packs again.
 
 The following is an example implementation of a listener:
 
@@ -393,25 +367,20 @@ AiPackStateUpdateListener aiPackStateUpdateListener = new AiPackStateUpdateListe
 }
 ```
 
-Alternatively, you can use the
-[`getPackStates()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackStates())
-method to get the status of current downloads.
-[`AiPackStates`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackStates)
-contains the download progress, download status, and any failure error codes.
+Alternatively, you can use the [`getPackStates()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackStates()) method to get the status
+of current downloads. [`AiPackStates`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackStates) contains the download progress,
+download status, and any failure error codes.
 
 #### Access AI packs
 
 You can access an AI pack using file system calls after the download request
-reaches the
-[`COMPLETED`](https://developer.android.com/reference/com/google/android/play/core/aipacks/model/AiPackStatus#completed())
-state. Use the
-[`getPackLocation()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackLocation(java.lang.String))
-method to get the root folder of the AI pack.
+reaches the [`COMPLETED`](https://developer.android.com/reference/com/google/android/play/core/aipacks/model/AiPackStatus#completed()) state. Use the [`getPackLocation()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackLocation(java.lang.String)) method to
+get the root folder of the AI pack.
 
 AI packs are stored in the `assets` directory within the AI pack root directory.
 You can get the path to the `assets` directory by using the convenience method
-[`assetsPath()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackLocation#assetsPath()).
-Use the following method to get the path to a specific asset:
+[`assetsPath()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackLocation#assetsPath()). Use the following method to get the path to a specific
+asset:
 
 ```java
 private String getAbsoluteAiAssetPath(String aiPack, String relativeAiAssetPath) {
@@ -431,9 +400,8 @@ private String getAbsoluteAiAssetPath(String aiPack, String relativeAiAssetPath)
 
 ### Configure device targeting
 
-You can follow the
-[device targeting instructions](https://developer.android.com/google/play/on-device-ai#device-targeting-configuration) to specify
-devices or groups of devices that should receive your AI packs.
+You can follow the [device targeting instructions](https://developer.android.com/google/play/on-device-ai#device-targeting-configuration) to specify devices or
+groups of devices that should receive your AI packs.
 
 ### Other Play AI Delivery API methods
 
@@ -441,24 +409,19 @@ The following are some additional API methods you may want to use in your app.
 
 #### Cancel request
 
-Use
-[`cancel()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#cancel(java.util.List%3Cjava.lang.String%3E))
-to cancel an active AI pack request. Note that this request is a best-effort
-operation.
+Use [`cancel()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#cancel(java.util.List%3Cjava.lang.String%3E)) to cancel an active AI pack request. Note that this request
+is a best-effort operation.
 
 #### Remove an AI pack
 
-Use
-[`removePack()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#removePack(java.lang.String))
-to schedule the removal of an AI pack.
+Use [`removePack()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#removePack(java.lang.String)) to schedule the removal of an AI pack.
 
 #### Get locations of multiple AI packs
 
-Use
-[`getPackLocations()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackLocations())
-to query the status of multiple AI packs in bulk, which returns a map of AI
-packs and their locations. The map returned by `getPackLocations()` contains an
-entry for each pack that is currently downloaded and up-to-date.
+Use [`getPackLocations()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackLocations()) to query the status of multiple AI packs in bulk,
+which returns a map of AI packs and their locations. The map returned by
+`getPackLocations()` contains an entry for each pack that is currently
+downloaded and up-to-date.
 
 ## Device targeting
 
@@ -542,16 +505,14 @@ group is automatically generated and shouldn't be defined explicitly.
   included by this selector **(max of 100 features per group)**. A device
   needs to have all system features in this list to satisfy this property.
 
-  System
-  [feature reference](https://developer.android.com/guide/topics/manifest/uses-feature-element#features-reference)
+  System [feature reference](https://developer.android.com/guide/topics/manifest/uses-feature-element#features-reference)
   - **name**: A system feature
 - **forbidden_system_features** : Features that a device mustn't have to be
   included by this selector **(max of 100 features per group)**. If a device
   has any of the system features in this list it doesn't satisfy this
   property.
 
-  System
-  [feature reference](https://developer.android.com/guide/topics/manifest/uses-feature-element#features-reference)
+  System [feature reference](https://developer.android.com/guide/topics/manifest/uses-feature-element#features-reference)
   - **name**: A system feature
 - **system-on-chip**: System on chips to be included in this selector. A
   device needs to have any chip in this list to satisfy this property.
@@ -559,37 +520,36 @@ group is automatically generated and shouldn't be defined explicitly.
   - **manufacturer** : [System on chip manufacturer](https://developer.android.com/reference/android/os/Build#SOC_MANUFACTURER)
   - **model** : [System on chip model](https://developer.android.com/reference/android/os/Build#SOC_MODEL)
 
+##### Combine selector properties with AND and OR
+
 > [!TIP]
-> **Tip:** Including multiple properties in a single
-> selector creates a logical AND, for example:
->
-> ```xml
->     <config:device-selector ram-min-bytes="7000000000">
->         <config:included-device-id brand="google" device="flame"/>
->     </config:device-selector>
->   
-> ```
->
-> will create the condition for all devices with \> 7GB of RAM AND it
-> is a Pixel 4 - also written as follows:
->
-> ![](https://developer.android.com/static/images/google/play/intersect.png)
->
-> If you want an OR condition, create separate
-> selectors in a single device group, for example:
->
-> ```xml
->     <config:device-selector ram-min-bytes="7000000000"/>
->     <config:device-selector>
->           <config:included-device-id brand="google" device="flame"/>
->     </config:device-selector>
->   
-> ```
->
-> will create the condition for all devices with \> 7GB of RAM OR
-> it is a Pixel 4 - also written as follows:
->
-> ![](https://developer.android.com/static/images/google/play/union.png)
+> **Tip:** Including multiple properties in a single selector creates a logical AND.
+
+For example, the following selector creates the condition for all devices
+with \> 7GB of RAM AND that are a Pixel 4:
+
+```xml
+<config:device-selector ram-min-bytes="7000000000">
+    <config:included-device-id brand="google" device="flame"/>
+</config:device-selector>
+```
+
+This condition is also written as follows:
+![Set intersection of devices with at least 7GB of RAM and Pixel 4](https://developer.android.com/static/images/google/play/intersect.png) **Figure 1.** Logical AND condition using set intersection.
+
+If you want an OR condition, create separate selectors in a single device group.
+For example, the following selectors create the condition for all devices
+with \> 7GB of RAM OR that are a Pixel 4:
+
+```xml
+<config:device-selector ram-min-bytes="7000000000"/>
+<config:device-selector>
+    <config:included-device-id brand="google" device="flame"/>
+</config:device-selector>
+```
+
+This condition is also written as follows:
+![Set union of devices with at least 7GB of RAM and Pixel 4](https://developer.android.com/static/images/google/play/union.png) **Figure 2.** Logical OR condition using set union.
 
 Here is an example showing all possible device properties:
 
@@ -748,15 +708,13 @@ Internal App Sharing lets you use an app bundle to quickly generate a URL that
 you can tap on a local device to install exactly what Google Play would install
 for that device if that version of the app was live in a test or prod track.
 
-Take a look at the
-[internal app sharing instructions](https://support.google.com/googleplay/android-developer/answer/9844679).
+Take a look at the [internal app sharing instructions](https://support.google.com/googleplay/android-developer/answer/9844679).
 
 ### Bundletool
 
-Alternatively, you can generate APKs using
-[`bundletool`](https://developer.android.com/studio/command-line/bundletool) (1.18.0 or above) and sideload
-them onto your device. Follow these steps to test your app locally using
-bundletool:
+Alternatively, you can generate APKs using [`bundletool`](https://developer.android.com/studio/command-line/bundletool) (1.18.0 or above)
+and sideload them onto your device. Follow these steps to test your app locally
+using bundletool:
 
 1. Build your app bundle with Android Studio or bundletool.
 
@@ -814,13 +772,11 @@ We recommend that you test your app end to end on Google Play with an
 [internal test track](https://support.google.com/googleplay/android-developer/answer/9845334).
 
 Once you've done this, you can incrementally release your app update to
-production with
-[staged roll-outs](https://support.google.com/googleplay/android-developer/answer/6346149).
+production with [staged roll-outs](https://support.google.com/googleplay/android-developer/answer/6346149).
 
 ## Sample app using Play for On-device AI
 
-Download the
-[sample app](https://drive.google.com/drive/folders/1zb2O2mDvEh4vOmv1QbjeLU-O25KHrfKJ).
+Download the [sample app](https://drive.google.com/drive/folders/1zb2O2mDvEh4vOmv1QbjeLU-O25KHrfKJ).
 
 It demonstrates how to use each of the delivery modes as well as the device
 targeting configuration. See the [local testing](https://developer.android.com/google/play/on-device-ai#local-testing) section to get
@@ -828,6 +784,5 @@ started.
 
 ## Related content
 
-Learn more about [Android App Bundles](https://developer.android.com/guide/app-bundle) and read the
-references for the
+Learn more about [Android App Bundles](https://developer.android.com/guide/app-bundle) and read the references for the
 [AI Delivery SDK](https://developer.android.com/reference/com/google/android/play/core/packages-ai_delivery).

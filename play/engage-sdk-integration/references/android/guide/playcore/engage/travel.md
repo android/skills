@@ -535,13 +535,13 @@ one's travel experience.
 
 #### Image specifications
 
-Required specifications for image assets are listed in this table:
+The following table lists the required specifications for image assets:
 
-| Aspect ratio | Minimum pixels | Recommended pixels |
-|---|---|---|
-| Square (1x1) **Preferred** | 300x300 | 1200x1200 |
-| Landscape (1.91x1) | 600x314 | 1200x628 |
-| Portrait (4x5) | 480x600 | 960x1200 |
+| Aspect ratio | Supported cluster(s) | Minimum pixels | Recommended pixels |
+|---|---|---|---|
+| Landscape (16:9, 1.91x1) | Featured, reservation, continue search, and recommendation (16:9 preferred) | 640x360 (16:9) / 600x314 (1.91x1) | 1264x712 (16:9) / 1200x628 (1.91x1) |
+| Square (1x1) | All clusters (preferred for `StoreEntity`; required for service provider and badge images) | 300x300 | 1200x1200 |
+| Portrait (4x5) | Recommendation | 480x600 | 960x1200 |
 
 The images are required to be hosted on public CDNs so that Google can access
 them.

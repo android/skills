@@ -22,10 +22,13 @@ and refined in v8.
   - **New Intent** : You must receive a `QueryProductDetailsResult` object.
   - **Refactor** : `kotlin
     // PBL 8+ Pattern
-    billingClient.queryProductDetailsAsync(params) { result: QueryProductDetailsResult ->
-    val responseCode = result.billingResult.responseCode
-    val productDetailsList = result.productDetailsList // Retrieve list from result object
-    // Process list...
+    billingClient.queryProductDetailsAsync(params) {
+    billingResult: BillingResult,
+    productDetailsResult: QueryProductDetailsResult ->
+    val responseCode = billingResult.responseCode
+    val productDetailsList = productDetailsResult.productDetailsList // Retrieve list from result object
+    val unfetchedProductList = productDetailsResult.unfetchedProductList // Log or handle products that could not be fetched
+    // Process productDetailsList...
     }`
 
 ### 3. Subscription Modernization (v6 \& v7)

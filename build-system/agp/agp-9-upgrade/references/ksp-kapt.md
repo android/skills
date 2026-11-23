@@ -14,8 +14,8 @@ incompatible with built-in Kotlin. Remove it when migrating to built-in Kotlin.
 Check each usage of `kapt` to see if it is compatible with `ksp`. To check if a
 dependency is compatible with `ksp`, inspect the dependency's jar. For it to be
 compatible with `ksp`, the jar must have a file,
-`services/com.google.devtools.ksp.processing.SymbolProcessorProvider`. If it
-does not, it is **incompatible** with `ksp`.
+`META-INF/services/com.google.devtools.ksp.processing.SymbolProcessorProvider`.
+If it does not, it is **incompatible** with `ksp`.
 
 For example, the `androidx.room:room-compiler` library is compatible with KSP
 since version 2.3.0-beta02. We can verify this by finding the jar file in the

@@ -7,6 +7,10 @@ shows, from multiple apps in one UI grouping. Each developer partner can
 broadcast a maximum **of 25 entities** in each recommendations cluster and there
 can be a maximum **of 7** recommendation clusters per request.
 
+To send non-personalized recommendations directly from your backend servers
+instead of from a TV app, see [Integrate recommendations using REST
+API](https://developer.android.com/guide/playcore/engage/tv/recommendations/rest).
+
 ## Pre-work
 
 > [!IMPORTANT]

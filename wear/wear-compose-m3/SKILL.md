@@ -1,14 +1,15 @@
 ---
 name: wear-compose-m3
 description: Guidance for Wear OS Compose Material3 (Wear Compose Material 3 / Wear
-  Compose Material3) watch and wearable apps. Covers creating, updating, and migrating
-  projects (Material 2.5 and Horologist migration) using androidx.wear.compose.material3,
+  Compose Material3) Android watch and wearable apps. Covers creating, updating, and
+  migrating projects (Material 2.5 and Horologist migration) using androidx.wear.compose.material3,
   androidx.wear.compose.foundation, and androidx.wear.compose.navigation3, including
-  AppScaffold, ScreenScaffold, TransformingLazyColumn, ambient mode, and previews.
+  AppScaffold, ScreenScaffold, TransformingLazyColumn, one-handed gestures, ambient
+  mode, and previews. Don't use for mobile, tablet, or TV Compose apps.
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-11-14'
+  last-updated: '2026-11-19'
   keywords:
   - Wear OS
   - Compose
@@ -22,6 +23,8 @@ metadata:
   - SwipeDismissableSceneStrategy
   - Material 2.5
   - ambient mode
+  - one-handed gestures
+  - oneHandedGesture
 ---
 
 ## Prerequisites and compatibility
@@ -32,11 +35,11 @@ metadata:
 3. **Strict compliance:** If a version is listed as stable, you MUST use it, unless overridden by the user. Do not downgrade based on initial "Unresolved reference" errors in the editor or outdated web search results.
 4. **Kotlin \& Compose compiler:** Use Kotlin **2.0.0+** with the `org.jetbrains.kotlin.plugin.compose` Gradle plugin.
 5. **Min SDK:** Ensure `minSdk` is at least **25**.
-6. **Compile SDK \& AGP:** Ensure `compileSdk` and AGP meet the library's AAR metadata floors (`compileSdk >= 35` and `AGP >= 8.6.0` for `1.6.x`; `compileSdk >= 37` and `AGP >= 9.1.0` for `1.7.x`).
+6. **Compile SDK \& AGP:** Ensure `compileSdk` and AGP meet the library's AAR metadata floors (`compileSdk >= 35` and `AGP >= 8.6.0` for `1.6.x`; `compileSdk >= 37` and `AGP >= 9.1.0` for `1.7.x`). Whenever you upgrade `androidx.wear.compose` to `1.7.x` in `libs.versions.toml` or `build.gradle.kts`, you **MUST** also update `compileSdk = 37` (or higher) in `app/build.gradle.kts`.
 
 ## Gotchas
 
-1. **Mandatory sync and validation:** After updating versions in `libs.versions.toml` or `build.gradle.kts`, perform a Gradle sync (or `./gradlew assembleDebug`) before refactoring, and run `./gradlew assembleDebug` after refactoring to verify the build.
+1. **Mandatory sync and validation:** After updating versions in `libs.versions.toml` or `build.gradle.kts`, perform a Gradle sync (or `./gradlew assembleDebug`) before refactoring, and run `./gradlew assembleDebug` after refactoring to verify the build. Do **NOT** rely on `./gradlew compileDebugKotlin` alone, because it skips `:app:checkDebugAarMetadata` and hides `compileSdk` mismatches.
 2. **Prohibition of guessing (error protocol):** If you encounter an 'Unresolved Reference' or API mismatch after a successful sync, do not attempt to 'fix' it by downgrading the library version.
 
 ## Capabilities and tools
@@ -349,3 +352,19 @@ the component syntax.
 13. `HorizontalPager` or `VerticalPager`
 
     - \[ \] Use the Composable hierarchy in this order: `AppScaffold`, `HorizontalPagerScaffold`, `HorizontalPager`, `AnimatedPage`, `ScreenScaffold`. Or similarly for `VerticalPager`.
+14. One-handed gestures (`androidx.wear.compose.material3.onehandedgesture`)
+
+    - \[ \] Key APIs (requires Wear Compose Material3 `1.7.0+` and `compileSdk = 37`):
+      - `rememberOneHandedGestureConfiguration(action =
+        OneHandedGestureAction.Primary, gestureId = "...")`
+      - `remember { OneHandedGestureClickIndicatorState() }`
+      - `Modifier.oneHandedGesture(gestureConfiguration = gestureConfig,
+        onGestureLabel = "...", interactionSource = interactionSource,
+        onGestureAvailable = { ... }, onGesture = { ... })`
+      - `OneHandedGestureClickIndicator(gestureConfiguration =
+        gestureConfig, state = indicatorState) { ... }`
+    - \[ \] Place `OneHandedGestureClickIndicator` **inside** the button or card `content` slot (wrapping the inner `Icon`, `Text`, or `ButtonDefaults.Content`), **NEVER** around the outer `Button`, `IconButton`, or `Card` (wrapping the outer component hides its background and border during the hint animation).
+    - \[ \] Pass the same `MutableInteractionSource` instance to both the clickable component and `Modifier.oneHandedGesture`.
+    - \[ \] In `1.7.x`, guard `showIndicator()` in `onGestureAvailable` with a remembered boolean flag (resetting on `Lifecycle.Event.ON_STOP` using `LifecycleEventEffect`) or remember the `Modifier.oneHandedGesture` instance so recompositions (such as toggling `"play"`/`"pause"` labels) do not replay the hint animation.
+    - \[ \] You must pass an explicit, stable `gestureId` string to `rememberOneHandedGestureConfiguration` when a gesture-enabled component is inside conditional `if`/`else` branches, and you must provide `CompositionLocalProvider(LocalOneHandedGestureEnabled provides
+      enabled)` when the control has an `enabled` parameter.

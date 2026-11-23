@@ -2,6 +2,10 @@ This document describes how to integrate the Credential Manager API with an
 Android app that uses WebView. Credential Manager is supported natively in the
 `android.webkit.WebView` library in [version 1.12.0](https://developer.android.com/jetpack/androidx/releases/webkit#1.12.0) and later.
 
+> [!TIP]
+> **Tip:** To evaluate whether WebView, Credential Manager, or Auth Tab best fits your app's authentication architecture, see [Choose the right passkey implementation
+> for your Android app](https://developer.android.com/identity/passkeys/architecture).
+
 ## Prerequisites
 
 To use Credential Manager in WebView, add the following dependencies to your app

@@ -11,7 +11,9 @@ rather than a Kotlin-only compile shortcut:
 
 ## 2. Resolve missing imports
 
-If you're upgrading the SDK version, for example, to 1.6.0, or if you get `Unresolved reference` errors during the initial compilation, make sure you've added the correct import statements:
+If you're upgrading the SDK version, for example, to 1.6.0, or if you get
+`Unresolved reference` errors during the initial compilation, make sure you've
+added the correct import statements:
 
 | Class name | Package or import statement | Note |
 |---|---|---|
@@ -27,4 +29,5 @@ You might receive an error message like this one:
     Namespace 'com.google.android.engage' is used in multiple modules and/or libraries: com.google.android.engage:engage-core:1.6.0, com.google.android.engage:engage-tv:1.1.0
 
 This conflict occurs because both packages declare the same namespace.
-\* **Resolution** : Remove the explicit `engage-core` dependency from your `build.gradle` or `build.gradle.kts` and keep *only* `engage-tv`. The `engage-tv` library transitively pulls in the compatible version of `engage-core` automatically.
+
+- **Resolution** : Remove the explicit `engage-core` dependency from your `build.gradle` or `build.gradle.kts` and keep *only* `engage-tv`. The `engage-tv` library transitively pulls in the compatible version of `engage-core` automatically.

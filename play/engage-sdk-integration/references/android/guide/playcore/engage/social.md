@@ -183,6 +183,14 @@ type.
 
 #### Image specifications
 
+The following table lists the required specifications for image assets:
+
+| Aspect ratio | Supported cluster(s) | Minimum pixels | Recommended pixels |
+|---|---|---|---|
+| Portrait (9:16, 4x5) | Recommendation (preferred for post images) | 360x640 (9:16) / 480x600 (4x5) | 720x1280 (9:16) / 960x1200 (4x5) |
+| Square (1x1) | Recommendation (required for profile avatar, badge, and interaction images) | 300x300 | 1200x1200 |
+| Landscape (16:9, 1.91x1) | Recommendation (video and link preview images) | 640x360 (16:9) / 600x314 (1.91x1) | 1264x712 (16:9) / 1200x628 (1.91x1) |
+
 The images are required to be hosted on public CDNs so that Google can access
 them.
 
