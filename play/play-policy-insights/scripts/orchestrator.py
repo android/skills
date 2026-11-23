@@ -306,9 +306,10 @@ def _filter_by_flavor(data, detected_flavors, prioritized_flavors):
           if isinstance(entry, tuple) and len(entry) > 1
           else str(entry)
       )
+      normalized_entry = entry_str.replace("\\", "/")
 
       is_excluded = any(
-          f not in prioritized_flavors and f"src/{f}/" in entry_str
+          f not in prioritized_flavors and f"src/{f}/" in normalized_entry
           for f in detected_flavors
       )
       if not is_excluded:
@@ -1128,9 +1129,10 @@ def main():
       filtered_paths = []
       for p in paths:
         # Check if path contains any non-prioritized flavor
+        normalized_p = p.replace("\\", "/")
         is_excluded = False
         for f in detected_flavors:
-          if f not in prioritized_flavors and f"src/{f}/" in p:
+          if f not in prioritized_flavors and f"src/{f}/" in normalized_p:
             is_excluded = True
             break
         if not is_excluded:
@@ -1179,14 +1181,14 @@ def main():
       for _, manifest_path in enumerate(codebase_map["key_files"]["manifests"]):
         # Filter Test-Bleed based on relative path
         rel_path = os.path.relpath(manifest_path, app_dir)
-        normalized_rel_path = "/" + rel_path.replace("\\", "/")
+        normalized_rel_path = "/" + rel_path.replace("\\", "/").lower()
         if any(
             x in normalized_rel_path
             for x in [
                 "/debug/",
                 "/test/",
-                "/androidTest/",
-                "/testFixtures/",
+                "/androidtest/",
+                "/testfixtures/",
             ]
         ):
           continue
