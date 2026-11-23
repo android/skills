@@ -1,19 +1,18 @@
 ---
 name: leanback-to-compose-tv-migration
-description: Provides instructions and architectural patterns for migrating Android
-  TV applications from legacy Leanback UI Toolkit, Android Views, or Support Fragments
-  to Jetpack Compose for TV (androidx.tv). Use this skill for Leanback to Compose
-  migrations, including browse screen, settings screen, authentication screen, login
-  screen, or video playback screen migrations, or when replacing BrowseSupportFragment,
+description: Migrate Android TV apps from legacy Leanback UI Toolkit, Android Views,
+  or Support Fragments to Jetpack Compose for TV (androidx.tv). Use when migrating
+  browse, settings, authentication, login, or video playback screens, replacing BrowseSupportFragment,
   LeanbackSettingsFragment, PreferenceFragment, BaseLeanbackPreferenceFragmentCompat,
   VideoSupportFragment, GuidedStepSupportFragment, SearchSupportFragment, VerticalGridSupportFragment,
-  Presenter, ArrayObjectAdapter, or CursorMapper with modern Compose equivalents,
-  implementing immersive carousels with focus memory, Media3 video playback with PlayerSurface,
-  or custom 10-foot hero layouts.
+  Presenter, ArrayObjectAdapter, or CursorMapper with Compose, or building carousels
+  with focus memory, Media3 PlayerSurface playback, or 10-foot hero layouts. Don't
+  use for mobile, tablet, foldable, Wear OS, or XR apps on standard Material 3 (`androidx.compose.material3`),
+  or non-Compose Leanback maintenance.
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-11-10'
+  last-updated: '2026-11-19'
   keywords:
   - Android TV
   - Jetpack Compose
@@ -49,18 +48,18 @@ When migrating an Android TV application to Jetpack Compose, you must use
 `androidx.tv` libraries and follow these 10-foot UI patterns:
 
 - **UI modernization**: Focus on custom, cinematic layouts over legacy direct 1:1 templates. You must use Jetpack Compose for TV features like dynamic gradient hero backdrops, custom focus animations, custom navigation drawers, and custom layouts.
-- **Primary design system** : You must always use `androidx.tv.material3.*` (`androidx.tv:tv-material`) over mobile `androidx.compose.material3.*`. TV Material 3 provides built-in D-Pad focus handling, focus zoom scaling, and TV-optimized typography and shapes. To set up Compose for TV dependencies, follow [Compose for TV setup](references/android/training/tv/playback/compose/index.md).
+- **Primary design system** : You must always use `androidx.tv.material3.*` (`androidx.tv:tv-material:1.1.0`) over mobile `androidx.compose.material3.*`. TV Material 3 provides built-in D-pad focus handling, focus zoom scaling, and TV-optimized typography and shapes. To set up Compose for TV dependencies, follow [Compose for TV setup](references/android/training/tv/playback/compose/index.md) (on legacy projects upgrading to AGP 8.6.1+ and Kotlin 2.0.21+ with Gradle wrapper `gradle-8.7-bin.zip`, `compileSdk 35`, and `minSdk 23`, apply the `org.jetbrains.kotlin.plugin.compose` plugin using `org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.0.21` instead of `kotlinCompilerExtensionVersion`, and use `androidx.compose:compose-bom:2024.09.00`, `androidx.tv:tv-material:1.1.0`, and `androidx.activity:activity-compose:1.9.2`, with `android.useAndroidX=true` and `android.enableJetifier=true` in `gradle.properties`, plus `androidx.preference:preference:1.2.1` so untouched `LeanbackSettingsFragment` classes compile cleanly; verify incremental migrations with `./gradlew assembleDebug` rather than `assembleRelease` or legacy Robolectric unit tests).
 - **Focus zoom animation** : For interactive cards, you must use `CompactCard`, `ClassicCard`, or `WideCardContainer` with `scale =
   CardDefaults.scale(focusedScale = 1.1f)` to provide standard TV focus animation.
 - **Coil image loading** : To use declarative `AsyncImage(model,
-  contentDescription, ...)` without passing an explicit `ImageLoader` parameter, you must include `io.coil-kt:coil-compose` in your Gradle dependencies.
+  contentDescription, ...)` without passing an explicit `ImageLoader` parameter, you must include `io.coil-kt:coil-compose:2.6.0` in your Gradle dependencies.
 - **Explicit imports** : You must always import TV Material 3 classes explicitly (for example, `import androidx.tv.material3.Surface`, `import
   androidx.tv.material3.ListItem`) instead of using wildcard imports (`import
   androidx.tv.material3.*`).
 - **File naming conventions** : You must name Composable screen files after the screen (for example, name `BrowseScreen` as `BrowseScreen.kt`, `PlaybackScreen` as `PlaybackScreen.kt`, and `AuthenticationScreen` as `AuthenticationScreen.kt`). Don't use generic prefixes like `Main`.
 - **Overscan and bezels** : You must apply horizontal padding (for example, `horizontal = 48.dp` or `32.dp`, `vertical = 24.dp`) to root containers, carousels, and top bars to prevent clipping.
 - **Reading width constrainment** : You must constrain reading width using `Modifier.widthIn(max = 600.dp)` on text columns for long-form text.
-- **Media3 Compose dependencies** : Include `androidx.media3:media3-ui-compose` in `app/build.gradle` when modernizing media playback screens.
+- **Media3 Compose dependencies** : Include `androidx.media3:media3-ui-compose:1.9.0` and `androidx.media3:media3-ui-compose-material3:1.9.0` (with `compileSdk 35`) in `app/build.gradle` when modernizing media playback screens.
 - **Prohibition of legacy AndroidView wrappers** : Don't use legacy `AndroidView` wrappers to embed View-based components into Jetpack Compose screens. All migrated screens must use Compose components or Media3 Compose surfaces (`PlayerSurface`).
 
 ## D-pad focus handling and navigation
@@ -258,13 +257,13 @@ use standard `LazyColumn`, `LazyRow`, and `LazyVerticalGrid` from
 `androidx.compose.foundation.lazy` and `androidx.compose.foundation.lazy.grid`.
 For catalog browsing layouts, follow instructions in [Catalog Browser guide](references/android/training/tv/playback/compose/browse.md).
 
-1. **Pivot scrolling with `BringIntoViewSpec`** : When defining a custom pivot scroll line for catalog rows using `BringIntoViewSpec` and `CompositionLocalProvider(LocalBringIntoViewSpec provides ...)`, you must ensure your project compiles against Compose Foundation 1.7.0+ by adding `implementation platform('androidx.compose:compose-bom:2024.06.00')` (or newer) or `implementation 'androidx.compose.foundation:foundation:1.7.0'` in `app/build.gradle`. Without Compose Foundation 1.7.0+, `import
+1. **Pivot scrolling with `BringIntoViewSpec`** : When defining a custom pivot scroll line for catalog rows using `BringIntoViewSpec` and `CompositionLocalProvider(LocalBringIntoViewSpec provides ...)`, you must ensure your project compiles against Compose Foundation 1.7.0+ by adding `implementation platform('androidx.compose:compose-bom:2024.09.00')` (or newer, such as `2026.09.00`) with BOM-managed `implementation 'androidx.compose.foundation:foundation'` (or `implementation 'androidx.compose.foundation:foundation:1.7.0'` without the BOM) in `app/build.gradle`. Without Compose Foundation 1.7.0+, `import
    androidx.compose.foundation.gestures.LocalBringIntoViewSpec` will fail with `Unresolved reference: LocalBringIntoViewSpec`.
 2. **Row focus recollection (`Modifier.focusRestorer`)** : Annotate your composable with `@OptIn(ExperimentalFocusRestorerApi::class,
    ExperimentalComposeUiApi::class)` and attach `Modifier.focusRestorer` on every category `LazyRow` to remember and restore the last focused card when navigating vertically across catalog rows.
 
 When populated with focusable TV Material 3 components (`CompactCard`,
-`ListItem`, `Button`), standard Compose lazy containers handle 2D D-Pad focus
+`ListItem`, `Button`), standard Compose lazy containers handle 2D D-pad focus
 routing, focus memory, and edge scrolling automatically:
 
 
@@ -297,7 +296,7 @@ When migrating legacy Leanback video playback (`VideoSupportFragment` /
 (`androidx.media3.ui.compose.PlayerSurface`) combined with a translucent
 transport controls overlay:
 
-1. **Mandatory Media3 transport control buttons (`PlayPauseButton`)** : Over the `PlayerSurface`, you must layer a translucent bottom controls bar (`Box(modifier = Modifier.align(Alignment.BottomCenter))`) containing explicit Media3 UI Compose buttons: at minimum `PlayPauseButton`, `SeekBackButton`, and `SeekForwardButton`. Never leave the transport controls overlay empty. To use these composables, you must add `implementation 'androidx.media3:media3-ui-compose-material3:1.6.0'` alongside `androidx.media3:media3-ui-compose` in your `app/build.gradle` dependencies.
+1. **Mandatory Media3 transport control buttons (`PlayPauseButton`)** : Over the `PlayerSurface`, you must layer a translucent bottom controls bar (`Box(modifier = Modifier.align(Alignment.BottomCenter))`) containing explicit Media3 UI Compose buttons from `androidx.media3.ui.compose.material3.buttons`: at minimum `PlayPauseButton`, `SeekBackButton`, and `SeekForwardButton`. Never leave the transport controls overlay empty. To use these composables, you must add `implementation 'androidx.media3:media3-ui-compose-material3:1.9.0'` (or newer, such as `1.11.1`) alongside `implementation 'androidx.media3:media3-ui-compose:1.9.0'` in your `app/build.gradle` dependencies.
 2. **D-pad directional seeking (`onPreviewKeyEvent`)** : To support seeking backward and forward with the remote control D-pad, attach `Modifier.onPreviewKeyEvent` on the container or controls overlay and intercept Compose `Key.DirectionLeft` and `Key.DirectionRight` (for example, `keyEvent.key == Key.DirectionLeft`) to seek backward and forward by 10 seconds (`exoPlayer.seekTo(exoPlayer.currentPosition - 10000)`). Never use legacy Android View keycodes (`KeyEvent.KEYCODE_DPAD_LEFT` or `nativeKeyEvent.keyCode`).
 3. **Prohibition of legacy AndroidView wrappers** : Don't wrap legacy `PlayerView` or `StyledPlayerView` in `AndroidView { ... }`. You must use `PlayerSurface` (`androidx.media3.ui.compose.PlayerSurface`) with `ExoPlayer` for video rendering in Compose for TV.
 
@@ -413,7 +412,7 @@ fun TvSettingsScreen(
 | `VerticalGridSupportFragment` | `VerticalGridScreen` (`LazyVerticalGrid(columns = GridCells.Fixed(5))`) |
 | `ArrayObjectAdapter` / `Presenter` | Declarative `@Composable` functions observing immutable `State<List<T>>` |
 | `CursorMapper` / `LoaderManager` / `CursorLoader` | Kotlin Coroutines / `withContext(Dispatchers.IO)` in a Repository object |
-| `OnboardingSupportFragment` | `OnboardingScreen` (`HorizontalPager` + D-Pad navigation buttons) |
+| `OnboardingSupportFragment` | `OnboardingScreen` (`HorizontalPager` + D-pad navigation buttons) |
 | `LeanbackSettingsFragment` / `PreferenceFragment` | `SettingsScreen` (`FocusRequester` on first `ListItem` + trailing `Switch` bound to `SharedPreferences`) |
 
 ## Reference implementations and battle-tested patterns

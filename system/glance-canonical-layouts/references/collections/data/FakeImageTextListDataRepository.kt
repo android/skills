@@ -22,9 +22,9 @@ import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.runBlocking
 
 /**
  * A fake in-memory implementation of repository that produces list of [ImageTextListItemData]
@@ -80,7 +80,7 @@ class FakeImageTextListDataRepository {
     val imageSize =
       IMAGE_SIZE.coerceAtMost(imageSizeLimit.width.coerceAtMost(imageSizeLimit.height))
 
-    val mappedItems = runBlocking {
+    val mappedItems = coroutineScope {
       items.map { item ->
         async(Dispatchers.IO) {
           var bitmap: Bitmap? = null

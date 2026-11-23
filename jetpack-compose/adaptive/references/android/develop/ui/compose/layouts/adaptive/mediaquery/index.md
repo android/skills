@@ -145,6 +145,9 @@ when {
 
 **Figure 1**. Layout is updated according to the window width.
 
+To apply these techniques to media playback, see
+[Scale media content across form factors](https://developer.android.com/media/media3/ui/compose-scaling).
+
 ### Update layout according to the window posture
 
 The `windowPosture` parameter describes the current window posture

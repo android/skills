@@ -6,6 +6,19 @@ integrate [`CastPlayer`](https://developer.android.com/reference/androidx/media3
 
 To integrate Cast with other platforms, see the [Cast SDK](https://developers.google.com/cast/docs/developers).
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/media/media3-cast-integration)
+
+### Integrate Media3 Cast
+
+Use the Media3 Cast [Android skill](https://developer.android.com/tools/agents/android-skills) to implement Google Cast support in your app. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add media3-cast-integration
+
+<br />
+
 ## Get a Cast-enabled device
 
 To test `CastPlayer`, you need a [Cast-enabled device](https://store.google.com/gb/category/connected_home?hl=en-GB). Choices include Android

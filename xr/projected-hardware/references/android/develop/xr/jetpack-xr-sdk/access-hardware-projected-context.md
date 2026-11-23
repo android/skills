@@ -28,30 +28,50 @@ obtain a projected context. To do this, use the
 ```kotlin
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 @OptIn(ExperimentalProjectedApi::class, ExperimentalCoroutinesApi::class)
-private fun monitorProjectedConnectivity(activity: ComponentActivity) {
-    activity.lifecycleScope.launch {
-        // Before creating a projected context, check to see if the projected device is connected.
-        // While this method returns true, the projected context remains valid.
-        ProjectedContext.isProjectedDeviceConnected(activity, coroutineContext)
-            .collectLatest { isConnected ->
-                if (isConnected) {
-                    // From a phone Activity or Service, get a context for the audio and display glasses.
-                    // Re-initialize on reconnect: Obtain another context instance.
-                    val projectedContext = try {
-                        ProjectedContext.createProjectedDeviceContext(activity)
-                    } catch (e: IllegalStateException) {
-                        Log.e(TAG, "Failed to create projected context", e)
+fun monitorProjectedDeviceConnectivity(
+    context: Context,
+    onConnected: suspend (projectedContext: Context) -> (() -> Unit)?
+) {
+    val lifecycleScope = (context as? LifecycleOwner)?.lifecycleScope
+        ?: CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    lifecycleScope.launch {
+        var cleanupAction: (() -> Unit)? = null
+
+        try {
+            // Before creating a projected context, verify that the projected device
+            // is connected to the host device (phone).
+            // While this flow collects true, the active projected context remains valid.
+            ProjectedContext.isProjectedDeviceConnected(context, coroutineContext)
+                .distinctUntilChanged()
+                .collectLatest { isConnected ->
+                    // Clean up any previous session resources prior to state transitions.
+                    cleanupAction?.invoke()
+                    cleanupAction = null
+
+                    if (!isConnected) {
+                        Log.i(TAG, "Projected device disconnected. Cleaning up hardware resources...")
                         return@collectLatest
                     }
 
-                    // Use the projectedContext to initialize system services (e.g., CameraManager).
+                    // Inside a phone Activity or Service, create a projected context.
+                    // Note: If you are already inside a projected Activity, the default context
+                    // is already a projected context.
+                    val projectedContext = runCatching {
+                        ProjectedContext.createProjectedDeviceContext(context)
+                    }.onFailure { e ->
+                        Log.e(TAG, "Failed to create projected context", e)
+                    }.getOrNull() ?: return@collectLatest
+
+                    // Use the new, valid `projectedContext` to initialize system services (e.g., CameraManager).
                     Log.i(TAG, "Projected device connected. Initializing hardware...")
-                } else {
-                    // The projected context is destroyed when the device disconnects.
-                    // Clean up on disconnect: Listen for 'false' and release resources.
-                    Log.i(TAG, "Projected device disconnected. Cleaning up hardware resources...")
+                    cleanupAction = onConnected(projectedContext)
                 }
-            }
+        } finally {
+            // Guarantee final resource cleanup on Activity destruction or scope cancellation.
+            cleanupAction?.invoke()
+            cleanupAction = null
+        }
     }
 }
 ```
@@ -166,97 +186,184 @@ try {
 
 ## Capture an image with the glasses' camera
 
-To capture an image with the glasses' camera, set up and bind the CameraX's
-[`ImageCapture`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageCapture) [use case](https://developer.android.com/media/camera/camerax#ease-of-use) to the glasses' camera using the correct
-context for your app:
+To capture an image with the glasses' camera, monitor connectivity with
+[`monitorProjectedDeviceConnectivity`](https://developer.android.com/develop/xr/jetpack-xr-sdk/access-hardware-projected-context#phone-activity-service) to obtain a projected device
+context, create an isolated [`LifecycleCameraProvider`](https://developer.android.com/reference/kotlin/androidx/camera/lifecycle/LifecycleCameraProvider) bound to that
+context, listen for camera presence, and bind CameraX's [`ImageCapture`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageCapture)
+[use case](https://developer.android.com/media/camera/camerax#ease-of-use).
+
+First, monitor device connectivity and initialize
+[`LifecycleCameraProvider.createInstance`](https://developer.android.com/reference/kotlin/androidx/camera/lifecycle/LifecycleCameraProvider#createInstance(android.content.Context,androidx.camera.core.CameraXConfig)) with a single-stream
+[`CameraXConfig.Builder`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Builder):
 
 
 ```kotlin
-private fun setUpGlassesCamera(activity: ComponentActivity) {
-    activity.lifecycleScope.launch {
-        // Before creating a projected context, check to see if the projected device is connected.
-        ProjectedContext.isProjectedDeviceConnected(activity, coroutineContext)
-            .collectLatest { isConnected ->
-                if (isConnected) {
-                    // 1. Get the CameraProvider using the projected context.
-                    // When using the projected context, DEFAULT_BACK_CAMERA maps to the audio and display glasses' camera.
-                    val projectedContext = try {
-                        ProjectedContext.createProjectedDeviceContext(activity)
-                    } catch (e: IllegalStateException) {
-                        Log.e(TAG, "Projected context could not be created", e)
-                        return@collectLatest
-                    }
-
-                    val cameraProviderFuture = ProcessCameraProvider.getInstance(projectedContext)
-
-                    cameraProviderFuture.addListener({
-                        val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                        // 2. Check for the presence of a camera.
-                        if (!cameraProvider.hasCamera(cameraSelector)) {
-                            Log.w(TAG, "The selected camera is not available.")
-                            return@addListener
-                        }
-
-                        // 3. Query supported streaming resolutions dynamically using Camera2 Interop.
-                        val cameraInfo = cameraProvider.getCameraInfo(cameraSelector)
-                        val map = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
-                            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
-                        )
-                        val supportedResolutions = map?.getOutputSizes(ImageFormat.JPEG)?.toList() ?: emptyList()
-                        Log.i(TAG, "Supported resolutions for JPEG: ${supportedResolutions.joinToString()}")
-
-                        // 4. Dynamically select the best target resolution from the queried list.
-                        val preferredResolution = Size(1920, 1080)
-                        val dynamicTargetResolution = when {
-                            // Case A: The preferred resolution is explicitly supported by the glasses.
-                            supportedResolutions.contains(preferredResolution) -> preferredResolution
-
-                            // Case B: Find the highest supported 16:9 resolution as a fallback.
-                            else -> {
-                                val targetAspectRatio = 16.0 / 9.0
-                                val tolerance = 0.01
-                                supportedResolutions
-                                    .filter { abs((it.width.toDouble() / it.height) - targetAspectRatio) < tolerance }
-                                    .maxByOrNull { it.width * it.height }
-                                    // Case C: Absolute fallback if no 16:9 resolutions are found.
-                                    ?: supportedResolutions.firstOrNull()
-                                    ?: preferredResolution
-                            }
-                        }
-                        Log.i(TAG, "Selected target resolution: $dynamicTargetResolution")
-
-                        val resolutionStrategy = ResolutionStrategy(
-                            dynamicTargetResolution,
-                            ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
-                        )
-                        val resolutionSelector = ResolutionSelector.Builder()
-                            .setResolutionStrategy(resolutionStrategy)
-                            .build()
-
-                        // 5. Initialize the ImageCapture use case with options.
-                        val imageCapture = ImageCapture.Builder()
-                            // Optional: Configure resolution, format, etc.
-                            .setResolutionSelector(resolutionSelector)
-                            .build()
-
-                        try {
-                            // Unbind use cases before rebinding.
-                            cameraProvider.unbindAll()
-
-                            // Bind use cases to camera using the Activity as the LifecycleOwner.
-                            cameraProvider.bindToLifecycle(
-                                activity,
-                                cameraSelector,
-                                imageCapture
-                            )
-                        } catch (exc: Exception) {
-                            Log.e(TAG, "Use case binding failed", exc)
-                        }
-                    }, ContextCompat.getMainExecutor(activity))
-                }
+@OptIn(ExperimentalCameraProviderConfiguration::class)
+@RequiresApi(Build.VERSION_CODES.BAKLAVA)
+@SuppressLint("RestrictedApi")
+fun setUpGlassesCamera(activity: ComponentActivity) {
+    monitorProjectedDeviceConnectivity(activity) { projectedContext ->
+        val cameraManager = projectedContext.getSystemService(CameraManager::class.java)
+            ?: run {
+                Log.e(TAG, "CameraManager not available on projected context")
+                return@monitorProjectedDeviceConnectivity null
             }
+
+        // `setRepeatingStreamForced()` is currently internal but will be public soon.
+        val cameraConfig = CameraXConfig.Builder
+            .fromConfig(Camera2Config.defaultConfig())
+            .setRepeatingStreamForced(false)
+            .build()
+
+        val cameraProvider = try {
+            // Acquire CameraX provider specifically bound to the projected context.
+            // If the device disconnects while suspending, collectLatest cancels this coroutine.
+            LifecycleCameraProvider.createInstance(projectedContext, cameraConfig)
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to initialize projected camera services", e)
+            return@monitorProjectedDeviceConnectivity null
+        }
+
+        // Set up the listener to react to camera availability changes asynchronously.
+        val availabilityCallback = registerAvailabilityListener(
+            cameraManager = cameraManager,
+            cameraProvider = cameraProvider,
+            executor = ContextCompat.getMainExecutor(activity),
+            onCameraAvailable = { cameraId ->
+                // Delegate camera selection, resolution querying, and use-case binding.
+                bindGlassesImageCapture(cameraProvider, cameraId, activity)
+            }
+        )
+
+        // Return a clean-up closure invoked automatically by monitorProjectedDeviceConnectivity
+        // on disconnect, coroutine cancellation, or Activity destruction.
+        return@monitorProjectedDeviceConnectivity {
+            Log.i(TAG, "Projected camera setup scope ended. Tearing down resources...")
+            try {
+                cameraManager.unregisterAvailabilityCallback(availabilityCallback)
+            } finally {
+                cameraProvider.unbindAll()
+            }
+        }
+    }
+}
+```
+
+<br />
+
+On CameraX 1.6.0 and higher, register a [`CameraPresenceListener`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraPresenceListener) using
+[`addCameraPresenceListener`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraProvider#addCameraPresenceListener(java.util.concurrent.Executor,androidx.camera.core.CameraPresenceListener)) to react when the glasses' camera is added or
+removed:
+
+
+```kotlin
+@OptIn(ExperimentalCameraProviderConfiguration::class)
+fun registerAvailabilityListener(
+    cameraManager: CameraManager,
+    cameraProvider: LifecycleCameraProvider,
+    executor: Executor,
+    onCameraAvailable: (cameraId: String) -> Unit
+): CameraManager.AvailabilityCallback {
+    val callback = object : CameraManager.AvailabilityCallback() {
+        override fun onCameraAvailable(cameraId: String) {
+            super.onCameraAvailable(cameraId)
+            Log.i(TAG, "Glasses camera available (ID: $cameraId). Binding use case...")
+            // Fires only after the OS finishes re-registering the glasses' camera.
+            // Pass the fresh cameraId directly---never cache it, as it may change when recreated.
+            onCameraAvailable(cameraId)
+        }
+
+        override fun onCameraUnavailable(cameraId: String) {
+            super.onCameraUnavailable(cameraId)
+            Log.i(TAG, "Glasses camera unavailable (ID: $cameraId). Releasing resources...")
+            // Gracefully release the pipeline when the projected camera becomes unavailable.
+            cameraProvider.unbindAll()
+        }
+    }
+
+    cameraManager.registerAvailabilityCallback(executor, callback)
+    return callback
+}
+```
+
+<br />
+
+Next, select the glasses' camera from [`availableCameraInfos`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraProvider#availableCameraInfos()) using the
+[`CameraIdentifier`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraIdentifier) provided by the listener and bind `ImageCapture`:
+
+
+```kotlin
+/**
+ * Selects the projected camera matching dynamic [cameraId] from
+ * [LifecycleCameraProvider.availableCameraInfos], verifies availability, and binds an
+ * [ImageCapture] use case targeting a 16:9 resolution to [lifecycleOwner].
+ *
+ * Note: Depending on your application's needs, [ImageCapture] can be swapped out for other
+ * standard CameraX use cases:
+ * - Use [ImageAnalysis] for real-time streaming workloads (e.g., OCR, AI vision, or VPS).
+ * - Use [VideoCapture] for video recording pipelines.
+ */
+@OptIn(ExperimentalCamera2Interop::class, ExperimentalCameraProviderConfiguration::class)
+fun bindGlassesImageCapture(
+    cameraProvider: LifecycleCameraProvider,
+    cameraId: String,
+    lifecycleOwner: LifecycleOwner,
+    preferredResolution: Size = Size(1920, 1080)
+): ImageCapture? {
+    return try {
+        // Discover available cameras dynamically via `availableCameraInfos`
+        // Narrow it down by the dynamic `cameraId` because the projected camera's ID may
+        // change when recreated
+        val cameraInfo = cameraProvider.availableCameraInfos.firstOrNull { info ->
+            Camera2CameraInfo.from(info).cameraId == cameraId
+        }
+
+        // Pre-binding check: Verify the selected camera is registered and available on the device.
+        // The projected camera may be unavailable (for example, if the user took off the glasses).
+        if (cameraInfo == null) {
+            Log.w(TAG, "Glasses camera (ID: $cameraId) is not currently available.")
+            return null
+        }
+        val cameraSelector = cameraInfo.cameraSelector
+
+        val resolutionSelector = ResolutionSelector.Builder()
+            .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+            .setResolutionStrategy(
+                ResolutionStrategy(
+                    preferredResolution,
+                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
+                )
+            )
+            .build()
+
+        // Initialize the ImageCapture use case.
+        val imageCapture = ImageCapture.Builder()
+            .setResolutionSelector(resolutionSelector)
+            .build()
+
+        // Unbind any previously bound use cases before rebinding to the lifecycle owner.
+        cameraProvider.unbindAll()
+
+        // Bind the configured use case. You can swap `imageCapture` out for an `ImageAnalysis`
+        // (e.g., from `setupCameraStreamingFps`) or `VideoCapture` instance here to match your use case.
+        // `bindToLifecycle()` can throw IllegalArgumentException if use cases
+        // are incompatible, or IllegalStateException if the LifecycleOwner is destroyed.
+        cameraProvider.bindToLifecycle(
+            lifecycleOwner,
+            cameraSelector,
+            imageCapture
+        )
+        Log.i(TAG, "ImageCapture successfully bound for camera ID $cameraId")
+        imageCapture
+    } catch (exc: CameraInfoUnavailableException) {
+        Log.e(TAG, "Unable to access camera info for ID $cameraId", exc)
+        null
+    } catch (exc: IllegalArgumentException) {
+        Log.e(TAG, "Invalid camera configuration or use case combination for ID $cameraId", exc)
+        null
+    } catch (exc: IllegalStateException) {
+        Log.e(TAG, "Camera is already bound to another lifecycle or closed", exc)
+        null
     }
 }
 ```
@@ -265,14 +372,15 @@ private fun setUpGlassesCamera(activity: ComponentActivity) {
 
 ### Key points about the code
 
-- Obtains an instance of the [`ProcessCameraProvider`](https://developer.android.com/reference/kotlin/androidx/camera/lifecycle/ProcessCameraProvider) using the [**projected device context**](https://developer.android.com/develop/xr/jetpack-xr-sdk/access-hardware-projected-context#phone-activity-service).
-- Within the projected context's scope, the glasses' primary, outward-pointing camera maps to the `DEFAULT_BACK_CAMERA` when selecting a camera.
-- A pre-binding check uses [`cameraProvider.hasCamera(cameraSelector)`](https://developer.android.com/reference/kotlin/androidx/camera/lifecycle/ProcessCameraProvider#hasCamera(androidx.camera.core.CameraSelector)) to verify that the selected camera is available on the device before proceeding.
-- Uses **Camera2 Interop** with [`Camera2CameraInfo`](https://developer.android.com/reference/kotlin/androidx/camera/camera2/interop/Camera2CameraInfo) to read the underlying [`CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP`](https://developer.android.com/reference/kotlin/android/hardware/camera2/CameraCharacteristics#scaler_stream_configuration_map), which can be useful for advanced checks on supported resolutions.
-- A custom [`ResolutionSelector`](https://developer.android.com/reference/kotlin/androidx/camera/core/resolutionselector/ResolutionSelector) is built to precisely control the output image resolution for [`ImageCapture`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageCapture).
-- Creates an `ImageCapture` use case that is configured with a custom `ResolutionSelector`.
-- Binds the `ImageCapture` use case to the activity's lifecycle. This automatically manages the opening and closing of the camera based on the activity's state (for example, stopping the camera when the activity is paused).
-- **Configuring for single-stream hardware:** The glasses camera pipeline is constrained to a single active stream at a time. When `ImageCapture` is bound alone, CameraX attaches an internal repeating stream (`MeteringRepeating`) for focus and metering by default, which causes the single-stream pipeline to stall. To bind `ImageCapture` by itself without a preview stream, disable the forced repeating stream by setting [`setRepeatingStreamForced(false)`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Builder#setRepeatingStreamForced(kotlin.Boolean)) on [`CameraXConfig.Builder`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Builder) (for example, by implementing [`CameraXConfig.Provider`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Provider) in your `Application` class or configuring `ProcessCameraProvider` before initialization).
+- **Per-device `LifecycleCameraProvider`:** Use `LifecycleCameraProvider.createInstance` to create an isolated camera provider scoped to the active projected context. Because the projected context's `deviceId` can change when the glasses disconnect and reconnect while your app process stays alive, creating a per-device provider ensures CameraX binds to the active connected device.
+- **Listen for camera presence:** On CameraX 1.6.0 and higher, register a [`CameraPresenceListener`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraPresenceListener) using [`cameraProvider.addCameraPresenceListener`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraProvider#addCameraPresenceListener(java.util.concurrent.Executor,androidx.camera.core.CameraPresenceListener)) instead of opening the camera immediately when the glasses connect. Asynchronous setup between the glasses and host must finish before the OS finishes recreating the glasses' camera, and the glasses' camera can also disappear dynamically while connected (such as during thermal mitigation).
+  - **Camera addition (`onCamerasAdded`):** Fires after [`availableCameraInfos`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraProvider#availableCameraInfos()) is updated with the added camera, avoiding timing races during setup.
+  - **Camera removal (`onCamerasRemoved`):** Tracks camera presence rather than in-use state, so unbinding there releases resources only when the glasses' camera is removed instead of reacting when your own app opens the camera.
+- **Clean up on disconnect:** The clean-up closure returned to [`monitorProjectedDeviceConnectivity`](https://developer.android.com/develop/xr/jetpack-xr-sdk/access-hardware-projected-context#phone-activity-service) calls [`removeCameraPresenceListener`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraProvider#removeCameraPresenceListener(androidx.camera.core.CameraPresenceListener)) and `unbindAll()` when the glasses disconnect or the activity is destroyed.
+- **Dynamic camera selection:** Matches the [`CameraIdentifier`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraIdentifier) passed to `onCamerasAdded` against `availableCameraInfos` using `isOf` to select the glasses' camera dynamically.
+- **Custom resolution:** Builds a [`ResolutionSelector`](https://developer.android.com/reference/kotlin/androidx/camera/core/resolutionselector/ResolutionSelector) targeting an example 16:9 aspect ratio and your preferred resolution (falling back to the closest lower supported size) for `ImageCapture`. Supported aspect ratios and resolutions vary across glasses devices and modes (such as 4:3 and 16:9), so query [`StreamConfigurationMap`](https://developer.android.com/reference/kotlin/android/hardware/camera2/params/StreamConfigurationMap) if you need to check exact supported sizes.
+- **Lifecycle binding:** Binds `ImageCapture` to the `LifecycleOwner`, automatically managing camera open and close transitions with the activity's lifecycle.
+- **Configuring for single-stream hardware:** The glasses' camera pipeline is constrained to a single active stream at a time. When `ImageCapture` is bound alone, CameraX attaches an internal repeating stream (`MeteringRepeating`) for focus and metering by default, which causes the single-stream pipeline to stall. Pass [`setRepeatingStreamForced(false)`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Builder#setRepeatingStreamForced(kotlin.Boolean)) in the `CameraXConfig` passed to `LifecycleCameraProvider.createInstance` so `ImageCapture` can bind without a preview stream.
 
 After the glasses' camera is set up, you can capture an image with the CameraX's
 `ImageCapture` class. Refer to the CameraX's documentation to learn about using
@@ -338,7 +446,7 @@ set a higher upper bound (`maxFps`) as a catch-up window:
 
 ```kotlin
 val maxFpsBySize = getMaxFpsBySize(cameraInfo, ImageFormat.YUV_420_888)
-val maxSupportedFps = maxFpsBySize[Size(640, 480)] ?: return ImageAnalysis.Builder().build()
+val maxSupportedFps = maxFpsBySize[size] ?: return ImageAnalysis.Builder().build()
 
 // minFps is the target streaming frame rate and should be at most maxSupportedFps.
 val minFps = minOf(desiredFps, maxSupportedFps)
@@ -364,15 +472,6 @@ To configure the frame rate range based on your CameraX use case:
 
 
 ```kotlin
-// Configure Resolution Strategy for the stream
-val resolutionStrategy = ResolutionStrategy(
-    size,
-    ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
-)
-val resolutionSelector = ResolutionSelector.Builder()
-    .setResolutionStrategy(resolutionStrategy)
-    .build()
-
 // Create and return the ImageAnalysis builder with proper frame rate ranges
 // ImageAnalysis: OCR, AI streaming, and VPS
 val analysisBuilder = ImageAnalysis.Builder()
@@ -411,14 +510,10 @@ the host device's (phone) context:
 
 ```kotlin
 @OptIn(ExperimentalProjectedApi::class)
-private fun getPhoneContext(activity: ComponentActivity): Context? {
-    return try {
-        // From a projected Activity, get a context for the phone.
-        ProjectedContext.createHostDeviceContext(activity)
-    } catch (e: IllegalStateException) {
-        Log.e(TAG, "Failed to create host device context", e)
-        null
-    }
+fun getHostDeviceContext(context: Context): Context {
+    // Obtain the host device (phone) context.
+    // The `context` argument passed in can be any context (projected, host, Service, or App).
+    return ProjectedContext.createHostDeviceContext(context)
 }
 ```
 

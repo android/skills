@@ -11,7 +11,7 @@ description: Configures and implements LiteRT (.tflite) on-device inference on A
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-11-10'
+  last-updated: '2026-11-17'
   keywords:
   - LiteRT
   - CompiledModel

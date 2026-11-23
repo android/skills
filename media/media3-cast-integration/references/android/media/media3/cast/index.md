@@ -5,6 +5,19 @@ playback on the [receiver](https://developers.google.com/cast/glossary#receiver)
 Media3](https://developer.android.com/guide/topics/media/media3) library, so you can use the same `Player` interface and UI
 components for both local and remote playback.
 
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/media/media3-cast-integration)
+
+### Integrate Media3 Cast
+
+Use the Media3 Cast [Android skill](https://developer.android.com/tools/agents/android-skills) to implement Google Cast support in your app. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add media3-cast-integration
+
+<br />
+
 ## Media3 CastPlayer
 
 The `CastPlayer` is a media player API included in Media3 that supports both

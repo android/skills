@@ -29,7 +29,7 @@ Use this checklist to verify that every technical requirement between your
 ## PBL v7.x Series
 
 - \[ \] **SDK Compliance** : `compileSdk` is set to 34 or higher.
-- \[ \] **Pending Purchases** : Replace parameterless `enablePendingPurchases()` with `enablePendingPurchases(PendingPurchaseParams)`.
+- \[ \] **Pending Purchases** : Replace parameterless `enablePendingPurchases()` with `enablePendingPurchases(PendingPurchasesParams)`.
 - \[ \] **API Cleanup** : Replace `setOldSkuPurchaseToken()` with `setOldPurchaseToken()`.
 
 ## PBL v8.x Series

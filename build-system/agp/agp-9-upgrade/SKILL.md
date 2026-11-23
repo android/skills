@@ -6,7 +6,7 @@ description: Upgrades, or migrates, an Android project to use Android Gradle Plu
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-11-10'
+  last-updated: '2026-11-21'
   keywords:
   - Android Gradle Plugin 9
   - AGP 9

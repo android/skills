@@ -211,9 +211,9 @@ The following table lists the required specifications for image assets:
 
 | Aspect ratio | Supported cluster(s) | Minimum pixels | Recommended pixels |
 |---|---|---|---|
-| Square (1x1) | All clusters | 300x300 | 1200x1200 |
-| Landscape (1.91x1) | Featured and continuation | 600x314 | 1200x628 |
-| Portrait (4x5) | Recommendation | 480x600 | 960x1200 |
+| Square (1x1) | All clusters (preferred for audiobooks in non-featured clusters) | 300x300 | 1200x1200 |
+| Landscape (16:9, 1.91x1) | Featured and continuation (16:9 preferred for featured clusters) | 640x360 (16:9) / 600x314 (1.91x1) | 1264x712 (16:9) / 1200x628 (1.91x1) |
+| Portrait (4x5) | Recommendation and continuation (preferred for ebooks and book series) | 480x600 | 960x1200 |
 
 *File formats*
 
